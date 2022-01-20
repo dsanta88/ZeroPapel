@@ -1,17 +1,164 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+@inject ServicioSingleton singleton
 
-    <div class="main">
-        <div class="top-row px-4">
-            <a href="http://blazor.net" target="_blank" class="ml-md-auto">About</a>
-        </div>
 
-        <div class="content px-4">
-            @Body
+<div class="wrapper">
+
+    <!-- Navbar -->
+    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+        <!-- Left navbar links -->
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+            </li>
+
+            <li class="nav-item d-none d-sm-inline-block">
+                <a class="nav-link">
+
+
+                </a>
+            </li>
+        </ul>
+
+
+        <!-- Right navbar links -->
+        <ul class="navbar-nav ml-auto">
+            <!-- Messages Dropdown Menu -->
+            <!-- Notifications Dropdown Menu -->
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="/login" class="nav-link">
+                    <i class="nav-icon fa fa-power-off"></i>
+                    <label>Cerrar Sesión</label>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- /.navbar -->
+    <!-- Main Sidebar Container -->
+    <aside class="main-sidebar sidebar-dark-success bg-green elevation-4">
+        <!-- Brand Logo -->
+        <a href="/index" class="brand-link bg-green">
+            <img src="@singleton.EmpresaLogo" alt="" class="brand-image img-circle elevation-3"
+                 style="opacity: .8">
+            <span class="brand-text font-weight-light">@singleton.EmpresaNombre</span>
+        </a>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Sidebar user panel (optional) -->
+            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                <div class="info">
+                    <a href="/index" class="d-block">@singleton.Email</a>
+                </div>
+            </div>
+
+            <!-- Sidebar Menu -->
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                    <!-- Add icons to the links using the .nav-icon class
+                    with font-awesome or any other icon font library -->
+
+                    <li class="nav-item has-treeview menu-open">
+                        <a class="nav-link">
+                            <i class="nav-icon fas fa-cog"></i>
+                            <p>
+                                Configuraciones
+                                <i class="fas fa-angle-left right"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+
+                            <li class="nav-item">
+                                <a href="/indexroles" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Roles</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/indexcargos" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Cargos</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/indexusuarios" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Usuarios</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="/indexmenu" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Menu</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="/indexausentismostipos" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Tipos de ausentimos</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="/indexparametros" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Parámetros</p>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </li>
+
+                    <li class="nav-item has-treeview menu-open">
+                        <a class="nav-link">
+                            <i class="nav-icon fas fa-cog"></i>
+                            <p>
+                                Ausentismos
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="/formAusentismossolicitudes" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Solicitud</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/indexausentismossolicitudes" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Historico Solicitudes</p>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </li>
+
+                </ul>
+            </nav>
+
+
+
+            <!-- /.sidebar-menu -->
         </div>
+        <!-- /.sidebar -->
+    </aside>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <app>
+            <div class="card-body">
+                @Body
+            </div>
+        </app>
     </div>
+    <!-- Control Sidebar -->
+    <aside class="control-sidebar control-sidebar-dark">
+        <!-- Control sidebar content goes here -->
+    </aside>
+    <!-- /.control-sidebar -->
 </div>

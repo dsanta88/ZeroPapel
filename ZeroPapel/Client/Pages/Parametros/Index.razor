@@ -1,0 +1,65 @@
+﻿@page "/indexparametros"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json;
+@inject ServicioSingleton singleton
+<div class="row alert bg-info">
+    <div class="col-md-5">
+        <h5> <b>PARAMETROS</b></h5>
+    </div>
+</div>
+
+
+<RadzenGrid AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="20"
+            AllowSorting="true" Data="@list" TItem="Parametro" ColumnWidth="200px">
+    <Columns>
+        <RadzenGridColumn TItem="Parametro" Property="Nombre" Title="Nombre" Width="60%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Parametro" Property="Valor" Title="Valor" Width="100%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Parametro" Property="TipoDato" Title="TipoDato" Width="30%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Parametro" Property="Descripcion" Title="Descripcion" Width="80%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Parametro" Context="Parametro" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100%">
+            <Template Context="Parametro">
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="edit" Text="Editar" Size="ButtonSize.Medium" Click="@((args) =>Edit(Parametro.Id))">
+                </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
+
+    </Columns>
+</RadzenGrid>
+
+
+
+
+
+@code {
+
+
+    List<Parametro> list;
+    Response response = new Response();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await LoadData();
+    }
+
+    protected async Task LoadData()
+    {
+
+        response = await Http.GetFromJsonAsync<Response>($"api/parametros/getparametros/{singleton.EmpresaId}");
+        if (response.IsSuccessful)
+        {
+            list = JsonConvert.DeserializeObject<List<Parametro>>(response.Data.ToString());
+        }
+
+    }
+
+
+    public void Edit(int id)
+    {
+        navigationManager.NavigateTo("/formparametros/" + id);
+    }
+
+}

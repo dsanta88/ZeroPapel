@@ -1,0 +1,87 @@
+﻿@page "/indexcargos"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json;
+@inject ServicioSingleton singleton
+
+
+<div class="row alert bg-info">
+    <div class="col-md-5">
+        <h5> <b>CARGOS</b></h5>
+    </div>
+</div>
+
+
+<div class="col-md-2">
+    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_box" Text="Nuevo" Size="ButtonSize.Medium" Click="@Add">
+    </RadzenButton>
+</div>
+
+<RadzenGrid AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="20"
+            AllowSorting="true" Data="@list" TItem="Cargo" ColumnWidth="200px">
+    <Columns>
+        <RadzenGridColumn TItem="Cargo" Property="Codigo" Title="Código" Width="100%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Cargo" Property="Nombre" Title="Nombre" Width="100%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Cargo" Property="EstadoDescripcion" Title="Estado" Width="100%"></RadzenGridColumn>
+        
+
+        <RadzenGridColumn TItem="Cargo" Context="Cargo" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100%">
+            <Template Context="Cargo">
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="edit" Text="Editar" Size="ButtonSize.Medium" Click="@((args) =>Edit(Cargo.Id))">
+                </RadzenButton>
+
+                @*<RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Eliminar" Size="ButtonSize.Medium" Click="@((args) =>Delete(Cargo.Id))">
+                </RadzenButton>*@
+            </Template>
+        </RadzenGridColumn>
+
+    </Columns>
+</RadzenGrid>
+
+
+
+
+
+@code {
+
+
+    List<Cargo> list;
+    Response response = new Response();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    protected async Task LoadData()
+    {
+        response = await Http.GetFromJsonAsync<Response>($"api/cargos/{singleton.EmpresaId}/-1");
+        if (response.IsSuccessful)
+        {
+            list = JsonConvert.DeserializeObject<List<Cargo>>(response.Data.ToString());
+        }
+
+    }
+
+
+    public void Add()
+    {
+        navigationManager.NavigateTo("/formcargos");
+    }
+
+
+    public void Edit(int id)
+    {
+        navigationManager.NavigateTo("/formcargos/" + id);
+    }
+
+
+
+
+    public void Delete(int id)
+    {
+        navigationManager.NavigateTo("/deletecargos/" + id);
+    }
+}

@@ -1,0 +1,143 @@
+﻿@page "/deleteroles/{Id:int}"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json;
+
+<div class="row alert bg-info">
+    <div class="row col-md-1">
+
+    </div>
+    <div class="col-md-5">
+        <h5> <b>ELIMINAR ROL</b></h5>
+    </div>
+</div>
+
+
+<div class="row alert bg-warning">
+    <div class="row col-md-1">
+
+    </div>
+    <div class="col-md-5">
+        <MatThemeProvider>
+            <MatIcon Icon="warning"> </MatIcon> Esta  seguro de eliminar el rol?
+        </MatThemeProvider>
+    </div>
+</div>
+
+
+@if (msgError != null)
+{
+    <div class="row alert bg-danger">
+        <div class="row col-md-1">
+
+        </div>
+        <div class="col-md-5">
+            <MatThemeProvider>
+                <MatIcon Icon="cancel"> </MatIcon>   @msgError
+            </MatThemeProvider>
+        </div>
+    </div>
+}
+
+
+<EditForm Model="@model" OnValidSubmit="DeleteItem">
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <MatStringField @bind-Value="@model.Codigo" Label="Código" Style="width:100%" Disabled="true"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <MatStringField @bind-Value="@model.Nombre" Label="Descripción" Style="width:100%" Disabled="true"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <MatStringField @bind-Value="@model.EstadoDescripcion" Label="Estado" Style="width:100%" Disabled="true"></MatStringField>
+        </div>
+    </div>
+    <br />
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            <MatThemeProvider Theme="@theme3">
+                <MatButton Raised="true" Icon="cancel" @onclick="Cancelar">Cancelar</MatButton>
+            </MatThemeProvider>
+        </div>
+        <div class="col-md-2">
+            <MatThemeProvider Theme="@theme1">
+                <MatButton Raised="true" Icon="check_circle" Type="submit">Aceptar</MatButton>
+            </MatThemeProvider>
+        </div>
+    </div>
+</EditForm>
+<br />
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    public Rol model = new Rol();
+    Response response = new Response();
+    string msgError = null;
+
+    MatTheme theme1 = new MatTheme()
+    {
+        Primary = "green",
+    };
+    MatTheme theme3 = new MatTheme()
+    {
+        Primary = "red",
+    };
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    protected async Task DeleteItem()
+    {
+   
+        var result = await Http.DeleteAsync($"api/roles/{Id}");
+        response = result.Content.ReadFromJsonAsync<Response>().Result;
+
+
+        if (response.IsSuccessful)
+        {
+            navigationManager.NavigateTo("/indexroles");
+        }
+        else
+        {
+            msgError = response.Message;
+        }
+
+    }
+
+    protected async Task Cancelar()
+    {
+        navigationManager.NavigateTo("/indexroles");
+    }
+
+
+    protected async Task LoadData()
+    {
+        if (Id > 0)
+        {
+            response = await Http.GetFromJsonAsync<Response>($"api/roles/{Id}");
+            if (response.IsSuccessful)
+            {
+                model = JsonConvert.DeserializeObject<Rol>(response.Data.ToString());
+            }
+        }
+    }
+}

@@ -1,0 +1,348 @@
+﻿@page "/formusuarios"
+@page "/formusuarios/{Id:int}"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json
+@inject ServicioSingleton singleton
+@inject IJSRuntime js
+
+
+<div class="row alert bg-info">
+    <div class="row col-md-1">
+
+    </div>
+    <div class="col-md-5">
+        <h5> <b>@titulo</b></h5>
+    </div>
+</div>
+
+
+<EditForm Model="@model" OnValidSubmit="Save">
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.Nombres" Label="Nombre" Style="width:100%" Required="true"></MatStringField>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.Apellidos" Label="Apellido" Style="width:100%" Required="true"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.Identificacion" Label="Identificacion" Style="width:100%" Required="true"></MatStringField>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.CodigoInterno" Label="Código Interno" Style="width:100%"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <p><b>Fecha Nacimiento</b></p>
+            <MatDatePicker @bind-Value="@model.FechaNacimiento" Format="MMMM dd, yyyy"></MatDatePicker>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+
+            <MatSelect Label="Sexo" @bind-Value="model.Sexo">
+                <MatOptionString></MatOptionString>
+                <MatOptionString Value="M">MASCULINO</MatOptionString>
+                <MatOptionString Value="F">FEMENINO</MatOptionString>
+            </MatSelect>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatTextField @bind-Value="@model.NivelUsuario" Label="NivelUsuario" Style="width:100%"></MatTextField>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatTextField @bind-Value="@model.Salario" Label="Salario" Style="width:100%"></MatTextField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.Email" Label="Email" Type="email" Style="width:100%"></MatStringField>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.Clave" Label="Clave" Type="password" Style="width:100%"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <a>Cargo</a>
+            <RadzenDropDown AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Value="model.CargoId" Multiple="false" Placeholder="[SELECCIONAR]" Data="@listCargos" TextProperty="Nombre" ValueProperty="Id"
+                            Style="width:100%" />
+
+
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <a>Jefe Inmediato</a>
+            <RadzenDropDown AllowClear="true"
+                            AllowFiltering="true"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            @bind-Value="model.JefeUsuarioId"
+                            Multiple="false"
+                            Placeholder="[SELECCIONAR]"
+                            Data="@listJefes"
+                            TextProperty="NombreCompleto"
+                            ValueProperty="Id"
+                            Style="width:100%" />
+
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <a>Rol</a>
+            <div class="col-md-5">
+                <RadzenDropDown AllowClear="true"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                @bind-Value="ComboMultipleValues"
+                                Multiple="true"
+                                Placeholder="Select..."
+                                Data="@listRoles"
+                                TextProperty="Nombre"
+                                ValueProperty="Id"
+                                Change="@(args => ComboChange(args))"
+                                Style="margin-bottom: 20px; width:400px;" />
+            </div>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <p><b>Roles seleccionados</b></p>
+            <MatTextField @bind-Value="@model.RolNombre" Required="true" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <p><b>Fecha Ingreso</b></p>
+            <MatDatePicker @bind-Value="@model.FechaIngreso" Format="MMMM dd, yyyy"></MatDatePicker>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <p><b>Fecha Retiro</b></p>
+            <MatDatePicker @bind-Value="@model.FechaRetiro" Format="MMMM dd, yyyy"></MatDatePicker>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.Celular" Label="Celular" Style="width:100%"></MatStringField>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.Direccion" Label="Direccion" Style="width:100%"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.Observacion" Label="Observacion" Style="width:100%"></MatStringField>
+        </div>
+    </div>
+    <br />
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatSelect Label="Estado" @bind-Value=@model.Estado Required="true">
+                <MatOption Value=true>ACTIVO</MatOption>
+                <MatOption Value=false>INACTIVO</MatOption>
+            </MatSelect>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            <MatThemeProvider Theme="@theme3">
+                <MatButton Raised="true" Icon="cancel" @onclick="Cancelar">Cancelar</MatButton>
+            </MatThemeProvider>
+        </div>
+        <div class="col-md-2">
+
+            <MatThemeProvider Theme="@theme1">
+                <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
+            </MatThemeProvider>
+        </div>
+    </div>
+</EditForm>
+<br />
+@code {
+
+    [Parameter] public int Id { get; set; }
+
+
+    public Usuario model = new Usuario();
+    Response response = new Response();
+    string titulo = "";
+    string msgError = null;
+    IEnumerable<int> ComboMultipleValues = new int[] { };
+
+    List<Cargo> listCargos = new List<Cargo>();
+    List<Usuario> listJefes = new List<Usuario>();
+    List<Rol> listRoles = new List<Rol>();
+
+    MatTheme theme1 = new MatTheme()
+    {
+        Primary = "green",
+    };
+    MatTheme theme3 = new MatTheme()
+    {
+        Primary = "red",
+    };
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await LoadData();
+    }
+
+    void ComboChange(object value)
+    {
+        List<Rol> lst = listRoles;
+        List<Rol> lstAux = new List<Rol>();
+        model.RolNombre = "";
+        foreach (var item in ComboMultipleValues)
+        {
+            Rol rol = lst.Where(x => x.Id == Convert.ToInt32(item)).FirstOrDefault();
+            lstAux.Add(rol);
+        }
+        foreach (var item in lstAux.OrderBy(x => x.Id))
+        {
+            model.RolNombre += item.Nombre + ",";
+        }
+    }
+
+    protected async Task Save()
+    {
+        model.EmpresaId = singleton.EmpresaId;
+        if (model.FechaRetiro <= Convert.ToDateTime("1900-01-01"))
+        {
+            model.FechaRetiro = Convert.ToDateTime("1900-01-01");
+        }
+
+        msgError = null;
+
+        if (model.Sexo == null)
+        {
+            msgError = "Debe seleccionar el sexo.";
+        }
+
+        foreach (var item in ComboMultipleValues)
+        {
+            model.RolIds += item.ToString() + ",";
+        }
+
+
+
+        if (msgError == null)
+        {
+            if (Id != 0)
+            {
+
+                var result = await Http.PostAsJsonAsync<Usuario>($"api/usuarios/edit", model);
+                response = result.Content.ReadFromJsonAsync<Response>().Result;
+            }
+            else
+            {
+                //model.AreaId = IdEmpresa;
+                var result = await Http.PostAsJsonAsync<Usuario>($"api/usuarios", model);
+                response = result.Content.ReadFromJsonAsync<Response>().Result;
+            }
+
+            if (response.IsSuccessful)
+            {
+                navigationManager.NavigateTo("/indexEmpleados");
+            }
+            else
+            {
+                await js.InvokeAsync<string>("MensajeAlerta", response.Message);
+            }
+        }
+        else
+        {
+            await js.InvokeAsync<string>("MensajeAlerta", msgError);
+        }
+
+    }
+
+    public void Cancelar()
+    {
+        navigationManager.NavigateTo("/indexusuarios");
+    }
+
+
+    protected async Task LoadData()
+    {
+        model=new Usuario();
+        //Cargos
+        response = await Http.GetFromJsonAsync<Response>($"api/cargos/GetCargos/{singleton.EmpresaId}");
+        if (response.IsSuccessful)
+        {
+            listCargos = JsonConvert.DeserializeObject<List<Cargo>>(response.Data.ToString());
+        }
+
+
+        //Jefes
+        response = await Http.GetFromJsonAsync<Response>($"api/usuarios/getusuarios/{singleton.EmpresaId}");
+        if (response.IsSuccessful)
+        {
+            listJefes = JsonConvert.DeserializeObject<List<Usuario>>(response.Data.ToString());
+            listJefes = listJefes.Where(x => x.Estado == true).ToList();
+        }
+
+        //Roles
+        response = await Http.GetFromJsonAsync<Response>($"api/roles/getroles/{singleton.EmpresaId}");
+        if (response.IsSuccessful)
+        {
+            listRoles = JsonConvert.DeserializeObject<List<Rol>>(response.Data.ToString());
+            listRoles = listRoles.Where(x => x.Estado == true).ToList();
+        }
+
+
+
+        if (Id > 0)
+        {
+            titulo = "EDITAR USUARIO";
+            response = await Http.GetFromJsonAsync<Response>($"api/usuarios/{Id}");
+            if (response.IsSuccessful)
+            {
+                model = JsonConvert.DeserializeObject<Usuario>(response.Data.ToString());
+            }
+
+        }
+        else
+        {
+            model.Estado = true;
+            model.FechaIngreso = DateTime.Now;
+            titulo = "NUEVO USUARIO";
+
+        }
+    }
+}

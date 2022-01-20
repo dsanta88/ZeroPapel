@@ -1,0 +1,154 @@
+﻿@page "/formausentismostipos"
+@page "/formausentismostipos/{Id:int}"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json;
+@inject ServicioSingleton singleton
+
+
+
+<div class="row alert bg-info">
+    <div class="row col-md-1">
+
+    </div>
+    <div class="col-md-5">
+        <h5> <b>@titulo</b></h5>
+    </div>
+</div>
+
+@if (msgError != null)
+{
+    <div class="row alert bg-danger">
+        <div class="row col-md-1">
+
+        </div>
+        <div class="col-md-5">
+            <MatThemeProvider>
+                <MatIcon Icon="cancel"> </MatIcon>   @msgError
+            </MatThemeProvider>
+        </div>
+    </div>
+}
+
+
+
+<EditForm Model="@model" OnValidSubmit="Save">
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <MatStringField @bind-Value="@model.Nombre" Label="Nombre" Style="width:100%" Required="true"></MatStringField>
+        </div>
+    </div>
+
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <MatSelect Label="Estado" @bind-Value=@model.Estado Required="true">
+                <MatOption Value=true>ACTIVO</MatOption>
+                <MatOption Value=false>INACTIVO</MatOption>
+            </MatSelect>
+        </div>
+    </div>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            <MatThemeProvider Theme="@theme3">
+                <MatButton Raised="true" Icon="cancel" @onclick="Cancelar">Cancelar</MatButton>
+            </MatThemeProvider>
+        </div>
+        <br />
+        <div class="col-md-2">
+
+            <MatThemeProvider Theme="@theme1">
+                <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
+            </MatThemeProvider>
+        </div>
+    </div>
+</EditForm>
+<br />
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+    string titulo = "";
+    string msgError = null;
+    public AusentismoTipo model = new AusentismoTipo();
+    Response response = new Response();
+
+    MatTheme theme1 = new MatTheme()
+    {
+        Primary = "green",
+    };
+    MatTheme theme3 = new MatTheme()
+    {
+        Primary = "red",
+    };
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    protected async Task Save()
+    {
+        model.EmpresaId = singleton.EmpresaId;
+        model.Nombre = model.Nombre.ToUpper();
+
+        if (Id != 0)
+        {
+
+            var result = await Http.PostAsJsonAsync<AusentismoTipo>($"api/ausentismostipos/edit", model);
+            response = result.Content.ReadFromJsonAsync<Response>().Result;
+        }
+        else
+        {
+            var result = await Http.PostAsJsonAsync<AusentismoTipo>($"api/ausentismostipos", model);
+            response = result.Content.ReadFromJsonAsync<Response>().Result;
+        }
+
+
+        if (response.IsSuccessful)
+        {
+            navigationManager.NavigateTo("/indexausentismostipos");
+        }
+        else
+        {
+            msgError = response.Message;
+        }
+    }
+
+    protected async Task Cancelar()
+    {
+        navigationManager.NavigateTo("/indexausentismostipos");
+    }
+
+
+    protected async Task LoadData()
+    {
+
+
+        if (Id > 0)
+        {
+            titulo = "EDITAR TIPO DE AUSENTISMO";
+            response = await Http.GetFromJsonAsync<Response>($"api/ausentismostipos/{Id}");
+            if (response.IsSuccessful)
+            {
+                model = JsonConvert.DeserializeObject<AusentismoTipo>(response.Data.ToString());
+            }
+        }
+        else
+        {
+            model.Estado = true;
+            titulo = "NUEVO TIPO DE AUSENTISMO";
+        }
+    }
+
+
+}

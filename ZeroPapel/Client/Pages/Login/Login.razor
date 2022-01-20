@@ -1,0 +1,173 @@
+﻿@page "/"
+@page "/login"
+@layout LayoutLogin
+@inject IJSRuntime js
+@inject NavigationManager navigationManager
+@inject HttpClient Http
+@using MatBlazor
+@using Newtonsoft.Json;
+@using ZeroPapel.Shared
+@inject ServicioSingleton singleton
+
+
+    <div class="row alert" style="        text-align: center;background-color:forestgreen">
+        <br />
+        <div class="col-md-12">
+            <img src="Images/logo-kyrovet.png" class="brand-image img-circle elevation-3"
+                 style="opacity: .8">
+            <br />
+        </div>
+    </div>
+
+
+@*<div class="row alert" style="        text-align: center;background-color:forestgreen">
+    <br />
+    <br />
+    <br />
+    <br />
+
+    <br />
+    <div class="col-md-12">
+
+        <br />
+    </div>
+</div>*@
+<hr />
+<div class="row">
+    <div class="col-md-1">
+    </div>
+
+    <div class="col-md-2">
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <MatDialogTitle Style="text-align: center;background-color:forestgreen"> Login</MatDialogTitle>
+
+            <EditForm Model="@model" OnValidSubmit="Autenticar">
+                <br />
+                <div class="row">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-4">
+                        <a>Email</a>
+                        <MatStringField @bind-Value="@model.Email" Style="width:250px" Type="email" Required="true" Icon="person_pin"></MatStringField>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-4">
+                        <a>Clave</a>
+                        <MatStringField @bind-Value="@model.Clave" Style="width:250px" Required="true" Type="password" Icon="lock"></MatStringField>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-4">
+
+
+                        <MatButton Raised="true" Icon="save" Type="submit" Style="text-align: center;background-color:forestgreen;width:250px">Ingresar</MatButton>
+
+                    </div>
+                </div>
+            </EditForm>
+            <br />
+
+        </div>
+    </div>
+</div>
+
+
+@code {
+
+
+    string key = "userInfo";
+    Response response = new Response();
+    Usuario user = new Usuario();
+    Usuario model = new Usuario();
+    string result = "";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        singleton.UsuarioId = 1;
+        singleton.IsLogueado = false;
+        singleton.EmpresaId = 1;
+        singleton.EmpresaLogo = "Images/logo-kyrovet.png";
+        singleton.EmpresaNombre = "KYROVET";
+        singleton.Email = "santadavid88@gmail.com";
+        //user = new Usuario();
+        //user.IsLogueado = false;
+        //await localStorage.ClearAsync();
+        //user = await localStorage.GetItemAsync<Usuario>(key);
+        //if (user == null)
+        //{
+        //    user = new Usuario();
+        //}
+    }
+
+
+    protected async Task Autenticar()
+    {
+
+        try
+        {
+            result = "";
+
+            if (model.Email == null || model.Email == "")
+            {
+                result = "El email es obligatorio.";
+            }
+            else if (model.Clave == null || model.Clave == "")
+            {
+                result = "La clave es obligatoria.";
+            }
+            if (result == "")
+            {
+                navigationManager.NavigateTo("/index");
+                //Usuario user = new Usuario();
+                //response = await Http.GetFromJsonAsync<Response>($"api/usuarios/Autenticar/{model.Email}/{model.Clave}");
+                //if (response.IsSuccessful)
+                //{
+                //    user = JsonConvert.DeserializeObject<Usuario>(response.Data.ToString());
+                //}
+
+
+                //if (user.Id > 0)
+                //{
+                //    if (user.Estado)
+                //    {
+                //        result = "";
+                //        singleton.IsLogueado = true;
+                //        singleton.UsuarioId = user.Id;
+                //        singleton.NombreUsuario = user.PrimerApellido+" "+ user.SegundoApellido+" " + user.PrimerNombre+" "+user.SegundoNombre;
+                //        singleton.Email = user.Email;
+                //        singleton.Rol = user.Rol;
+
+                //        navigationManager.NavigateTo("/index");
+                //    }
+                //    else
+                //    {
+                //        result = "El usuario " + user.Email + " esta INACTIVO.";
+                //    }
+
+                //}
+                //else
+                //{
+                //    result = "Usuario o Password no valido";
+                //}
+            }
+        }
+        catch (Exception ex)
+        {
+            result = ex.Message;
+        }
+
+        StateHasChanged();
+        if (result != "" && result != null)
+        {
+            await js.InvokeAsync<string>("MensajeAlerta", result);
+        }
+    }
+}
+

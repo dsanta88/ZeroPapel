@@ -1,7 +1,15 @@
-﻿@page "/"
+﻿@page "/index"
+@inject NavigationManager navigationManager
+@inject ServicioSingleton singleton
 
-<h1>Hello, world!</h1>
+<h3>Bienvenidos</h3>
 
-Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+
+@code
+{
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+}
