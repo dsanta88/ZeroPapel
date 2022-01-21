@@ -51,9 +51,12 @@ namespace ZeroPapel.Server.Data
                             obj.CargoId = Convert.ToInt32(item["CargoId"].ToString());
                             obj.CargoNombre = item["CargoNombre"].ToString();
                             obj.JefeUsuarioId = Convert.ToInt32(item["JefeUsuarioId"].ToString());
+                            obj.JefeUsuarioNombre = item["JefeUsuarioNombre"].ToString();
+                            obj.UsuarioNivelId = Convert.ToInt32(item["UsuarioNivelId"].ToString());
+                            obj.UsuarioNivelDescripcion = item["UsuarioNivelDescripcion"].ToString();
                             obj.Apellidos = item["Apellidos"].ToString();
                             obj.Nombres = item["Nombres"].ToString();
-                            obj.NombreCompleto = obj.Apellidos + " " + obj.Nombres;
+                            obj.NombreCompleto = item["NombreCompleto"].ToString();
                             obj.Identificacion = item["Identificacion"].ToString();
                             obj.FechaNacimiento =Convert.ToDateTime(item["FechaNacimiento"].ToString());
                             obj.CodigoInterno = item["CodigoInterno"].ToString();
@@ -76,7 +79,7 @@ namespace ZeroPapel.Server.Data
                             {
                                 obj.EstadoDescripcion = "INACTIVO";
                             }
-                            obj.NivelUsuario = Convert.ToInt32(item["NivelUsuario"].ToString());
+                           
                             obj.FotoUrl = item["FotoUrl"].ToString();
                             obj.Celular = item["Celular"].ToString();
                             obj.Email = item["Email"].ToString();
@@ -116,14 +119,15 @@ namespace ZeroPapel.Server.Data
             {
 
 
-        //public int  { get; set; }
-        //public DateTime FechaRegistro { get; set; }
+
+
 
         comandoSQL.CommandType = CommandType.StoredProcedure;
                 comandoSQL.CommandText = "sp_usuarios_ingresar";
                 comandoSQL.Parameters.AddWithValue("@EmpresaId", model.EmpresaId);
                 comandoSQL.Parameters.AddWithValue("@CargoId", model.CargoId);
                 comandoSQL.Parameters.AddWithValue("@JefeUsuarioId", model.JefeUsuarioId);
+                comandoSQL.Parameters.AddWithValue("@UsuarioNivelId", model.UsuarioNivelId);
                 comandoSQL.Parameters.AddWithValue("@Apellidos", model.Apellidos);
                 comandoSQL.Parameters.AddWithValue("@Nombres", model.Nombres);
                 comandoSQL.Parameters.AddWithValue("@Identificacion", model.Identificacion);
@@ -131,7 +135,6 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Parameters.AddWithValue("@CodigoInterno", model.CodigoInterno);
                 comandoSQL.Parameters.AddWithValue("@Sexo", model.Sexo);
                 comandoSQL.Parameters.AddWithValue("@Estado", model.Estado);
-                comandoSQL.Parameters.AddWithValue("@NivelUsuario", model.NivelUsuario);
                 comandoSQL.Parameters.AddWithValue("@FotoUrl", model.FotoUrl);
                 comandoSQL.Parameters.AddWithValue("@Celular", model.Celular);
                 comandoSQL.Parameters.AddWithValue("@Email", model.Email);
@@ -142,6 +145,7 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Parameters.AddWithValue("@FechaRetiro", model.FechaRetiro);
                 comandoSQL.Parameters.AddWithValue("@Salario", model.Salario);
                 comandoSQL.Parameters.AddWithValue("@UsuarioRegistroId", model.UsuarioRegistroId);
+        
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.Connection.Open();
                 comandoSQL.ExecuteNonQuery();
@@ -174,6 +178,7 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Parameters.AddWithValue("@EmpresaId", model.EmpresaId);
                 comandoSQL.Parameters.AddWithValue("@CargoId", model.CargoId);
                 comandoSQL.Parameters.AddWithValue("@JefeUsuarioId", model.JefeUsuarioId);
+                comandoSQL.Parameters.AddWithValue("@UsuarioNivelId", model.UsuarioNivelId);
                 comandoSQL.Parameters.AddWithValue("@Apellidos", model.Apellidos);
                 comandoSQL.Parameters.AddWithValue("@Nombres", model.Nombres);
                 comandoSQL.Parameters.AddWithValue("@Identificacion", model.Identificacion);
@@ -181,7 +186,6 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Parameters.AddWithValue("@CodigoInterno", model.CodigoInterno);
                 comandoSQL.Parameters.AddWithValue("@Sexo", model.Sexo);
                 comandoSQL.Parameters.AddWithValue("@Estado", model.Estado);
-                comandoSQL.Parameters.AddWithValue("@NivelUsuario", model.NivelUsuario);
                 comandoSQL.Parameters.AddWithValue("@FotoUrl", model.FotoUrl);
                 comandoSQL.Parameters.AddWithValue("@Celular", model.Celular);
                 comandoSQL.Parameters.AddWithValue("@Email", model.Email);
@@ -240,6 +244,55 @@ namespace ZeroPapel.Server.Data
 
             return true;
         }
+
+        public Usuario UsuarioAutenticar(string email, string clave)
+        {
+            DataSet ds = new DataSet();
+            SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
+            SqlCommand comandoSQL = new SqlCommand();
+            SqlDataAdapter adaptadorSQL = new SqlDataAdapter();
+            Usuario obj = new Usuario();
+            try
+            {
+                comandoSQL.Connection = conexionSQL;
+                comandoSQL.CommandType = CommandType.StoredProcedure;
+                comandoSQL.CommandText = "sp_usuarios_autenticar";
+                comandoSQL.Parameters.AddWithValue("@Email", email);
+                comandoSQL.Parameters.AddWithValue("@Clave", clave);
+                adaptadorSQL.SelectCommand = comandoSQL;
+                adaptadorSQL.Fill(ds);
+
+                if (ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow item in ds.Tables[0].Rows)
+                        {
+                            obj.Id = Convert.ToInt32(item["Id"].ToString());
+                            obj.EmpresaId = Convert.ToInt32(item["EmpresaId"].ToString());
+                            obj.CargoId = Convert.ToInt32(item["CargoId"].ToString());
+                            obj.JefeUsuarioId = Convert.ToInt32(item["JefeUsuarioId"].ToString());
+                            obj.NombreCompleto = item["NombreCompleto"].ToString();
+                            obj.Email = item["Email"].ToString();
+                            obj.Estado = Convert.ToBoolean(item["Estado"].ToString());
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                LogEventosIngresar(ex);
+            }
+            finally
+            {
+                comandoSQL.Parameters.Clear();
+                comandoSQL.Connection.Close();
+            }
+
+            return obj;
+        }
+
 
         public bool LogEventosIngresar(Exception ex)
         {

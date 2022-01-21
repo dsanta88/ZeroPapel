@@ -1,0 +1,85 @@
+﻿@page "/indexusuariosniveles"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json;
+@inject ServicioSingleton singleton
+
+
+<div class="row alert bg-info">
+    <div class="col-md-5">
+        <h5> <b>NIVELES DE USUARIO</b></h5>
+    </div>
+</div>
+
+
+<div class="col-md-2">
+    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_box" Text="Nuevo" Size="ButtonSize.Medium" Click="@Add">
+    </RadzenButton>
+</div>
+
+<RadzenGrid AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="20"
+            AllowSorting="true" Data="@list" TItem="UsuarioNivel" ColumnWidth="200px">
+    <Columns>
+        <RadzenGridColumn TItem="UsuarioNivel" Property="Nivel" Title="Nivel" Width="100%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="UsuarioNivel" Property="Descripcion" Title="Descripcion" Width="100%"></RadzenGridColumn>
+        
+        <RadzenGridColumn TItem="UsuarioNivel" Context="Cargo" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100%">
+            <Template Context="UsuarioNivel">
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="edit" Text="Editar" Size="ButtonSize.Medium" Click="@((args) =>Edit(UsuarioNivel.Id))">
+                </RadzenButton>
+
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Eliminar" Size="ButtonSize.Medium" Click="@((args) =>Delete(UsuarioNivel.Id))">
+                </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
+
+    </Columns>
+</RadzenGrid>
+
+
+
+
+
+@code {
+
+
+    List<UsuarioNivel> list;
+    Response response = new Response();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    protected async Task LoadData()
+    {
+        response = await Http.GetFromJsonAsync<Response>($"api/usuariosniveles/{singleton.EmpresaId}/-1");
+        if (response.IsSuccessful)
+        {
+            list = JsonConvert.DeserializeObject<List<UsuarioNivel>>(response.Data.ToString());
+        }
+
+    }
+
+
+    public void Add()
+    {
+        navigationManager.NavigateTo("/formusuariosniveles");
+    }
+
+
+    public void Edit(int id)
+    {
+        navigationManager.NavigateTo("/formusuariosniveles/" + id);
+    }
+
+
+
+
+    public void Delete(int id)
+    {
+        navigationManager.NavigateTo("/deleteusuariosniveles/" + id);
+    }
+}

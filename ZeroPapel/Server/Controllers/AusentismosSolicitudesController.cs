@@ -13,6 +13,7 @@ namespace ZeroPapel.Server.Controllers
     public class AusentismosSolicitudesController : ControllerBase
     {
         AusentismosSolicitudesDA datos = new AusentismosSolicitudesDA();
+        Mensajes mensajes = new Mensajes();
 
         [HttpGet("[action]/{id}/{usuarioId}")]
         public IActionResult GetAusentismosSolicitudes(int id, int usuarioId)
@@ -65,7 +66,7 @@ namespace ZeroPapel.Server.Controllers
                else
                 {
                     response.IsSuccessful = false;
-                    response.Message = "Error al registrar la solicitud del ausentismo. Por favor comuniquese con el área de soporte.";
+                    response.Message = mensajes.msgErrorGuardar();
                 }
                 
             }
@@ -83,8 +84,15 @@ namespace ZeroPapel.Server.Controllers
             Response response = new Response();
             try
             {
-                datos.AusentismosSolicitudesEditar(model);
-                response.IsSuccessful = true;
+                if (datos.AusentismosSolicitudesEditar(model))
+                {
+                    response.IsSuccessful = true;
+                }
+                else
+                {
+                    response.IsSuccessful = false;
+                    response.Message = mensajes.msgErrorEditar();
+                }
             }
             catch (Exception ex)
             {
@@ -100,8 +108,15 @@ namespace ZeroPapel.Server.Controllers
             Response response = new Response();
             try
             {
-                datos.AusentismosSolicitudesEliminar(id);
-                response.IsSuccessful = true;
+                if (datos.AusentismosSolicitudesEliminar(id))
+                {
+                    response.IsSuccessful = true;
+                }
+                else
+                {
+                    response.IsSuccessful = false;
+                    response.Message = mensajes.msgErrorEliminar();
+                }
             }
             catch (Exception ex)
             {

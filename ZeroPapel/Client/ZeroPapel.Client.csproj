@@ -12,6 +12,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.13" PrivateAssets="all" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Radzen.Blazor" Version="3.14.3" />
+    <PackageReference Include="System.Globalization" Version="4.3.0" />
     <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
   </ItemGroup>
 

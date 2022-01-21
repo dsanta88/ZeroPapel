@@ -90,26 +90,12 @@
 
     protected override async Task OnInitializedAsync()
     {
-        singleton.UsuarioId = 1;
         singleton.IsLogueado = false;
-        singleton.EmpresaId = 1;
-        singleton.EmpresaLogo = "Images/logo-kyrovet.png";
-        singleton.EmpresaNombre = "KYROVET";
-        singleton.Email = "santadavid88@gmail.com";
-        //user = new Usuario();
-        //user.IsLogueado = false;
-        //await localStorage.ClearAsync();
-        //user = await localStorage.GetItemAsync<Usuario>(key);
-        //if (user == null)
-        //{
-        //    user = new Usuario();
-        //}
     }
 
 
     protected async Task Autenticar()
     {
-
         try
         {
             result = "";
@@ -122,40 +108,42 @@
             {
                 result = "La clave es obligatoria.";
             }
+
             if (result == "")
             {
-                navigationManager.NavigateTo("/index");
-                //Usuario user = new Usuario();
-                //response = await Http.GetFromJsonAsync<Response>($"api/usuarios/Autenticar/{model.Email}/{model.Clave}");
-                //if (response.IsSuccessful)
-                //{
-                //    user = JsonConvert.DeserializeObject<Usuario>(response.Data.ToString());
-                //}
+                Usuario user = new Usuario();
+                response = await Http.GetFromJsonAsync<Response>($"api/usuarios/Autenticar/{model.Email}/{model.Clave}");
+                if (response.IsSuccessful)
+                {
+                    user = JsonConvert.DeserializeObject<Usuario>(response.Data.ToString());
+                }
 
 
-                //if (user.Id > 0)
-                //{
-                //    if (user.Estado)
-                //    {
-                //        result = "";
-                //        singleton.IsLogueado = true;
-                //        singleton.UsuarioId = user.Id;
-                //        singleton.NombreUsuario = user.PrimerApellido+" "+ user.SegundoApellido+" " + user.PrimerNombre+" "+user.SegundoNombre;
-                //        singleton.Email = user.Email;
-                //        singleton.Rol = user.Rol;
+                if (user.Id > 0)
+                {
+                    if (user.Estado)
+                    {
 
-                //        navigationManager.NavigateTo("/index");
-                //    }
-                //    else
-                //    {
-                //        result = "El usuario " + user.Email + " esta INACTIVO.";
-                //    }
+                        result = "";
+                        singleton.IsLogueado = true;
+                        singleton.UsuarioId = user.Id;
+                        singleton.EmpresaId = user.EmpresaId;
+                        singleton.NombreUsuario = user.NombreCompleto;
+                        singleton.JefeUsuarioId = user.JefeUsuarioId;
+                        singleton.Email = user.Email;
 
-                //}
-                //else
-                //{
-                //    result = "Usuario o Password no valido";
-                //}
+                        navigationManager.NavigateTo("/index");
+                    }
+                    else
+                    {
+                        result = "El usuario " + user.Email + " esta INACTIVO.";
+                    }
+
+                }
+                else
+                {
+                    result = "Usuario o Password no valido";
+                }
             }
         }
         catch (Exception ex)

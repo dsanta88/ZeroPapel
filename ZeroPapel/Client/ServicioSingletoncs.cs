@@ -22,12 +22,15 @@ namespace ZeroPapel.Client
 
         public string EmpresaLogo { get; set; }
 
+        public int JefeUsuarioId { get; set; }
+
         public ServicioSingleton()
         {
             UsuarioId = 0;
             NombreUsuario = "";
             Email = "";
             Rol = "";
+            JefeUsuarioId = 0;
         }
     }
 }

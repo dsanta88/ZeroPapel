@@ -13,14 +13,36 @@ namespace ZeroPapel.Server.Controllers
     public class UsuariosController : ControllerBase
     {
         UsuariosDA datos = new UsuariosDA();
+        Mensajes mensajes = new Mensajes();
 
-        [HttpGet("[action]/{empresaId}")]
-        public IActionResult GetUsuarios(int empresaId)
+
+
+        [HttpGet("[action]/{email}/{clave}")]
+        public IActionResult Autenticar(string email, string clave)
         {
             Response response = new Response();
             try
             {
-                List<Usuario> list = datos.UsuariosObtener(empresaId, -1);
+                Usuario emp = datos.UsuarioAutenticar(email, clave);
+                response.IsSuccessful = true;
+                response.Data = emp;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+            }
+
+            return Ok(response);
+        }
+
+
+        [HttpGet("{empresaId}/{id}")]
+        public IActionResult Get(int empresaId, int id)
+        {
+            Response response = new Response();
+            try
+            {
+                List<Usuario> list = datos.UsuariosObtener(empresaId, id);
                 response.IsSuccessful = true;
                 response.Data = list;
             }
@@ -33,24 +55,6 @@ namespace ZeroPapel.Server.Controllers
         }
 
 
-        [HttpGet("{Id}")]
-        public IActionResult Get(int id)
-        {
-            Response response = new Response();
-            try
-            {
-                Usuario obj = datos.UsuariosObtener(-1, id).ToList().FirstOrDefault();
-                response.IsSuccessful = true;
-                response.Data = obj;
-            }
-            catch (Exception ex)
-            {
-                response.Message = ex.Message;
-            }
-
-            return Ok(response);
-        }
-
 
         [HttpPost]
         public IActionResult Add(Usuario model)
@@ -58,8 +62,15 @@ namespace ZeroPapel.Server.Controllers
             Response response = new Response();
             try
             {
-                datos.UsuariosIngresar(model);
-                response.IsSuccessful = true;
+                if (datos.UsuariosIngresar(model))
+                {
+                    response.IsSuccessful = true;
+                }
+                else
+                {
+                    response.IsSuccessful = false;
+                    response.Message = mensajes.msgErrorGuardar();
+                }
             }
             catch (Exception ex)
             {
@@ -75,8 +86,15 @@ namespace ZeroPapel.Server.Controllers
             Response response = new Response();
             try
             {
-                datos.UsuariosEditar(model);
-                response.IsSuccessful = true;
+                if (datos.UsuariosEditar(model))
+                {
+                    response.IsSuccessful = true;
+                }
+                else
+                {
+                    response.IsSuccessful = false;
+                    response.Message = mensajes.msgErrorEditar();
+                }
             }
             catch (Exception ex)
             {
@@ -92,8 +110,15 @@ namespace ZeroPapel.Server.Controllers
             Response response = new Response();
             try
             {
-                datos.UsuariosEliminar(id);
-                response.IsSuccessful = true;
+                if (datos.UsuariosEliminar(id))
+                {
+                    response.IsSuccessful = true;
+                }
+                else
+                {
+                    response.IsSuccessful = false;
+                    response.Message = mensajes.msgErrorEliminar();
+                }
             }
             catch (Exception ex)
             {

@@ -7,17 +7,18 @@
 @using Newtonsoft.Json;
 @inject ServicioSingleton singleton
 @inject IJSRuntime js
+@using System.Globalization;
 
-<div class="row alert bg-info">
-    <div class="row col-md-1">
+    <div class="row alert bg-info">
+        <div class="row col-md-1">
 
+        </div>
+        <div class="col-md-5">
+            <h5> <b>@titulo</b></h5>
+        </div>
     </div>
-    <div class="col-md-5">
-        <h5> <b>@titulo</b></h5>
-    </div>
-</div>
 
-@if (msgError != null)
+    @if (msgError != null)
     {
         <div class="row alert bg-danger">
             <div class="row col-md-1">
@@ -31,240 +32,259 @@
         </div>
     }
 
-<div class="row alert bg-warning">
-    <div class="row col-md-1">
+    <div class="row alert bg-warning">
+        <div class="row col-md-1">
 
+        </div>
+        <div class="col-md-11">
+            <MatThemeProvider>
+                <MatIcon Icon="info"> </MatIcon> <b>Importante:</b> @msgNota
+            </MatThemeProvider>
+        </div>
     </div>
-    <div class="col-md-11">
-        <MatThemeProvider>
-            <MatIcon Icon="info"> </MatIcon> <b>Importante:</b> @msgNota
-        </MatThemeProvider>
-    </div>
-</div>
 
 
-@if (!guardado)
-{
-    <EditForm Model="@model" OnValidSubmit="Save">
+    @if (!guardado)
+    {
+<EditForm Model="@model" OnValidSubmit="Save">
 
-        <div class="row">
+    <div class="row">
             <div class="col-md-1"></div>
             <div class="col-md-3">
                 <p><b>Fecha Inicio</b></p>
-                <MatDatePicker @bind-Value="@model.FechaInicio" Format="MMMM dd, yyyy" Required="true"></MatDatePicker>
+                <RadzenDatePicker Style="width:100%" ShowTime="true" @bind-Value="@model.FechaInicio" HourFormat="12" DateFormat="d MMMM yyyy h:mm tt" />
             </div>
             <div class="col-md-1"></div>
             <div class="col-md-3">
                 <p><b>Fecha Fin</b></p>
-                <MatDatePicker @bind-Value="@model.FechaFin" Format="MMMM dd, yyyy" Required="true"></MatDatePicker>
+                <RadzenDatePicker Style="width:100%" ShowTime="true" @bind-Value="@model.FechaFin" HourFormat="12" DateFormat="d MMMM yyyy h:mm tt" />
             </div>
+        </div>
+
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-3">
+            <a>Tipo de ausentismo</a>
+            <RadzenDropDown AllowClear="true"
+                            AllowFiltering="true"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            @bind-Value="model.AusentismoTipoId"
+                            Multiple="false" Placeholder="[SELECCIONAR]"
+                            Data="@listAusentismosTipos"
+                            TextProperty="Nombre"
+                            ValueProperty="Id"
+                            Style="width:100%" />
+
+
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-3">
+            <input class="bg-light" type="file" @ref="@inputElement" accept=".pdf">
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="cloud_upload" Text="Cargar Archivo" Size="ButtonSize.Medium">
+            </RadzenButton>
+
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <MatTextField @bind-Value="@model.Descripcion" TextArea="true" Label="Descripción" Required="true" Style="width:100%"></MatTextField>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            <MatThemeProvider Theme="@theme3">
+                <MatButton Raised="true" Icon="cancel" @onclick="Cancelar">Cancelar</MatButton>
+            </MatThemeProvider>
         </div>
         <br />
-        <div class="row">
-            <div class="col-md-1"></div>
-            <div class="col-md-3">
-                <p><b>Hora Inicio </b></p>
-                <InputText type="time" @bind-Value="@model.HoraInicio" Style="width:40%" />
-            </div>
-            <div class="col-md-1"></div>
-            <div class="col-md-3">
-                <p><b>Hora Fin </b></p>
-                <InputText type="time" @bind-Value="@model.HoraFin" Style="width:40%" />
-            </div>
+        <div class="col-md-2">
+
+            <MatThemeProvider Theme="@theme1">
+                <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
+            </MatThemeProvider>
         </div>
-        <br />
-        <div class="row">
-            <div class="col-md-1"></div>
-            <div class="col-md-3">
-                <a>Tipo de ausentismo</a>
-                <RadzenDropDown AllowClear="true"
-                                AllowFiltering="true"
-                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                @bind-Value="model.AusentismoTipoId"
-                                Multiple="false" Placeholder="[SELECCIONAR]"
-                                Data="@listAusentismosTipos"
-                                TextProperty="Nombre"
-                                ValueProperty="Id"
-                                Style="width:100%" />
-
-
-            </div>
-            <div class="col-md-1"></div>
-            <div class="col-md-3">
-                <input class="bg-light" type="file" @ref="@inputElement" accept=".pdf">
-                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="cloud_upload" Text="Cargar Archivo" Size="ButtonSize.Medium">
-                </RadzenButton>
-
-            </div>
-        </div>
-        <br />
-        <div class="row">
-            <div class="col-md-1"></div>
-            <div class="col-md-10">
-                <MatTextField @bind-Value="@model.Descripcion" TextArea="true" Label="Descripción" Required="true" Style="width:100%"></MatTextField>
-            </div>
-        </div>
-
-        <hr />
-
-        <div class="row">
-            <div class="col-md-1"></div>
-            <div class="col-md-2">
-                <MatThemeProvider Theme="@theme3">
-                    <MatButton Raised="true" Icon="cancel" @onclick="Cancelar">Cancelar</MatButton>
-                </MatThemeProvider>
-            </div>
-            <br />
-            <div class="col-md-2">
-
-                <MatThemeProvider Theme="@theme1">
-                    <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
-                </MatThemeProvider>
-            </div>
-        </div>
-    </EditForm>
-}
-
-<br />
-@code {
-
-    [Parameter]
-    public int Id { get; set; }
-    string titulo = "";
-    string msgError = null;
-    string msgNota = null;
-    bool guardado = false;
-    ElementReference inputElement;
-
-    List<AusentismoTipo> listAusentismosTipos = new List<AusentismoTipo>();
-    public AusentismoSolicitud model = new AusentismoSolicitud();
-    Response response = new Response();
-
-    MatTheme theme1 = new MatTheme()
-    {
-        Primary = "green",
-    };
-    MatTheme theme3 = new MatTheme()
-    {
-        Primary = "red",
-    };
-
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadData();
+    </div>
+</EditForm>
     }
 
-    protected async Task Save()
-    {
-        msgError = null;
-        model.UsuarioId = singleton.UsuarioId;
-        model.UsuarioRegistroId = singleton.UsuarioId;
-        model.Estado = "P";
-        model.ArchivoRuta = "";
+    <br />
+    @code {
 
-        string fechaActual = DateTime.Now.ToString("dd-MM-yyyy");
-        DateTime fechaHoraInicio = Convert.ToDateTime(fechaActual + " " + model.HoraInicio);
-        DateTime fechaHoraFin = Convert.ToDateTime(fechaActual + " " + model.HoraFin);
+        [Parameter]
+        public int Id { get; set; }
+        string titulo = "";
+        string msgError = null;
+        string msgNota = null;
+        bool guardado = false;
+        ElementReference inputElement;
 
+        List<AusentismoTipo> listAusentismosTipos = new List<AusentismoTipo>();
+        public AusentismoSolicitud model = new AusentismoSolicitud();
+        Response response = new Response();
 
-
-        if (model.FechaInicio < Convert.ToDateTime(fechaActual))
+        MatTheme theme1 = new MatTheme()
         {
-            msgError = "La fecha de inicio debe ser mayor o igual a la fecha actual.";
+            Primary = "green",
+        };
+        MatTheme theme3 = new MatTheme()
+        {
+            Primary = "red",
+        };
+
+
+        protected override async Task OnInitializedAsync()
+        {
+            await LoadData();
         }
-        else if (model.AusentismoTipoId <= 0)
+
+        protected async Task Save()
         {
-            msgError = "Debe seleccionar el tipo de ausentismo.";
-        }
-        else if (fechaHoraInicio > fechaHoraFin)
-        {
-            msgError = "La hora final debe ser mayor a la hora de inicio";
-        }
-        else if (model.FechaInicio == model.FechaFin)
-        {
-            if (model.HoraInicio == null)
+            msgError = null;
+            model.UsuarioId = singleton.UsuarioId;
+            model.UsuarioRegistroId = singleton.UsuarioId;
+            model.Estado = "P";
+            model.ArchivoRuta = "";
+
+
+
+
+            if (model.FechaInicio < Convert.ToDateTime(DateTime.Now))
             {
-                msgError = "Debe ingresar la hora de inicio.";
+                msgError = "La fecha de inicio debe ser mayor o igual a la fecha actual.";
             }
-            else if (model.HoraFin == null)
+            else if (model.FechaInicio >= model.FechaFin)
             {
-                msgError = "Debe ingresar la hora final.";
+                msgError = "La fecha de inicio debe ser menor a la fecha final.";
             }
-        }
-
-        if (msgError == null)
-        {
-            if (Id != 0)
+            else if (model.AusentismoTipoId <= 0)
             {
+                msgError = "Debe seleccionar el tipo de ausentismo.";
+            }
 
-                var result = await Http.PutAsJsonAsync<AusentismoSolicitud>($"api/AusentismoSSolicitudes", model);
-                response = result.Content.ReadFromJsonAsync<Response>().Result;
+
+
+            if (msgError == null)
+            {
+                if (Id != 0)
+                {
+
+                    var result = await Http.PutAsJsonAsync<AusentismoSolicitud>($"api/AusentismoSSolicitudes", model);
+                    response = result.Content.ReadFromJsonAsync<Response>().Result;
+                }
+                else
+                {
+                    var result = await Http.PostAsJsonAsync<AusentismoSolicitud>($"api/AusentismoSSolicitudes", model);
+                    response = result.Content.ReadFromJsonAsync<Response>().Result;
+                }
+
+
+                if (response.IsSuccessful)
+                {
+                    await EnviarEmail();
+                    guardado = true;
+                    navigationManager.NavigateTo("/indexausentismossolicitudes");
+                }
+                else
+                {
+                    msgError = response.Message;
+                    await js.InvokeAsync<string>("MensajeAlerta", msgError);
+
+                }
             }
             else
             {
-                var result = await Http.PostAsJsonAsync<AusentismoSolicitud>($"api/AusentismoSSolicitudes", model);
-                response = result.Content.ReadFromJsonAsync<Response>().Result;
+                await js.InvokeAsync<string>("MensajeAlerta", msgError);
             }
+        }
+
+        protected async Task Cancelar()
+        {
+            navigationManager.NavigateTo("/indexcargos");
+        }
 
 
+        protected async Task LoadData()
+        {
+
+            response = await Http.GetFromJsonAsync<Response>($"api/parametros/{Id}/AusentismoSolicitudNota");
             if (response.IsSuccessful)
             {
-                guardado = true;
-                navigationManager.NavigateTo("/indexausentismossolicitudes");
+                Parametro parametro = new Parametro();
+                parametro = JsonConvert.DeserializeObject<Parametro>(response.Data.ToString());
+                msgNota = parametro.Valor;
+            }
+
+            //Ausentismos Tipos
+            response = await Http.GetFromJsonAsync<Response>($"api/ausentismostipos/GetAusentismosTipos/{singleton.EmpresaId}");
+            if (response.IsSuccessful)
+            {
+                listAusentismosTipos = JsonConvert.DeserializeObject<List<AusentismoTipo>>(response.Data.ToString());
+                listAusentismosTipos = listAusentismosTipos.Where(x => x.Estado == true).ToList();
+            }
+
+            if (Id > 0)
+            {
+                titulo = "EDITAR CARGO";
+                //response = await Http.GetFromJsonAsync<Response>($"api/Cargos/{Id}");
+                //if (response.IsSuccessful)
+                //{
+                //    model = JsonConvert.DeserializeObject<Cargo>(response.Data.ToString());
+                //}
             }
             else
             {
-                msgError = response.Message;
+                model.FechaInicio = DateTime.Now;
+                model.FechaFin = DateTime.Now;
+                titulo = "NUEVA SOLICITUD";
             }
         }
-        else
+
+
+        protected async Task EnviarEmail()
         {
-            await js.InvokeAsync<string>("MensajeAlerta", msgError);
+            string fechaInicio = model.FechaInicio.ToString("d MMMM yyyy h:mm tt", CultureInfo.CreateSpecificCulture("es-MX"));
+            string fechaFin = model.FechaFin.ToString("d MMMM yyyy h:mm tt", CultureInfo.CreateSpecificCulture("es-MX")) ;
+
+            TimeSpan timespan = new TimeSpan(03, 00, 00);
+            DateTime time = DateTime.Today.Add(timespan);
+            string displayTime = time.ToString("hh:mm tt");
+
+
+            Usuario jefe = new Usuario();
+            response = await Http.GetFromJsonAsync<Response>($"api/usuarios/{singleton.EmpresaId}/{singleton.JefeUsuarioId}");
+            if (response.IsSuccessful)
+            {
+                jefe = JsonConvert.DeserializeObject<List<Usuario>>(response.Data.ToString()).FirstOrDefault();
+            }
+
+            string fechaHora = DateTime.Now.ToString();
+
+            string mensaje = string.Format(@"
+        Hola <b>{0}</b> tiene el siguiente <b>ausentismo</b> pendiente:
+        <br>
+        <br>
+        <b>Empleado:</b> {1}
+        <br>
+        <b>Fecha Inicio:</b> {2}
+        <br
+        <b>Fecha Fin:</b> {3}
+        <br>
+    ", jefe.NombreCompleto, singleton.NombreUsuario, fechaInicio,fechaFin);
+
+
+
+
+            Email emailModel = new Email();
+            emailModel.Mensaje = mensaje;
+            emailModel.Asunto = "AUSENTISMO PENDIENTE";
+            await Http.PostAsJsonAsync<Email>($"api/Comunicaciones", emailModel);
+
         }
     }
-
-    protected async Task Cancelar()
-    {
-        navigationManager.NavigateTo("/indexcargos");
-    }
-
-
-    protected async Task LoadData()
-    {
-
-        response = await Http.GetFromJsonAsync<Response>($"api/parametros/{Id}/AusentismoSolicitudNota");
-        if (response.IsSuccessful)
-        {
-            Parametro parametro = new Parametro();
-            parametro = JsonConvert.DeserializeObject<Parametro>(response.Data.ToString());
-            msgNota = parametro.Valor;
-        }
-
-        //Ausentismos Tipos
-        response = await Http.GetFromJsonAsync<Response>($"api/ausentismostipos/GetAusentismosTipos/{singleton.EmpresaId}");
-        if (response.IsSuccessful)
-        {
-            listAusentismosTipos = JsonConvert.DeserializeObject<List<AusentismoTipo>>(response.Data.ToString());
-            listAusentismosTipos = listAusentismosTipos.Where(x => x.Estado == true).ToList();
-        }
-
-        if (Id > 0)
-        {
-            titulo = "EDITAR CARGO";
-            //response = await Http.GetFromJsonAsync<Response>($"api/Cargos/{Id}");
-            //if (response.IsSuccessful)
-            //{
-            //    model = JsonConvert.DeserializeObject<Cargo>(response.Data.ToString());
-            //}
-        }
-        else
-        {
-            model.FechaInicio = DateTime.Now;
-            model.FechaFin = DateTime.Now;
-            titulo = "NUEVA SOLICITUD";
-        }
-    }
-
-
-}

@@ -13,6 +13,7 @@ namespace ZeroPapel.Server.Controllers
     public class RolesController : ControllerBase
     {
         RolesDA datos = new RolesDA();
+        Mensajes mensajes = new Mensajes();
 
         [HttpGet("{empresaId}/{id}")]
         public IActionResult Get(int empresaId, int id)
@@ -20,7 +21,7 @@ namespace ZeroPapel.Server.Controllers
             Response response = new Response();
             try
             {
-                List<Rol> list = datos.RolesObtener(empresaId, -1);
+                List<Rol> list = datos.RolesObtener(empresaId, id);
                 response.IsSuccessful = true;
                 response.Data = list;
             }
@@ -46,7 +47,7 @@ namespace ZeroPapel.Server.Controllers
                 else
                 {
                     response.IsSuccessful = false;
-                    response.Message = "Error al guardar el rol. Por favor comuniquese con el área de soporte.";
+                    response.Message = mensajes.msgErrorGuardar();
                 }
             }
             catch (Exception ex)
@@ -70,7 +71,7 @@ namespace ZeroPapel.Server.Controllers
                 else
                 {
                     response.IsSuccessful = false;
-                    response.Message = "Error al editar el rol. Por favor comuniquese con el área de soporte.";
+                    response.Message = mensajes.msgErrorEditar();
                 }
             }
             catch (Exception ex)
@@ -87,8 +88,15 @@ namespace ZeroPapel.Server.Controllers
             Response response = new Response();
             try
             {
-                datos.RolesEliminar(id);
-                response.IsSuccessful = true;
+                if (datos.RolesEliminar(id))
+                {
+                    response.IsSuccessful = true;
+                }
+                else
+                {
+                    response.IsSuccessful = false;
+                    response.Message = mensajes.msgErrorEliminar();
+                }
             }
             catch (Exception ex)
             {

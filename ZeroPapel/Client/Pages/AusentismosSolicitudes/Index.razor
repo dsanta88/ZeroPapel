@@ -14,16 +14,15 @@
 </div>
 
 
-<RadzenGrid AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="20"
+<RadzenGrid  AllowColumnResize="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="20"
             AllowSorting="true" Data="@list" TItem="AusentismoSolicitud" ColumnWidth="200px">
     <Columns>
         <RadzenGridColumn TItem="AusentismoSolicitud" Property="FechaRegistroStr" Title="FechaSolicitud" Width="70%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="AusentismoTipoNombre" Title="Tipo" Width="50%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="FechaInicioStr" Title="FechaInicio" Width="50%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="FechaFinStr" Title="FechaFin" Width="50%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="Hora" Title="Hora" Width="70%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="AusentismoTipoNombre" Title="Tipo" Width="70%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="FechaInicioStr" Title="FechaInicio" Width="70%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="FechaFinStr" Title="FechaFin" Width="70%"></RadzenGridColumn>
         <RadzenGridColumn TItem="AusentismoSolicitud" Property="Descripcion" Title="Descripción" Width="100%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="EstadoDescripcion" Title="Estado" Width="300%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="EstadoDescripcion" Title="Estado" Width="50%"></RadzenGridColumn>
     </Columns>
 </RadzenGrid>
 

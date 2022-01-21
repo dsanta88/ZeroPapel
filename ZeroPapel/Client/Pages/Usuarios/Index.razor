@@ -42,26 +42,33 @@
 
 </div>
 
-<RadzenGrid AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="20"
-            AllowSorting="true" Data="@list" TItem="Usuario" ColumnWidth="200px">
+<RadzenGrid 
+            AllowFiltering="true"
+            AllowColumnResize="true"
+            FilterMode="FilterMode.Simple"
+            AllowPaging="true" 
+            PageSize="20"
+            AllowSorting="true" 
+            Data="@list" 
+            TItem="Usuario"
+            LogicalFilterOperator="LogicalFilterOperator.Or"
+            >
     <Columns>
-        <RadzenGridColumn TItem="Usuario" Property="NombreCompleto" Title="NombreCompleto"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Usuario" Property="NombreCompleto" Title="NombreCompleto" Width="50%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Usuario" Property="Identificacion" Title="Identificacion" Width="50%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Usuario" Property="SexoDescripcion" Title="Sexo" Width="50%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Usuario" Property="CargoNombre" Title="Cargo" Width="50%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="Usuario" Property="Email" Title="Email" Width="50%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="Usuario" Property="Celular" Title="Celular" Width="50%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="Usuario" Property="FechaIngreso" Title="FechaIngreso" Width="50%"></RadzenGridColumn>
-        @*<RadzenGridColumn TItem="Usuario" Property="SexoDescripcion" Title="Sexo" Width="50%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="Usuario" Property="Identificacion" Title="Identificacion" Width="50%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="Usuario" Property="EstadoDescripcion" Title="EstadoDescripcion" Width="50%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="Usuario" Property="Email" Title="Email" Width="50%"></RadzenGridColumn>*@
+        <RadzenGridColumn TItem="Usuario" Property="Email" Title="Email" Width="40%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Usuario" Property="Celular" Title="Celular" Width="30%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Usuario" Property="UsuarioNivelDescripcion" Title="Nivel" Width="30%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Usuario" Property="JefeUsuarioNombre" Title="Jefe" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Usuario" Property="EstadoDescripcion" Title="Estado" Width="50%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Usuario" Context="Usuario" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100%">
             <Template Context="Usuario">
                 <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="edit" Text="Editar" Size="ButtonSize.Medium" Click="@((args) =>Edit(Usuario.Id))">
                 </RadzenButton>
-                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Eliminar" Size="ButtonSize.Medium" Click="@((args) =>Edit(Usuario.Id))">
-                </RadzenButton>
+                @*<RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Eliminar" Size="ButtonSize.Medium" Click="@((args) =>Edit(Usuario.Id))">
+                </RadzenButton>*@
             </Template>
         </RadzenGridColumn>
 
@@ -85,7 +92,7 @@
 
     protected async Task LoadData()
     {
-        response = await Http.GetFromJsonAsync<Response>($"api/usuarios/getusuarios/{singleton.EmpresaId}");
+        response = await Http.GetFromJsonAsync<Response>($"api/usuarios/{singleton.EmpresaId}/-1");
         if (response.IsSuccessful)
         {
             list = JsonConvert.DeserializeObject<List<Usuario>>(response.Data.ToString());
@@ -111,7 +118,7 @@
     {
         IsDownloadStarted = 1;
         StateHasChanged();
-  
+
 
         var response = await _httpClient.GetAsync($"api/files/DownloadExcel/{singleton.EmpresaId}");
         response.EnsureSuccessStatusCode();

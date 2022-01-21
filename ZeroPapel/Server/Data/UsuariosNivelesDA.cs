@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using ZeroPapel.Server.Helper;
@@ -10,32 +9,33 @@ using ZeroPapel.Shared;
 
 namespace ZeroPapel.Server.Data
 {
-    public class AusentismosSolicitudesDA
+
+    public class UsuariosNivelesDA
     {
         LeerJson objJson = new LeerJson();
         LogEventosDA logDA = new LogEventosDA();
         string strConexionSQL = "";
 
 
-        public AusentismosSolicitudesDA()
+        public UsuariosNivelesDA()
         {
             strConexionSQL = objJson.GetStrConexion();
         }
-        public List<AusentismoSolicitud> AusentismosSolicitudesObtener(int id, int usuarioId)
+        public List<UsuarioNivel> UsuariosNivelesObtener(int empresaId, int id)
         {
             DataSet ds = new DataSet();
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
             SqlCommand comandoSQL = new SqlCommand();
             SqlDataAdapter adaptadorSQL = new SqlDataAdapter();
-            List<AusentismoSolicitud> lst = new List<AusentismoSolicitud>();
+            List<UsuarioNivel> lst = new List<UsuarioNivel>();
 
             try
             {
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_ausentismos_solicitudes_obtener";
+                comandoSQL.CommandText = "sp_usuarios_niveles_obtener";
+                comandoSQL.Parameters.AddWithValue("@EmpresaId", empresaId);
                 comandoSQL.Parameters.AddWithValue("@Id", id);
-                comandoSQL.Parameters.AddWithValue("@UsuarioId", usuarioId);
                 adaptadorSQL.SelectCommand = comandoSQL;
                 adaptadorSQL.Fill(ds);
 
@@ -45,21 +45,12 @@ namespace ZeroPapel.Server.Data
                     {
                         foreach (DataRow item in ds.Tables[0].Rows)
                         {
-                            AusentismoSolicitud obj = new AusentismoSolicitud();
+                            UsuarioNivel obj = new UsuarioNivel();
                             obj.Id = Convert.ToInt32(item["Id"].ToString());
-                            obj.UsuarioId = Convert.ToInt32(item["UsuarioId"].ToString());
-                            obj.AusentismoTipoId = Convert.ToInt32(item["AusentismoTipoId"].ToString());
-                            obj.AusentismoTipoNombre = item["AusentismoTipoNombre"].ToString();
-                            obj.FechaInicio = Convert.ToDateTime(item["FechaInicio"].ToString());
-                            obj.FechaFin = Convert.ToDateTime(item["FechaFin"].ToString());
-                            obj.FechaInicioStr = obj.FechaInicio.ToString("d MMMM yyyy h:mm tt", CultureInfo.CreateSpecificCulture("es-MX"));
-                            obj.FechaFinStr = obj.FechaFin.ToString("d MMMM yyyy h:mm tt", CultureInfo.CreateSpecificCulture("es-MX"));
+                            obj.EmpresaId = Convert.ToInt32(item["EmpresaId"].ToString());
+                            obj.Nivel = Convert.ToInt32(item["Nivel"].ToString());
                             obj.Descripcion = item["Descripcion"].ToString();
-                            obj.ArchivoRuta = item["ArchivoRuta"].ToString();
-                            obj.Estado = item["Estado"].ToString();
-                            obj.EstadoDescripcion = item["EstadoDescripcion"].ToString();
-                            obj.FechaRegistro = Convert.ToDateTime(item["FechaRegistro"].ToString());
-                            obj.FechaRegistroStr = obj.FechaRegistro.ToString("d MMMM yyyy h:mm tt", CultureInfo.CreateSpecificCulture("es-MX"));
+                        
                             lst.Add(obj);
                         }
                     }
@@ -79,7 +70,7 @@ namespace ZeroPapel.Server.Data
             return lst;
         }
 
-        public bool AusentismosSolicitudesIngresar(AusentismoSolicitud model)
+        public bool UsuariosNivelesIngresar(UsuarioNivel model)
         {
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
             SqlCommand comandoSQL = new SqlCommand();
@@ -87,15 +78,10 @@ namespace ZeroPapel.Server.Data
             try
             {
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_ausentismos_solicitudes_ingresar";
-                comandoSQL.Parameters.AddWithValue("@UsuarioId", model.UsuarioId);
-                comandoSQL.Parameters.AddWithValue("@AusentismoTipoId", model.AusentismoTipoId);
-                comandoSQL.Parameters.AddWithValue("@FechaInicio", model.FechaInicio);
-                comandoSQL.Parameters.AddWithValue("@FechaFin", model.FechaFin);
+                comandoSQL.CommandText = "sp_usuarios_niveles_ingresar";
+                comandoSQL.Parameters.AddWithValue("@EmpresaId", model.EmpresaId);
+                comandoSQL.Parameters.AddWithValue("@Nivel", model.Nivel);
                 comandoSQL.Parameters.AddWithValue("@Descripcion", model.Descripcion);
-                comandoSQL.Parameters.AddWithValue("@ArchivoRuta", model.ArchivoRuta);
-                comandoSQL.Parameters.AddWithValue("@Estado", model.Estado);
-                comandoSQL.Parameters.AddWithValue("@UsuarioRegistroId", model.UsuarioRegistroId);
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.Connection.Open();
                 comandoSQL.ExecuteNonQuery();
@@ -115,7 +101,7 @@ namespace ZeroPapel.Server.Data
             return true;
         }
 
-        public bool AusentismosSolicitudesEditar(AusentismoSolicitud model)
+        public bool UsuariosNivelesEditar(UsuarioNivel model)
         {
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
             SqlCommand comandoSQL = new SqlCommand();
@@ -123,16 +109,10 @@ namespace ZeroPapel.Server.Data
             try
             {
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_ausentismos_solicitudes_editar";
+                comandoSQL.CommandText = "sp_usuarios_niveles_editar";
                 comandoSQL.Parameters.AddWithValue("@Id", model.Id);
-                comandoSQL.Parameters.AddWithValue("@UsuarioId", model.UsuarioId);
-                comandoSQL.Parameters.AddWithValue("@AusentismoTipoId", model.AusentismoTipoId);
-                comandoSQL.Parameters.AddWithValue("@FechaInicio", model.FechaInicio);
-                comandoSQL.Parameters.AddWithValue("@FechaFin", model.FechaFin);
+                comandoSQL.Parameters.AddWithValue("@Nivel", model.Nivel);
                 comandoSQL.Parameters.AddWithValue("@Descripcion", model.Descripcion);
-                comandoSQL.Parameters.AddWithValue("@ArchivoRuta", model.ArchivoRuta);
-                comandoSQL.Parameters.AddWithValue("@Estado", model.Estado);
-                comandoSQL.Parameters.AddWithValue("@UsuarioRegistroId", model.UsuarioRegistroId);
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.Connection.Open();
                 comandoSQL.ExecuteNonQuery();
@@ -152,7 +132,7 @@ namespace ZeroPapel.Server.Data
             return true;
         }
 
-        public bool AusentismosSolicitudesEliminar(int id)
+        public bool UsuariosNivelesEliminar(int id)
         {
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
             SqlCommand comandoSQL = new SqlCommand();
@@ -160,7 +140,7 @@ namespace ZeroPapel.Server.Data
             try
             {
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_ausentismos_solicitudes_eliminar";
+                comandoSQL.CommandText = "sp_usuarios_niveles_eliminar";
 
                 comandoSQL.Parameters.AddWithValue("@Id", id);
                 comandoSQL.Connection = conexionSQL;

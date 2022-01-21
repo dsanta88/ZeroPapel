@@ -15,6 +15,11 @@ namespace ZeroPapel.Shared
 
 		public string CargoNombre { get; set; }
 		public int JefeUsuarioId { get; set; }
+		public string JefeUsuarioNombre { get; set; }
+		public int UsuarioNivelId { get; set; }
+		public string UsuarioNivelDescripcion { get; set; }
+
+		
 
 		public string RolNombre { get; set; }
 		public string RolIds { get; set; }
@@ -32,7 +37,7 @@ namespace ZeroPapel.Shared
 		public string SexoDescripcion { get; set; }
 		public bool Estado { get; set; }
 		public string EstadoDescripcion { get; set; }
-		public int NivelUsuario { get; set; }
+	
 		public string FotoUrl { get; set; }
 		public string Celular { get; set; }
 		public string Email { get; set; }

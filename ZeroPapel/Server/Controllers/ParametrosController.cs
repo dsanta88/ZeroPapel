@@ -15,8 +15,9 @@ namespace ZeroPapel.Server.Controllers
         public class ParametrosController : ControllerBase
         {
             ParametrosDA datos = new ParametrosDA();
+        Mensajes mensajes = new Mensajes();
 
-            [HttpGet("[action]/{empresaId}")]
+        [HttpGet("[action]/{empresaId}")]
             public IActionResult GetParametros(int empresaId)
             {
                 Response response = new Response();
@@ -69,7 +70,7 @@ namespace ZeroPapel.Server.Controllers
                 else
                 {
                     response.IsSuccessful = false;
-                    response.Message = "Error al editar el parámetro. Por favor comuniquese con el área de soporte.";
+                    response.Message = mensajes.msgErrorEditar();
                 }
             }
                 catch (Exception ex)

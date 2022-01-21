@@ -38,36 +38,12 @@
         </div>
         <div class="col-md-1"></div>
         <div class="col-md-4">
-            <MatStringField @bind-Value="@model.CodigoInterno" Label="Código Interno" Style="width:100%"></MatStringField>
-        </div>
-    </div>
-    <br />
-    <div class="row">
-
-        <div class="col-md-1"></div>
-        <div class="col-md-4">
-            <p><b>Fecha Nacimiento</b></p>
-            <MatDatePicker @bind-Value="@model.FechaNacimiento" Format="MMMM dd, yyyy"></MatDatePicker>
-        </div>
-        <div class="col-md-1"></div>
-        <div class="col-md-4">
 
             <MatSelect Label="Sexo" @bind-Value="model.Sexo">
                 <MatOptionString></MatOptionString>
                 <MatOptionString Value="M">MASCULINO</MatOptionString>
                 <MatOptionString Value="F">FEMENINO</MatOptionString>
             </MatSelect>
-        </div>
-    </div>
-    <br />
-    <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-4">
-            <MatTextField @bind-Value="@model.NivelUsuario" Label="NivelUsuario" Style="width:100%"></MatTextField>
-        </div>
-        <div class="col-md-1"></div>
-        <div class="col-md-4">
-            <MatTextField @bind-Value="@model.Salario" Label="Salario" Style="width:100%"></MatTextField>
         </div>
     </div>
     <br />
@@ -136,28 +112,19 @@
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-4">
-            <p><b>Fecha Ingreso</b></p>
-            <MatDatePicker @bind-Value="@model.FechaIngreso" Format="MMMM dd, yyyy"></MatDatePicker>
+            <a>Nivel de usuario</a>
+            <RadzenDropDown AllowClear="true"
+                            AllowFiltering="true"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            @bind-Value="model.UsuarioNivelId"
+                            Multiple="false"
+                            Placeholder="[SELECCIONAR]"
+                            Data="@listUsuariosNiveles"
+                            TextProperty="Descripcion"
+                            ValueProperty="Id"
+                            Style="width:100%" />
+
         </div>
-        <div class="col-md-1"></div>
-        <div class="col-md-4">
-            <p><b>Fecha Retiro</b></p>
-            <MatDatePicker @bind-Value="@model.FechaRetiro" Format="MMMM dd, yyyy"></MatDatePicker>
-        </div>
-    </div>
-    <br />
-    <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-4">
-            <MatStringField @bind-Value="@model.Celular" Label="Celular" Style="width:100%"></MatStringField>
-        </div>
-        <div class="col-md-1"></div>
-        <div class="col-md-4">
-            <MatStringField @bind-Value="@model.Direccion" Label="Direccion" Style="width:100%"></MatStringField>
-        </div>
-    </div>
-    <br />
-    <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-4">
             <MatStringField @bind-Value="@model.Observacion" Label="Observacion" Style="width:100%"></MatStringField>
@@ -205,6 +172,7 @@
     List<Cargo> listCargos = new List<Cargo>();
     List<Usuario> listJefes = new List<Usuario>();
     List<Rol> listRoles = new List<Rol>();
+    List<UsuarioNivel> listUsuariosNiveles = new List<UsuarioNivel>();
 
     MatTheme theme1 = new MatTheme()
     {
@@ -242,10 +210,24 @@
     protected async Task Save()
     {
         model.EmpresaId = singleton.EmpresaId;
+        model.UsuarioRegistroId = singleton.UsuarioId;
+
+        if (model.FechaNacimiento <= Convert.ToDateTime("1900-01-01"))
+        {
+            model.FechaNacimiento = Convert.ToDateTime("1900-01-01");
+        }
+
+        if (model.FechaIngreso <= Convert.ToDateTime("1900-01-01"))
+        {
+            model.FechaIngreso = Convert.ToDateTime("1900-01-01");
+        }
+
         if (model.FechaRetiro <= Convert.ToDateTime("1900-01-01"))
         {
             model.FechaRetiro = Convert.ToDateTime("1900-01-01");
         }
+
+
 
         msgError = null;
 
@@ -278,7 +260,7 @@
 
             if (response.IsSuccessful)
             {
-                navigationManager.NavigateTo("/indexEmpleados");
+                navigationManager.NavigateTo("/indexusuarios");
             }
             else
             {
@@ -302,7 +284,7 @@
     {
         model=new Usuario();
         //Cargos
-        response = await Http.GetFromJsonAsync<Response>($"api/cargos/GetCargos/{singleton.EmpresaId}");
+        response = await Http.GetFromJsonAsync<Response>($"api/cargos/{singleton.EmpresaId}/-1");
         if (response.IsSuccessful)
         {
             listCargos = JsonConvert.DeserializeObject<List<Cargo>>(response.Data.ToString());
@@ -310,7 +292,7 @@
 
 
         //Jefes
-        response = await Http.GetFromJsonAsync<Response>($"api/usuarios/getusuarios/{singleton.EmpresaId}");
+        response = await Http.GetFromJsonAsync<Response>($"api/usuarios/{singleton.EmpresaId}/-1");
         if (response.IsSuccessful)
         {
             listJefes = JsonConvert.DeserializeObject<List<Usuario>>(response.Data.ToString());
@@ -318,11 +300,18 @@
         }
 
         //Roles
-        response = await Http.GetFromJsonAsync<Response>($"api/roles/getroles/{singleton.EmpresaId}");
+        response = await Http.GetFromJsonAsync<Response>($"api/roles/{singleton.EmpresaId}/-1");
         if (response.IsSuccessful)
         {
             listRoles = JsonConvert.DeserializeObject<List<Rol>>(response.Data.ToString());
             listRoles = listRoles.Where(x => x.Estado == true).ToList();
+        }
+
+        //Niveles de usuario
+        response = await Http.GetFromJsonAsync<Response>($"api/usuariosniveles/{singleton.EmpresaId}/-1");
+        if (response.IsSuccessful)
+        {
+            listUsuariosNiveles = JsonConvert.DeserializeObject<List<UsuarioNivel>>(response.Data.ToString());
         }
 
 
@@ -330,10 +319,10 @@
         if (Id > 0)
         {
             titulo = "EDITAR USUARIO";
-            response = await Http.GetFromJsonAsync<Response>($"api/usuarios/{Id}");
+            response = await Http.GetFromJsonAsync<Response>($"api/usuarios/{singleton.EmpresaId}/{Id}");
             if (response.IsSuccessful)
             {
-                model = JsonConvert.DeserializeObject<Usuario>(response.Data.ToString());
+                model = JsonConvert.DeserializeObject<List<Usuario>>(response.Data.ToString()).FirstOrDefault();
             }
 
         }

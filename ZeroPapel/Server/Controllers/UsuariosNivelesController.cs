@@ -6,22 +6,24 @@ using System.Threading.Tasks;
 using ZeroPapel.Server.Data;
 using ZeroPapel.Shared;
 
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
 namespace ZeroPapel.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AusentismosTiposController : ControllerBase
+    public class UsuariosNivelesController : ControllerBase
     {
-        AusentismosTiposDA datos = new AusentismosTiposDA();
+        UsuariosNivelesDA datos = new UsuariosNivelesDA();
         Mensajes mensajes = new Mensajes();
 
-        [HttpGet("[action]/{empresaId}")]
-        public IActionResult GetAusentismosTipos(int empresaId)
+        [HttpGet("{empresaId}/{id}")]
+        public IActionResult Get(int empresaId, int id)
         {
             Response response = new Response();
             try
             {
-                List<AusentismoTipo> list = datos.AusentismosTiposObtener(empresaId, -1);
+                List<UsuarioNivel> list = datos.UsuariosNivelesObtener(empresaId, id);
                 response.IsSuccessful = true;
                 response.Data = list;
             }
@@ -34,32 +36,13 @@ namespace ZeroPapel.Server.Controllers
         }
 
 
-        [HttpGet("{Id}")]
-        public IActionResult Get(int id)
-        {
-            Response response = new Response();
-            try
-            {
-                AusentismoTipo obj = datos.AusentismosTiposObtener(-1, id).ToList().FirstOrDefault();
-                response.IsSuccessful = true;
-                response.Data = obj;
-            }
-            catch (Exception ex)
-            {
-                response.Message = ex.Message;
-            }
-
-            return Ok(response);
-        }
-
-
         [HttpPost]
-        public IActionResult Add(AusentismoTipo model)
+        public IActionResult Add(UsuarioNivel model)
         {
             Response response = new Response();
             try
             {
-                if (datos.AusentismosTiposIngresar(model))
+                if (datos.UsuariosNivelesIngresar(model))
                 {
                     response.IsSuccessful = true;
                 }
@@ -68,7 +51,6 @@ namespace ZeroPapel.Server.Controllers
                     response.IsSuccessful = false;
                     response.Message = mensajes.msgErrorGuardar();
                 }
-
             }
             catch (Exception ex)
             {
@@ -79,12 +61,12 @@ namespace ZeroPapel.Server.Controllers
         }
 
         [HttpPost("[action]")]
-        public IActionResult Edit(AusentismoTipo model)
+        public IActionResult Edit(UsuarioNivel model)
         {
             Response response = new Response();
             try
             {
-                if (datos.AusentismosTiposEditar(model))
+                if (datos.UsuariosNivelesEditar(model))
                 {
                     response.IsSuccessful = true;
                 }
@@ -108,7 +90,7 @@ namespace ZeroPapel.Server.Controllers
             Response response = new Response();
             try
             {
-                if (datos.AusentismosTiposEliminar(id))
+                if (datos.UsuariosNivelesEliminar(id))
                 {
                     response.IsSuccessful = true;
                 }
