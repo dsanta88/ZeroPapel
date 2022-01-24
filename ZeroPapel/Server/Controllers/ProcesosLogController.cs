@@ -4,30 +4,30 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ZeroPapel.Server.Helper;
+using ZeroPapel.Server.Data;
 using ZeroPapel.Shared;
 
 namespace ZeroPapel.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ComunicacionesController : ControllerBase
+    public class ProcesosLogController : ControllerBase
     {
+        ProcesosLogDA datos = new ProcesosLogDA();
+ 
 
-
-        [HttpPost]
-        public IActionResult Add(Email model)
+        [HttpGet("{empresaId}/{id}")]
+        public IActionResult Get(int empresaId, int id)
         {
             Response response = new Response();
             try
             {
-                EmailHelper emailHelper = new EmailHelper();
-                emailHelper.EnviarEmail(model);
-
+                List<ProcesoLog> list = datos.ProcesosLogObtener(empresaId, id);
+                response.IsSuccessful = true;
+                response.Data = list;
             }
             catch (Exception ex)
             {
-                response.IsSuccessful = false;
                 response.Message = ex.Message;
             }
 

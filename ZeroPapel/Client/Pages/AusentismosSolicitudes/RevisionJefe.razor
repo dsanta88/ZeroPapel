@@ -1,0 +1,68 @@
+﻿@page "/indexausentismosrevisarjefe"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json;
+@inject ServicioSingleton singleton
+
+
+<div class="row alert bg-info">
+    <div class="col-md-5">
+        <h5> <b>REVISAR AUSENTISMOS - JEFE</b></h5>
+    </div>
+</div>
+
+
+<RadzenGrid AllowColumnResize="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="20"
+            AllowSorting="true" Data="@list" TItem="AusentismoSolicitud" ColumnWidth="200px">
+    <Columns>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="FechaSolicitudStr" Title="FechaSolicitud" Width="70%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="AusentismoTipoNombre" Title="Tipo" Width="70%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="FechaInicioStr" Title="FechaInicio" Width="70%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="FechaFinStr" Title="FechaFin" Width="70%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="Descripcion" Title="Descripción" Width="100%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="JefeEstadoDescripcion" Title="Estado(Jefe)" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="JefeObservacion" Title="Observación" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="GhEstadoDescripcion" Title="Estado(Gh)" Width="50%"></RadzenGridColumn>
+
+        <RadzenGridColumn TItem="AusentismoSolicitud" Context="AusentismoSolicitud" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100%">
+            <Template Context="AusentismoSolicitud">
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="edit" Text="Cambiar estado" Size="ButtonSize.Medium" Click="@((args) =>Edit(AusentismoSolicitud.Id))">
+                </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
+    </Columns>
+</RadzenGrid>
+
+
+
+@code {
+
+
+    List<AusentismoSolicitud> list;
+    Response response = new Response();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    protected async Task LoadData()
+    {
+        response = await Http.GetFromJsonAsync<Response>($"api/AusentismosSolicitudes/-1/-1/{singleton.UsuarioId}");
+        if (response.IsSuccessful)
+        {
+            list = JsonConvert.DeserializeObject<List<AusentismoSolicitud>>(response.Data.ToString());
+        }
+
+    }
+
+
+    public void Edit(int id)
+    {
+        navigationManager.NavigateTo("/formausentismosrevisarjefe/" + id);
+    }
+
+
+}

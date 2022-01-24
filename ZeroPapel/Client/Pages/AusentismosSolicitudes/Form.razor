@@ -9,46 +9,46 @@
 @inject IJSRuntime js
 @using System.Globalization;
 
-    <div class="row alert bg-info">
-        <div class="row col-md-1">
+<div class="row alert bg-info">
+    <div class="row col-md-1">
 
-        </div>
-        <div class="col-md-5">
-            <h5> <b>@titulo</b></h5>
-        </div>
     </div>
+    <div class="col-md-5">
+        <h5> <b>@titulo</b></h5>
+    </div>
+</div>
 
-    @if (msgError != null)
-    {
-        <div class="row alert bg-danger">
-            <div class="row col-md-1">
-
-            </div>
-            <div class="col-md-10">
-                <MatThemeProvider>
-                    <MatIcon Icon="cancel"> </MatIcon>   @msgError
-                </MatThemeProvider>
-            </div>
-        </div>
-    }
-
-    <div class="row alert bg-warning">
+@if (msgError != null)
+{
+    <div class="row alert bg-danger">
         <div class="row col-md-1">
 
         </div>
-        <div class="col-md-11">
+        <div class="col-md-10">
             <MatThemeProvider>
-                <MatIcon Icon="info"> </MatIcon> <b>Importante:</b> @msgNota
+                <MatIcon Icon="cancel"> </MatIcon>   @msgError
             </MatThemeProvider>
         </div>
     </div>
+}
+
+<div class="row alert bg-warning">
+    <div class="row col-md-1">
+
+    </div>
+    <div class="col-md-11">
+        <MatThemeProvider>
+            <MatIcon Icon="info"> </MatIcon> <b>Importante:</b> @msgNota
+        </MatThemeProvider>
+    </div>
+</div>
 
 
-    @if (!guardado)
-    {
-<EditForm Model="@model" OnValidSubmit="Save">
+@if (!guardado)
+{
+    <EditForm Model="@model" OnValidSubmit="Save">
 
-    <div class="row">
+        <div class="row">
             <div class="col-md-1"></div>
             <div class="col-md-3">
                 <p><b>Fecha Inicio</b></p>
@@ -61,230 +61,247 @@
             </div>
         </div>
 
-    <br />
-    <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-3">
-            <a>Tipo de ausentismo</a>
-            <RadzenDropDown AllowClear="true"
-                            AllowFiltering="true"
-                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            @bind-Value="model.AusentismoTipoId"
-                            Multiple="false" Placeholder="[SELECCIONAR]"
-                            Data="@listAusentismosTipos"
-                            TextProperty="Nombre"
-                            ValueProperty="Id"
-                            Style="width:100%" />
+        <br />
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-3">
+                <a>Tipo de ausentismo</a>
+                <RadzenDropDown AllowClear="true"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                @bind-Value="model.AusentismoTipoId"
+                                Multiple="false" Placeholder="[SELECCIONAR]"
+                                Data="@listAusentismosTipos"
+                                TextProperty="Nombre"
+                                ValueProperty="Id"
+                                Style="width:100%" />
 
 
-        </div>
-        <div class="col-md-1"></div>
-        <div class="col-md-3">
-            <input class="bg-light" type="file" @ref="@inputElement" accept=".pdf">
-            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="cloud_upload" Text="Cargar Archivo" Size="ButtonSize.Medium">
-            </RadzenButton>
+            </div>
+            <div class="col-md-1"></div>
+            <div class="col-md-3">
+                <input class="bg-light" type="file" @ref="@inputElement" accept=".pdf">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="cloud_upload" Text="Cargar Archivo" Size="ButtonSize.Medium">
+                </RadzenButton>
 
-        </div>
-    </div>
-    <br />
-    <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-10">
-            <MatTextField @bind-Value="@model.Descripcion" TextArea="true" Label="Descripción" Required="true" Style="width:100%"></MatTextField>
-        </div>
-    </div>
-
-    <hr />
-
-    <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-2">
-            <MatThemeProvider Theme="@theme3">
-                <MatButton Raised="true" Icon="cancel" @onclick="Cancelar">Cancelar</MatButton>
-            </MatThemeProvider>
+            </div>
         </div>
         <br />
-        <div class="col-md-2">
-
-            <MatThemeProvider Theme="@theme1">
-                <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
-            </MatThemeProvider>
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+                <MatTextField @bind-Value="@model.Descripcion" TextArea="true" Label="Descripción" Required="true" Style="width:100%"></MatTextField>
+            </div>
         </div>
-    </div>
-</EditForm>
+
+        <hr />
+
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-2">
+                <MatThemeProvider Theme="@theme3">
+                    <MatButton Raised="true" Icon="cancel" @onclick="Cancelar">Cancelar</MatButton>
+                </MatThemeProvider>
+            </div>
+            <br />
+            <div class="col-md-2">
+
+                <MatThemeProvider Theme="@theme1">
+                    <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
+                </MatThemeProvider>
+            </div>
+        </div>
+    </EditForm>
+}
+
+<br />
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+    string titulo = "";
+    string msgError = null;
+    string msgNota = null;
+    bool guardado = false;
+    ElementReference inputElement;
+
+    List<AusentismoTipo> listAusentismosTipos = new List<AusentismoTipo>();
+    public AusentismoSolicitud model = new AusentismoSolicitud();
+    Response response = new Response();
+
+    MatTheme theme1 = new MatTheme()
+    {
+        Primary = "green",
+    };
+    MatTheme theme3 = new MatTheme()
+    {
+        Primary = "red",
+    };
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
     }
 
-    <br />
-    @code {
+    protected async Task Save()
+    {
+        msgError = null;
+        model.UsuarioId = singleton.UsuarioId;
+        model.JefeEstado = "P";
+        model.ArchivoRuta = "";
 
-        [Parameter]
-        public int Id { get; set; }
-        string titulo = "";
-        string msgError = null;
-        string msgNota = null;
-        bool guardado = false;
-        ElementReference inputElement;
 
-        List<AusentismoTipo> listAusentismosTipos = new List<AusentismoTipo>();
-        public AusentismoSolicitud model = new AusentismoSolicitud();
-        Response response = new Response();
 
-        MatTheme theme1 = new MatTheme()
+
+        if (model.FechaInicio < Convert.ToDateTime(DateTime.Now))
         {
-            Primary = "green",
-        };
-        MatTheme theme3 = new MatTheme()
+            msgError = "La fecha de inicio debe ser mayor o igual a la fecha actual.";
+        }
+        else if (model.FechaInicio >= model.FechaFin)
         {
-            Primary = "red",
-        };
-
-
-        protected override async Task OnInitializedAsync()
+            msgError = "La fecha de inicio debe ser menor a la fecha final.";
+        }
+        else if (model.AusentismoTipoId <= 0)
         {
-            await LoadData();
+            msgError = "Debe seleccionar el tipo de ausentismo.";
         }
 
-        protected async Task Save()
+
+
+        if (msgError == null)
         {
-            msgError = null;
-            model.UsuarioId = singleton.UsuarioId;
-            model.UsuarioRegistroId = singleton.UsuarioId;
-            model.Estado = "P";
-            model.ArchivoRuta = "";
-
-
-
-
-            if (model.FechaInicio < Convert.ToDateTime(DateTime.Now))
+            if (Id != 0)
             {
-                msgError = "La fecha de inicio debe ser mayor o igual a la fecha actual.";
-            }
-            else if (model.FechaInicio >= model.FechaFin)
-            {
-                msgError = "La fecha de inicio debe ser menor a la fecha final.";
-            }
-            else if (model.AusentismoTipoId <= 0)
-            {
-                msgError = "Debe seleccionar el tipo de ausentismo.";
+
+                var result = await Http.PostAsJsonAsync<AusentismoSolicitud>($"api/AusentismosSolicitudes", model);
+                response = result.Content.ReadFromJsonAsync<Response>().Result;
             }
 
 
 
-            if (msgError == null)
+            if (response.IsSuccessful)
             {
-                if (Id != 0)
-                {
-
-                    var result = await Http.PutAsJsonAsync<AusentismoSolicitud>($"api/AusentismoSSolicitudes", model);
-                    response = result.Content.ReadFromJsonAsync<Response>().Result;
-                }
-                else
-                {
-                    var result = await Http.PostAsJsonAsync<AusentismoSolicitud>($"api/AusentismoSSolicitudes", model);
-                    response = result.Content.ReadFromJsonAsync<Response>().Result;
-                }
-
-
-                if (response.IsSuccessful)
-                {
-                    await EnviarEmail();
-                    guardado = true;
-                    navigationManager.NavigateTo("/indexausentismossolicitudes");
-                }
-                else
-                {
-                    msgError = response.Message;
-                    await js.InvokeAsync<string>("MensajeAlerta", msgError);
-
-                }
+                await EnviarEmail();
+                guardado = true;
+                navigationManager.NavigateTo("/indexausentismossolicitudes");
             }
             else
             {
+                msgError = response.Message;
                 await js.InvokeAsync<string>("MensajeAlerta", msgError);
+
             }
         }
-
-        protected async Task Cancelar()
+        else
         {
-            navigationManager.NavigateTo("/indexcargos");
+            await js.InvokeAsync<string>("MensajeAlerta", msgError);
+        }
+    }
+
+    protected async Task Cancelar()
+    {
+        navigationManager.NavigateTo("/indexausentismossolicitudes");
+    }
+
+
+    protected async Task LoadData()
+    {
+
+        response = await Http.GetFromJsonAsync<Response>($"api/parametros/{Id}/AusentismoSolicitudNota");
+        if (response.IsSuccessful)
+        {
+            Parametro parametro = new Parametro();
+            parametro = JsonConvert.DeserializeObject<Parametro>(response.Data.ToString());
+            msgNota = parametro.Valor;
+        }
+
+        //Ausentismos Tipos
+        response = await Http.GetFromJsonAsync<Response>($"api/ausentismostipos/{singleton.EmpresaId}/-1");
+        if (response.IsSuccessful)
+        {
+            listAusentismosTipos = JsonConvert.DeserializeObject<List<AusentismoTipo>>(response.Data.ToString());
+            listAusentismosTipos = listAusentismosTipos.Where(x => x.Estado == true).ToList();
+        }
+
+        if (Id > 0)
+        {
+            titulo = "EDITAR CARGO";
+            //response = await Http.GetFromJsonAsync<Response>($"api/ausentismostipos/{singleton.EmpresaId}/{Id}");
+            //if (response.IsSuccessful)
+            //{
+            //    model = JsonConvert.DeserializeObject<List<Usuario>>(response.Data.ToString()).FirstOrDefault();
+            //}
+        }
+        else
+        {
+            model.FechaInicio = DateTime.Now;
+            model.FechaFin = DateTime.Now;
+            titulo = "NUEVA SOLICITUD";
+        }
+    }
+
+
+    protected async Task EnviarEmail()
+    {
+        bool state = true;
+        string fechaInicio = model.FechaInicio.ToString("d MMMM yyyy h:mm tt", CultureInfo.CreateSpecificCulture("es-MX"));
+        string fechaFin = model.FechaFin.ToString("d MMMM yyyy h:mm tt", CultureInfo.CreateSpecificCulture("es-MX"));
+
+
+        Usuario jefe = new Usuario();
+        response = await Http.GetFromJsonAsync<Response>($"api/usuarios/{singleton.EmpresaId}/{singleton.JefeUsuarioId}");
+        if (response.IsSuccessful)
+        {
+            jefe = JsonConvert.DeserializeObject<List<Usuario>>(response.Data.ToString()).FirstOrDefault();
+        }
+        else
+        {
+            state = false;
+        }
+
+        AusentismoTipo auseTipo = new AusentismoTipo();
+        response = await Http.GetFromJsonAsync<Response>($"api/ausentismostipos/{singleton.EmpresaId}/{model.AusentismoTipoId}");
+        if (response.IsSuccessful)
+        {
+            auseTipo = JsonConvert.DeserializeObject<List<AusentismoTipo>>(response.Data.ToString()).FirstOrDefault();
+        }
+        else
+        {
+            state = false;
         }
 
 
-        protected async Task LoadData()
+        if (state)
         {
-
-            response = await Http.GetFromJsonAsync<Response>($"api/parametros/{Id}/AusentismoSolicitudNota");
-            if (response.IsSuccessful)
-            {
-                Parametro parametro = new Parametro();
-                parametro = JsonConvert.DeserializeObject<Parametro>(response.Data.ToString());
-                msgNota = parametro.Valor;
-            }
-
-            //Ausentismos Tipos
-            response = await Http.GetFromJsonAsync<Response>($"api/ausentismostipos/GetAusentismosTipos/{singleton.EmpresaId}");
-            if (response.IsSuccessful)
-            {
-                listAusentismosTipos = JsonConvert.DeserializeObject<List<AusentismoTipo>>(response.Data.ToString());
-                listAusentismosTipos = listAusentismosTipos.Where(x => x.Estado == true).ToList();
-            }
-
-            if (Id > 0)
-            {
-                titulo = "EDITAR CARGO";
-                //response = await Http.GetFromJsonAsync<Response>($"api/Cargos/{Id}");
-                //if (response.IsSuccessful)
-                //{
-                //    model = JsonConvert.DeserializeObject<Cargo>(response.Data.ToString());
-                //}
-            }
-            else
-            {
-                model.FechaInicio = DateTime.Now;
-                model.FechaFin = DateTime.Now;
-                titulo = "NUEVA SOLICITUD";
-            }
-        }
-
-
-        protected async Task EnviarEmail()
-        {
-            string fechaInicio = model.FechaInicio.ToString("d MMMM yyyy h:mm tt", CultureInfo.CreateSpecificCulture("es-MX"));
-            string fechaFin = model.FechaFin.ToString("d MMMM yyyy h:mm tt", CultureInfo.CreateSpecificCulture("es-MX")) ;
-
-            TimeSpan timespan = new TimeSpan(03, 00, 00);
-            DateTime time = DateTime.Today.Add(timespan);
-            string displayTime = time.ToString("hh:mm tt");
-
-
-            Usuario jefe = new Usuario();
-            response = await Http.GetFromJsonAsync<Response>($"api/usuarios/{singleton.EmpresaId}/{singleton.JefeUsuarioId}");
-            if (response.IsSuccessful)
-            {
-                jefe = JsonConvert.DeserializeObject<List<Usuario>>(response.Data.ToString()).FirstOrDefault();
-            }
-
-            string fechaHora = DateTime.Now.ToString();
-
             string mensaje = string.Format(@"
-        Hola <b>{0}</b> tiene el siguiente <b>ausentismo</b> pendiente:
-        <br>
-        <br>
-        <b>Empleado:</b> {1}
-        <br>
-        <b>Fecha Inicio:</b> {2}
-        <br
-        <b>Fecha Fin:</b> {3}
-        <br>
-    ", jefe.NombreCompleto, singleton.NombreUsuario, fechaInicio,fechaFin);
-
-
+             Hola <b>{0}, </b> tiene el siguiente <b>ausentismo</b> pendiente por revisar:
+             <br>
+             <br>
+             <b>Empleado:</b> {1}
+             <br>
+             <b>Tipo:</b> {2}
+             <br>
+             <b>Fecha Inicio:</b> {3}
+             <br
+             <b>Fecha Fin:</b> {4}
+             <br>
+             <b>Descripción:</b> {5}
+            
+             <br>
+             <br>
+             ", jefe.NombreCompleto, singleton.NombreUsuario,auseTipo.Nombre, fechaInicio, fechaFin, model.Descripcion);
 
 
             Email emailModel = new Email();
+            emailModel.EmpresaId = singleton.EmpresaId;
+            emailModel.UsuarioId = singleton.UsuarioId;
             emailModel.Mensaje = mensaje;
             emailModel.Asunto = "AUSENTISMO PENDIENTE";
+            emailModel.Destinatarios = jefe.Email;
             await Http.PostAsJsonAsync<Email>($"api/Comunicaciones", emailModel);
-
         }
+
+
     }
+}

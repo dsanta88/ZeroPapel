@@ -20,7 +20,7 @@ namespace ZeroPapel.Server.Data
         }
 
 
-        public List<LogEvento> LogEventosObtener()
+        public List<LogEvento> LogEventosObtener(int id)
         {
             DataSet ds = new DataSet();
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
@@ -33,7 +33,7 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.CommandType = CommandType.StoredProcedure;
                 comandoSQL.CommandText = "sp_log_eventos_obtener";
-                //comandoSQL.Parameters.AddWithValue("@EmpresaId", empresaId);
+                comandoSQL.Parameters.AddWithValue("@Id", id);
                 adaptadorSQL.SelectCommand = comandoSQL;
                 adaptadorSQL.Fill(ds);
 
@@ -44,7 +44,7 @@ namespace ZeroPapel.Server.Data
                         foreach (DataRow item in ds.Tables[0].Rows)
                         {
                             LogEvento log = new LogEvento();
-                            //log.Id = Convert.ToInt32(item["Id"].ToString());
+                            log.Id = Convert.ToInt32(item["Id"].ToString());
                             log.Fecha = Convert.ToDateTime(item["Fecha"].ToString());
                             log.Mensaje = item["Mensaje"].ToString();
                             log.Fuente = item["Fuente"].ToString();

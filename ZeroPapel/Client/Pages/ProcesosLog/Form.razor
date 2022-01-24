@@ -1,0 +1,190 @@
+﻿@page "/formprocesoslog"
+@page "/formprocesoslog/{Id:int}"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json;
+@inject ServicioSingleton singleton
+
+
+<div class="row alert bg-info">
+    <div class="row col-md-1">
+
+    </div>
+    <div class="col-md-5">
+        <h5> <b>DETALLE PROCESOS LOG</b></h5>
+    </div>
+</div>
+
+@if (msgError != null)
+{
+    <div class="row alert bg-danger">
+        <div class="row col-md-1">
+
+        </div>
+        <div class="col-md-5">
+            <MatThemeProvider>
+                <MatIcon Icon="cancel"> </MatIcon>   @msgError
+            </MatThemeProvider>
+        </div>
+    </div>
+}
+
+
+
+<EditForm Model="@model">
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatTextField @bind-Value="@model.FechaRegistro" Label="Fecha" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.ProcesoNombre" Label="Proceso" Style="width:100%" Disabled="true"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatTextField @bind-Value="@model.EstadoDescripcion" Label="Estado" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.UsuarioRegistroNombre" Label="UsuarioRegistro" Style="width:100%" Disabled="true"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <MatTextField @bind-Value="@model.Campo1" Label="Campo1" TextArea="true" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <MatTextField @bind-Value="@model.Campo2" Label="Campo2" TextArea="true" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <MatTextField @bind-Value="@model.Campo3" Label="Campo3" TextArea="true" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+    </div>
+
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <MatTextField @bind-Value="@model.Campo4" Label="Campo4" TextArea="true" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+    </div>
+
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <MatTextField @bind-Value="@model.Campo5" Label="Campo5" TextArea="true" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+    </div>
+
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <MatTextField @bind-Value="@model.Campo6" Label="Campo6" TextArea="true" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+    </div>
+
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <MatTextField @bind-Value="@model.Campo7" Label="Campo7" TextArea="true" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+    </div>
+
+
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <MatTextField @bind-Value="@model.Campo8" Label="Campo8" TextArea="true" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+    </div>
+
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <MatTextField @bind-Value="@model.Campo9" Label="Campo9" TextArea="true" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+    </div>
+
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <MatTextField @bind-Value="@model.Campo10" Label="Campo10" TextArea="true" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+    </div>
+
+</EditForm>
+<hr />
+<div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-2">
+        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="arrow_back" Text="Retornar" Size="ButtonSize.Medium" Click="@Retornar">
+        </RadzenButton>
+    </div>
+</div>
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+    string msgError = null;
+    public ProcesoLog model = new ProcesoLog();
+    Response response = new Response();
+
+
+    MatTheme theme1 = new MatTheme()
+    {
+        Primary = "green",
+    };
+    MatTheme theme3 = new MatTheme()
+    {
+        Primary = "red",
+    };
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+
+    protected async Task LoadData()
+    {
+        if (Id > 0)
+        {
+            response = await Http.GetFromJsonAsync<Response>($"api/procesoslog/{singleton.EmpresaId}/{Id}");
+            if (response.IsSuccessful)
+            {
+                model = JsonConvert.DeserializeObject<List<ProcesoLog>>(response.Data.ToString()).FirstOrDefault();
+            }
+        }
+    }
+
+    public void Retornar()
+    {
+        navigationManager.NavigateTo($"/indexprocesoslog");
+    }
+
+
+}
+

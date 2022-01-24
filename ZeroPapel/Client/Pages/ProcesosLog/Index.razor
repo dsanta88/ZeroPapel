@@ -1,0 +1,101 @@
+﻿@page "/indexprocesoslog"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json;
+@inject ServicioSingleton singleton
+
+
+<div class="row alert bg-info">
+    <div class="col-md-5">
+        <h5> <b>LOG DE PROCESOS</b></h5>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2">
+        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="cloud_download" Text="Exportar Excel" Size="ButtonSize.Medium" Click="@(async() => await DownloadFile())">
+        </RadzenButton>
+    </div>
+</div>
+
+<RadzenGrid AllowColumnResize="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="20"
+            AllowSorting="true" Data="@list" TItem="ProcesoLog" ColumnWidth="200px">
+    <Columns>
+        <RadzenGridColumn TItem="ProcesoLog" Property="FechaRegistro" Title="Fecha" Width="70%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="ProcesoLog" Property="ProcesoNombre" Title="Proceso" Width="70%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="ProcesoLog" Context="ProcesoLog" Title="Estado" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100%">
+            <Template Context="ProcesoLog">
+                @if (ProcesoLog.Estado == 0)
+                {
+                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Error" Size="ButtonSize.Medium" Click="@((args) =>Detalle(ProcesoLog.Id))">
+                    </RadzenButton>
+                }
+                else
+                {
+                    <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="pageview" Text="Detalle" Size="ButtonSize.Medium" Click="@((args) =>Detalle(ProcesoLog.Id))">
+                    </RadzenButton>
+                }
+
+            </Template>
+        </RadzenGridColumn>
+
+
+
+        <RadzenGridColumn TItem="ProcesoLog" Property="UsuarioRegistroNombre" Title="UsuarioRegistro" Width="70%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="ProcesoLog" Property="Campo1" Title="Campo1" Width="70%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="ProcesoLog" Property="Campo2" Title="Campo2" Width="70%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="ProcesoLog" Property="Campo3" Title="Campo3" Width="70%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="ProcesoLog" Property="Campo4" Title="Campo4" Width="70%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="ProcesoLog" Property="Campo5" Title="Campo5" Width="70%"></RadzenGridColumn>
+
+
+    </Columns>
+</RadzenGrid>
+
+
+
+@code {
+
+
+    List<ProcesoLog> list;
+    Response response = new Response();
+    public int IsDownloadStarted { get; set; } = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    protected async Task LoadData()
+    {
+        response = await Http.GetFromJsonAsync<Response>($"api/procesoslog/{singleton.EmpresaId}/-1");
+        if (response.IsSuccessful)
+        {
+            list = JsonConvert.DeserializeObject<List<ProcesoLog>>(response.Data.ToString());
+        }
+
+    }
+
+    public void Detalle(int id)
+    {
+        navigationManager.NavigateTo("/formprocesoslog/" + id);
+    }
+
+
+
+    protected async Task DownloadFile()
+    {
+        //IsDownloadStarted = 1;
+        //StateHasChanged();
+
+
+        //var response = await Http.GetAsync($"api/files/DownloadExcel/{singleton.EmpresaId}");
+        //response.EnsureSuccessStatusCode();
+        //var fileBytes = await response.Content.ReadAsByteArrayAsync();
+        //var fileName = $"Empleados{DateTime.Now.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)}.xlsx";
+        //await JSRuntime.InvokeAsync<object>("saveAsFile", fileName, Convert.ToBase64String(fileBytes));
+        //IsDownloadStarted = 2;
+    }
+
+}

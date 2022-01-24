@@ -8,6 +8,9 @@ namespace ZeroPapel.Shared
    public class Email
     {
      
+
+        public int EmpresaId { get; set; }
+        public int UsuarioId { get; set; }
         public string ServidorSMTP { get; set; }
         public string From { get; set; }
         public bool Ssl { get; set; }

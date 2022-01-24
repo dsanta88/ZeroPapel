@@ -137,10 +137,10 @@
         if (Id > 0)
         {
             titulo = "EDITAR TIPO DE AUSENTISMO";
-            response = await Http.GetFromJsonAsync<Response>($"api/ausentismostipos/{Id}");
+            response = await Http.GetFromJsonAsync<Response>($"api/ausentismostipos/{singleton.EmpresaId}/{Id}");
             if (response.IsSuccessful)
             {
-                model = JsonConvert.DeserializeObject<AusentismoTipo>(response.Data.ToString());
+                model = JsonConvert.DeserializeObject<List<AusentismoTipo>>(response.Data.ToString()).FirstOrDefault();
             }
         }
         else

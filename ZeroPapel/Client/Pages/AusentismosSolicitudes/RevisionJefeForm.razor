@@ -1,0 +1,189 @@
+﻿@page "/formausentismosrevisarjefe"
+@page "/formausentismosrevisarjefe/{Id:int}"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json
+@inject ServicioSingleton singleton
+@inject IJSRuntime js
+
+
+<div class="row alert bg-info">
+    <div class="row col-md-1">
+
+    </div>
+    <div class="col-md-5">
+        <h5> <b>REVISIÓN AUSENTISMO</b></h5>
+    </div>
+</div>
+
+@if (msgError != null)
+{
+    <div class="row alert bg-danger">
+        <div class="row col-md-1">
+
+        </div>
+        <div class="col-md-10">
+            <MatThemeProvider>
+                <MatIcon Icon="cancel"> </MatIcon>   @msgError
+            </MatThemeProvider>
+        </div>
+    </div>
+}
+
+<EditForm Model="@model" OnValidSubmit="Save">
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatTextField @bind-Value="@model.FechaSolicitud" Label="Fecha solicitud" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.AusentismoTipoNombre" Label="Tipo" Style="width:100%" Disabled="true"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatTextField @bind-Value="@model.FechaInicioStr" Label="Fecha inicio" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatTextField @bind-Value="@model.FechaFinStr" Label="Fecha fin" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+
+            <MatSelect Label="Estado" @bind-Value="model.JefeEstado">
+                <MatOptionString></MatOptionString>
+                <MatOptionString Value="P">PENDIENTE</MatOptionString>
+                <MatOptionString Value="A">APROBADO</MatOptionString>
+                <MatOptionString Value="R">RECHAZADO</MatOptionString>
+            </MatSelect>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <MatStringField @bind-Value="@model.JefeObservacion" Label="Obsevación" TextArea="true" Style="width:100%"></MatStringField>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+    <br />
+
+    <hr />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            <MatThemeProvider Theme="@theme3">
+                <MatButton Raised="true" Icon="cancel" @onclick="Cancelar">Cancelar</MatButton>
+            </MatThemeProvider>
+        </div>
+        <div class="col-md-2">
+
+            <MatThemeProvider Theme="@theme1">
+                <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
+            </MatThemeProvider>
+        </div>
+    </div>
+</EditForm>
+<br />
+@code {
+
+    [Parameter] public int Id { get; set; }
+
+
+    public AusentismoSolicitud model = new AusentismoSolicitud();
+    Response response = new Response();
+    string msgError = null;
+
+
+    MatTheme theme1 = new MatTheme()
+    {
+        Primary = "green",
+    };
+    MatTheme theme3 = new MatTheme()
+    {
+        Primary = "red",
+    };
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await LoadData();
+    }
+
+
+
+    protected async Task Save()
+    {
+        model.JefeUsuarioId = singleton.UsuarioId;
+        msgError = null;
+        model.GhEstado = null;
+        if (model.JefeEstado == "A")// Si el Jefe aprueba el permiso, queda pendiente para que el de Gestion Humana tambien lo apruebe.
+        {
+            model.GhEstado = "P";
+        }
+
+        if ((model.JefeEstado) == "R" && (model.JefeObservacion == "" || model.JefeObservacion == null))
+        {
+            msgError = "Debe ingresar una observación";
+        }
+
+
+
+        if (msgError == null)
+        {
+            if (Id != 0)
+            {
+
+                var result = await Http.PostAsJsonAsync<AusentismoSolicitud>($"api/AusentismosSolicitudes/EditJefe", model);
+                response = result.Content.ReadFromJsonAsync<Response>().Result;
+            }
+
+
+            if (response.IsSuccessful)
+            {
+                navigationManager.NavigateTo("/indexausentismosrevisarjefe");
+            }
+            else
+            {
+                await js.InvokeAsync<string>("MensajeAlerta", response.Message);
+            }
+        }
+        else
+        {
+            await js.InvokeAsync<string>("MensajeAlerta", msgError);
+        }
+
+    }
+
+    public void Cancelar()
+    {
+        navigationManager.NavigateTo("/indexausentismosrevisarjefe");
+    }
+
+
+    protected async Task LoadData()
+    {
+        model = new AusentismoSolicitud();
+
+
+        if (Id > 0)
+        {
+            response = await Http.GetFromJsonAsync<Response>($"api/AusentismosSolicitudes/{Id}/-1/-1");
+            if (response.IsSuccessful)
+            {
+                model = JsonConvert.DeserializeObject<List<AusentismoSolicitud>>(response.Data.ToString()).FirstOrDefault();
+            }
+
+        }
+    }
+}

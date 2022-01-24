@@ -10,6 +10,7 @@ namespace ZeroPapel.Shared
     {
         public int Id { get; set; }
         public int UsuarioId { get; set; }
+        public int JefeUsuarioId { get; set; }
         public int AusentismoTipoId  { get; set; }
         public string AusentismoTipoNombre { get; set; }
         public DateTime FechaInicio { get; set; }
@@ -20,11 +21,27 @@ namespace ZeroPapel.Shared
     
         public string Descripcion { get; set; }
         public string ArchivoRuta { get; set; }
-        public string Estado { get; set; }
-        public string EstadoDescripcion { get; set; }
-        public int UsuarioRegistroId { get; set; }
-        public DateTime FechaRegistro { get; set; }
-        public string FechaRegistroStr { get; set; }
+        public DateTime FechaSolicitud { get; set; }
+        public string FechaSolicitudStr { get; set; }
+        public string JefeEstado { get; set; }
+        public string JefeEstadoDescripcion { get; set; }
+
+        public DateTime?  JefeFecha { get; set; }
+        public int JefeUsuarioRegistroId { get; set; }
+        public string JefeObservacion { get; set; }
+
+
+        public string GhEstado { get; set; }
+        public string GhEstadoDescripcion { get; set; }
+
+        public DateTime? GhFecha { get; set; }
+        public string GhObservacion { get; set; }
+        public int GhUsuarioRegistroId { get; set; }
+
+       
+
+
+
     }
 }
 

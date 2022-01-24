@@ -15,34 +15,17 @@ namespace ZeroPapel.Server.Controllers
         AusentismosTiposDA datos = new AusentismosTiposDA();
         Mensajes mensajes = new Mensajes();
 
-        [HttpGet("[action]/{empresaId}")]
-        public IActionResult GetAusentismosTipos(int empresaId)
+
+
+        [HttpGet("{empresaId}/{id}")]
+        public IActionResult Get(int empresaId,int id)
         {
             Response response = new Response();
             try
             {
-                List<AusentismoTipo> list = datos.AusentismosTiposObtener(empresaId, -1);
+                List<AusentismoTipo> list = datos.AusentismosTiposObtener(empresaId,id);
                 response.IsSuccessful = true;
                 response.Data = list;
-            }
-            catch (Exception ex)
-            {
-                response.Message = ex.Message;
-            }
-
-            return Ok(response);
-        }
-
-
-        [HttpGet("{Id}")]
-        public IActionResult Get(int id)
-        {
-            Response response = new Response();
-            try
-            {
-                AusentismoTipo obj = datos.AusentismosTiposObtener(-1, id).ToList().FirstOrDefault();
-                response.IsSuccessful = true;
-                response.Data = obj;
             }
             catch (Exception ex)
             {

@@ -17,16 +17,17 @@
 <RadzenGrid  AllowColumnResize="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="20"
             AllowSorting="true" Data="@list" TItem="AusentismoSolicitud" ColumnWidth="200px">
     <Columns>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="FechaRegistroStr" Title="FechaSolicitud" Width="70%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="AusentismoTipoNombre" Title="Tipo" Width="70%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="FechaInicioStr" Title="FechaInicio" Width="70%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="FechaFinStr" Title="FechaFin" Width="70%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="Descripcion" Title="Descripción" Width="100%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="EstadoDescripcion" Title="Estado" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="FechaSolicitudStr" Title="FechaSolicitud" Width="60%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="AusentismoTipoNombre" Title="Tipo" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="FechaInicioStr" Title="FechaInicio" Width="60%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="FechaFinStr" Title="FechaFin" Width="60%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="Descripcion" Title="Descripción" Width="70%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="JefeEstadoDescripcion" Title="Estado(Jefe)" Width="30%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="JefeObservacion" Title="Observación(Jefe)" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="GhEstadoDescripcion" Title="Estado(Gh)" Width="30%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="AusentismoSolicitud" Property="GhObservacion" Title="Observación(Gh)" Width="50%"></RadzenGridColumn>
     </Columns>
 </RadzenGrid>
-
-
 
 
 
@@ -43,7 +44,7 @@
 
     protected async Task LoadData()
     {
-        response = await Http.GetFromJsonAsync<Response>($"api/AusentismosSolicitudes/GetAusentismosSolicitudes/-1/{singleton.UsuarioId}");
+        response = await Http.GetFromJsonAsync<Response>($"api/AusentismosSolicitudes/-1/{singleton.UsuarioId}/-1");
         if (response.IsSuccessful)
         {
             list = JsonConvert.DeserializeObject<List<AusentismoSolicitud>>(response.Data.ToString());

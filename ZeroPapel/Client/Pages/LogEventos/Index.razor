@@ -1,0 +1,84 @@
+﻿@page "/indexlogeventos"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json;
+@inject ServicioSingleton singleton
+
+
+<div class="row alert bg-info">
+    <div class="col-md-5">
+        <h5> <b>LOG DE ERRORES</b></h5>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-2">
+        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="cloud_download" Text="Exportar Excel" Size="ButtonSize.Medium" Click="@(async() => await DownloadFile())">
+        </RadzenButton>
+    </div>
+</div>
+<RadzenGrid AllowColumnResize="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="20"
+            AllowSorting="true" Data="@list" TItem="LogEvento" ColumnWidth="200px">
+    <Columns>
+        <RadzenGridColumn TItem="LogEvento" Property="Fecha" Title="Fecha" Width="30%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="LogEvento" Property="Mensaje" Title="Mensaje" Width="100%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="LogEvento" Property="Fuente" Title="Fuente" Width="60%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="LogEvento" Property="Seguimiento" Title="Seguimiento" Width="70"></RadzenGridColumn>
+        <RadzenGridColumn TItem="LogEvento" Context="LogEvento"  Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100%">
+            <Template Context="LogEvento">
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="pageview" Text="Detalle" Size="ButtonSize.Medium" Click="@((args) =>Detalle(LogEvento.Id))">
+                </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
+
+    </Columns>
+</RadzenGrid>
+
+
+
+@code {
+
+
+    List<LogEvento> list;
+    Response response = new Response();
+    public int IsDownloadStarted { get; set; } = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    protected async Task LoadData()
+    {
+        response = await Http.GetFromJsonAsync<Response>($"api/logeventos/-1");
+        if (response.IsSuccessful)
+        {
+            list = JsonConvert.DeserializeObject<List<LogEvento>>(response.Data.ToString());
+        }
+
+    }
+
+    public void Detalle(int id)
+    {
+        navigationManager.NavigateTo("/formlogeventos/" + id);
+    }
+
+
+
+    protected async Task DownloadFile()
+    {
+        //    IsDownloadStarted = 1;
+        //    StateHasChanged();
+
+
+        //    var response = await Http.GetAsync($"api/files/DownloadExcel/{singleton.EmpresaId}");
+        //    response.EnsureSuccessStatusCode();
+        //    var fileBytes = await response.Content.ReadAsByteArrayAsync();
+        //    var fileName = $"Empleados{DateTime.Now.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)}.xlsx";
+        //    await JSRuntime.InvokeAsync<object>("saveAsFile", fileName, Convert.ToBase64String(fileBytes));
+        //    IsDownloadStarted = 2;
+     }
+
+}

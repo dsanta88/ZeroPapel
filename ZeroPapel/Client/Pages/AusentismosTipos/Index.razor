@@ -57,7 +57,7 @@
 
     protected async Task LoadData()
     {
-        response = await Http.GetFromJsonAsync<Response>($"api/ausentismostipos/GetAusentismosTipos/{singleton.EmpresaId}");
+        response = await Http.GetFromJsonAsync<Response>($"api/ausentismostipos/{singleton.EmpresaId}/-1");
         if (response.IsSuccessful)
         {
             list = JsonConvert.DeserializeObject<List<AusentismoTipo>>(response.Data.ToString());

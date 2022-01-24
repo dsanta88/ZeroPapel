@@ -15,13 +15,13 @@ namespace ZeroPapel.Server.Controllers
         AusentismosSolicitudesDA datos = new AusentismosSolicitudesDA();
         Mensajes mensajes = new Mensajes();
 
-        [HttpGet("[action]/{id}/{usuarioId}")]
-        public IActionResult GetAusentismosSolicitudes(int id, int usuarioId)
+        [HttpGet("{id}/{usuarioId}/{jefeUsuarioId}")]
+        public IActionResult Get(int id, int usuarioId, int jefeUsuarioId)
         {
             Response response = new Response();
             try
             {
-                List<AusentismoSolicitud> list = datos.AusentismosSolicitudesObtener(id, usuarioId);
+                List<AusentismoSolicitud> list = datos.AusentismosSolicitudesObtener(id, usuarioId,jefeUsuarioId);
                 response.IsSuccessful = true;
                 response.Data = list;
             }
@@ -33,27 +33,7 @@ namespace ZeroPapel.Server.Controllers
             return Ok(response);
         }
 
-
-        [HttpGet("{Id}")]
-        public IActionResult Get(int id)
-        {
-            Response response = new Response();
-            try
-            {
-                AusentismoSolicitud obj = datos.AusentismosSolicitudesObtener(-1, id).ToList().FirstOrDefault();
-                response.IsSuccessful = true;
-                response.Data = obj;
-            }
-            catch (Exception ex)
-            {
-                response.Message = ex.Message;
-            }
-
-            return Ok(response);
-        }
-
-
-        [HttpPost]
+        [HttpPost()]
         public IActionResult Add(AusentismoSolicitud model)
         {
             Response response = new Response();
@@ -78,13 +58,38 @@ namespace ZeroPapel.Server.Controllers
             return Ok(response);
         }
 
-        [HttpPut]
-        public IActionResult Edit(AusentismoSolicitud model)
+        //[HttpPost]
+        //public IActionResult Edit(AusentismoSolicitud model)
+        //{
+        //    Response response = new Response();
+        //    try
+        //    {
+        //        if (datos.AusentismosSolicitudesEditar(model))
+        //        {
+        //            response.IsSuccessful = true;
+        //        }
+        //        else
+        //        {
+        //            response.IsSuccessful = false;
+        //            response.Message = mensajes.msgErrorEditar();
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        response.Message = ex.Message;
+        //    }
+
+        //    return Ok(response);
+        //}
+
+
+        [HttpPost("[action]")]
+        public IActionResult EditJefe(AusentismoSolicitud model)
         {
             Response response = new Response();
             try
             {
-                if (datos.AusentismosSolicitudesEditar(model))
+                if (datos.AusentismosSolicitudesJefeEditar(model))
                 {
                     response.IsSuccessful = true;
                 }
@@ -101,6 +106,7 @@ namespace ZeroPapel.Server.Controllers
 
             return Ok(response);
         }
+
 
         [HttpDelete("{Id}")]
         public IActionResult Delete(int id)
