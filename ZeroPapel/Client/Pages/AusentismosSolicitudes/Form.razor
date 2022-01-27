@@ -65,7 +65,7 @@
         <div class="row">
             <div class="col-md-1"></div>
             <div class="col-md-3">
-                <a>Tipo de ausentismo</a>
+                <b>Tipo de ausentismo</b>
                 <RadzenDropDown AllowClear="true"
                                 AllowFiltering="true"
                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
@@ -171,14 +171,8 @@
 
         if (msgError == null)
         {
-            if (Id != 0)
-            {
-
-                var result = await Http.PostAsJsonAsync<AusentismoSolicitud>($"api/AusentismosSolicitudes", model);
-                response = result.Content.ReadFromJsonAsync<Response>().Result;
-            }
-
-
+            var result = await Http.PostAsJsonAsync<AusentismoSolicitud>($"api/AusentismosSolicitudes/Guardar", model);
+             response = result.Content.ReadFromJsonAsync<Response>().Result;
 
             if (response.IsSuccessful)
             {
@@ -284,7 +278,7 @@
              <br>
              <b>Fecha Inicio:</b> {3}
              <br
-             <b>Fecha Fin:</b> {4}
+            <b>Fecha Fin:</b> {4}
              <br>
              <b>Descripción:</b> {5}
             

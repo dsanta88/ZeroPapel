@@ -5,6 +5,7 @@
 @inject NavigationManager navigationManager
 @using Newtonsoft.Json;
 @inject ServicioSingleton singleton
+@inject IJSRuntime js
 
 <div class="row alert bg-info">
     <div class="row col-md-1">
@@ -127,11 +128,13 @@
     {
         if (Id > 0)
         {
+
             response = await Http.GetFromJsonAsync<Response>($"api/ausentismostipos/{singleton.EmpresaId}/{Id}");
             if (response.IsSuccessful)
             {
                 model = JsonConvert.DeserializeObject<List<AusentismoTipo>>(response.Data.ToString()).FirstOrDefault();
             }
+
         }
     }
 }

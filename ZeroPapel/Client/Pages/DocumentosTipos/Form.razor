@@ -1,5 +1,5 @@
-﻿@page "/formausentismostipos"
-@page "/formausentismostipos/{Id:int}"
+﻿@page "/formdocumentostipos"
+@page "/formdocumentostipos/{Id:int}"
 @using ZeroPapel.Shared
 @inject HttpClient Http
 @using MatBlazor
@@ -36,6 +36,15 @@
 
 <EditForm Model="@model" OnValidSubmit="Save">
 
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <MatTextField @bind-Value="@model.Codigo" Label="Código" Style="width:30%" Required="true"></MatTextField>
+        </div>
+    </div>
+
+    <br />
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-5">
@@ -78,7 +87,7 @@
     public int Id { get; set; }
     string titulo = "";
     string msgError = null;
-    public AusentismoTipo model = new AusentismoTipo();
+    public DocumentoTipo model = new DocumentoTipo();
     Response response = new Response();
 
     MatTheme theme1 = new MatTheme()
@@ -104,19 +113,19 @@
         if (Id != 0)
         {
 
-            var result = await Http.PostAsJsonAsync<AusentismoTipo>($"api/ausentismostipos/edit", model);
+            var result = await Http.PostAsJsonAsync<DocumentoTipo>($"api/documentostipos/Edit", model);
             response = result.Content.ReadFromJsonAsync<Response>().Result;
         }
         else
         {
-            var result = await Http.PostAsJsonAsync<AusentismoTipo>($"api/ausentismostipos", model);
+            var result = await Http.PostAsJsonAsync<DocumentoTipo>($"api/documentostipos", model);
             response = result.Content.ReadFromJsonAsync<Response>().Result;
         }
 
 
         if (response.IsSuccessful)
         {
-            navigationManager.NavigateTo("/indexausentismostipos");
+            navigationManager.NavigateTo("/indexdocumentostipos");
         }
         else
         {
@@ -127,27 +136,27 @@
 
     protected async Task Cancelar()
     {
-        navigationManager.NavigateTo("/indexausentismostipos");
+        navigationManager.NavigateTo("/indexdocumentostipos");
     }
 
 
     protected async Task LoadData()
     {
 
-
+        model = new DocumentoTipo();
         if (Id > 0)
         {
-            titulo = "EDITAR TIPO DE AUSENTISMO";
-            response = await Http.GetFromJsonAsync<Response>($"api/ausentismostipos/{singleton.EmpresaId}/{Id}");
+            titulo = "EDITAR TIPO DE DOCUMENTO";
+            response = await Http.GetFromJsonAsync<Response>($"api/documentostipos/{singleton.EmpresaId}/{Id}");
             if (response.IsSuccessful)
             {
-                model = JsonConvert.DeserializeObject<List<AusentismoTipo>>(response.Data.ToString()).FirstOrDefault();
+                model = JsonConvert.DeserializeObject<List<DocumentoTipo>>(response.Data.ToString()).FirstOrDefault();
             }
         }
         else
         {
             model.Estado = true;
-            titulo = "NUEVO TIPO DE AUSENTISMO";
+            titulo = "NUEVO TIPO DE DOCUMENTO";
         }
     }
 

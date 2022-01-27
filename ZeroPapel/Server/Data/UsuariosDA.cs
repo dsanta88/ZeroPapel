@@ -270,6 +270,8 @@ namespace ZeroPapel.Server.Data
                         {
                             obj.Id = Convert.ToInt32(item["Id"].ToString());
                             obj.EmpresaId = Convert.ToInt32(item["EmpresaId"].ToString());
+                            obj.EmpresaNombre = item["EmpresaNombre"].ToString();
+                            obj.EmpresaLogo = item["EmpresaLogo"].ToString();
                             obj.CargoId = Convert.ToInt32(item["CargoId"].ToString());
                             obj.JefeUsuarioId = Convert.ToInt32(item["JefeUsuarioId"].ToString());
                             obj.NombreCompleto = item["NombreCompleto"].ToString();

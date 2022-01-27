@@ -1,0 +1,330 @@
+﻿@page "/formdocumentos"
+@page "/formdocumentos/{Id:int}"
+@using ZeroPapel.Shared
+@using System.IO
+@using BlazorInputFile inputFile
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json;
+@inject ServicioSingleton singleton
+@inject IJSRuntime js
+@using System.Globalization;
+@inject IFileReaderService fileReaderService;
+
+
+<div class="row alert bg-info">
+    <div class="row col-md-1">
+
+    </div>
+    <div class="col-md-5">
+        <h5> <b>@titulo</b></h5>
+    </div>
+</div>
+
+@if (msgError != null)
+{
+    <div class="row alert bg-danger">
+        <div class="row col-md-1">
+
+        </div>
+        <div class="col-md-10">
+            <MatThemeProvider>
+                <MatIcon Icon="cancel"> </MatIcon>   @msgError
+            </MatThemeProvider>
+        </div>
+    </div>
+}
+
+<div class="row alert bg-warning">
+    <div class="row col-md-1">
+
+    </div>
+    <div class="col-md-11">
+        <MatThemeProvider>
+            <MatIcon Icon="info"> </MatIcon> <b>Importante:</b> @msgNota
+        </MatThemeProvider>
+    </div>
+</div>
+
+
+@if (!guardado)
+{
+    <EditForm Model="@model" OnValidSubmit="Save">
+
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-3">
+                <b>Centro de costo</b>
+                <RadzenDropDown AllowClear="true"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                @bind-Value="model.CentroCostoId"
+                                Multiple="false" Placeholder="[SELECCIONAR]"
+                                Data="@listCentrosCosto"
+                                TextProperty="Descripcion"
+                                ValueProperty="Id"
+                                Style="width:100%" />
+            </div>
+            <div class="col-md-1"></div>
+            <div class="col-md-3">
+                <b>Tipo documento</b>
+                <RadzenDropDown AllowClear="true"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                @bind-Value="model.DocumentoTipoId"
+                                Multiple="false" Placeholder="[SELECCIONAR]"
+                                Data="@listDocumentosTipo"
+                                TextProperty="Nombre"
+                                ValueProperty="Id"
+                                Style="width:100%" />
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-3">
+                <b>Proveedores</b>
+                <RadzenDropDown AllowClear="true"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                @bind-Value="model.ProvedorNit"
+                                Multiple="false" Placeholder="[SELECCIONAR]"
+                                Data="@listProveedores"
+                                TextProperty="RazonSocialSucursal"
+                                ValueProperty="Nit"
+                                Style="width:100%" />
+            </div>
+            <div class="col-md-1"></div>
+
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-3">
+                <b>Fecha de recepción</b>
+                <RadzenDatePicker Style="width:100%" ShowTime="false" @bind-Value="@model.FechaRecepcion" HourFormat="12" DateFormat="d MMMM yyyy" />
+            </div>
+            <div class="col-md-1"></div>
+            <div class="col-md-3">
+                <b>Número de documento</b>
+                <MatStringField @bind-Value="@model.NumeroDocumento" Style="width:100%" Required="true"></MatStringField>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-3">
+                <b>Fecha de expedición de documento</b>
+                <RadzenDatePicker Style="width:100%" ShowTime="false" @bind-Value="@model.FechaExpedicion" HourFormat="12" DateFormat="d MMMM yyyy" />
+            </div>
+            <div class="col-md-1"></div>
+            <div class="col-md-3">
+                <b>Fecha de vencimiento del documento</b>
+                <RadzenDatePicker Style="width:100%" ShowTime="false" @bind-Value="@model.FechaVencimiento" HourFormat="12" DateFormat="d MMMM yyyy" />
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-3">
+                <b>Moneda</b>
+                <RadzenDropDown AllowClear="true"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                @bind-Value="model.MonedaId"
+                                Multiple="false" Placeholder="[SELECCIONAR]"
+                                Data="@listMonedaTipo"
+                                TextProperty="Moneda"
+                                ValueProperty="Id"
+                                Style="width:100%" />
+            </div>
+            <div class="col-md-1"></div>
+            <div class="col-md-3">
+                <b>Adjuntar docuement</b>
+                <input class="bg-light" type="file" @ref="@inputElement" accept=".pdf">
+            </div>
+
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+                <b>Observación</b>
+                <MatTextField @bind-Value="@model.Observacion" TextArea="true" Required="true" Style="width:100%"></MatTextField>
+            </div>
+        </div>
+        <hr />
+
+        <div class="row">
+            <div class="col-md-1"></div>
+            <br />
+            <div class="col-md-2">
+
+                <MatThemeProvider Theme="@theme1">
+                    <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
+                </MatThemeProvider>
+            </div>
+        </div>
+    </EditForm>
+}
+
+<br />
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+    string titulo = "";
+    string msgError = null;
+    string msgNota = null;
+    bool guardado = false;
+    ElementReference inputElement;
+    string status;
+
+    List<CentroCosto> listCentrosCosto = new List<CentroCosto>();
+    List<DocumentoTipo> listDocumentosTipo = new List<DocumentoTipo>();
+    List<Proveedor> listProveedores = new List<Proveedor>();
+    List<MonedaTipo> listMonedaTipo = new List<MonedaTipo>();
+    public Documento model = new Documento();
+    Response response = new Response();
+
+
+    MatTheme theme1 = new MatTheme()
+    {
+        Primary = "green",
+    };
+    MatTheme theme3 = new MatTheme()
+    {
+        Primary = "red",
+    };
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    protected async Task Save()
+    {
+
+        msgError = null;
+        model.UsuarioRegistroId = singleton.UsuarioId;
+        model.ArchivoRuta = "";
+
+
+        if (msgError == null)
+        {
+            var result = await Http.PostAsJsonAsync<Documento>($"api/documentos/guardar", model);
+            response = result.Content.ReadFromJsonAsync<Response>().Result;
+
+            if (response.IsSuccessful)
+            {
+                //await EnviarEmail();
+                await CargarArchivo();
+                guardado = true;
+                navigationManager.NavigateTo("/indexausentismossolicitudes");
+            }
+            else
+            {
+                msgError = response.Message;
+                await js.InvokeAsync<string>("MensajeAlerta", msgError);
+
+            }
+        }
+        else
+        {
+            await js.InvokeAsync<string>("MensajeAlerta", msgError);
+        }
+    }
+
+
+    protected async Task LoadData()
+    {
+        model.FechaRecepcion = DateTime.Now;
+
+        //Centros Costo
+        response = await Http.GetFromJsonAsync<Response>($"api/centroscosto");
+        if (response.IsSuccessful)
+        {
+            listCentrosCosto = JsonConvert.DeserializeObject<List<CentroCosto>>(response.Data.ToString());
+        }
+
+
+        //Tipos de documento
+        response = await Http.GetFromJsonAsync<Response>($"api/documentostipos/{singleton.EmpresaId}/-1");
+        if (response.IsSuccessful)
+        {
+            listDocumentosTipo = JsonConvert.DeserializeObject<List<DocumentoTipo>>(response.Data.ToString());
+            listDocumentosTipo = listDocumentosTipo.Where(x => x.Estado == true).ToList();
+        }
+
+
+        ////Proveedores
+        response = await Http.GetFromJsonAsync<Response>($"api/Proveedores");
+        if (response.IsSuccessful)
+        {
+            listProveedores = JsonConvert.DeserializeObject<List<Proveedor>>(response.Data.ToString());
+        }
+
+
+        //Menedas
+        response = await Http.GetFromJsonAsync<Response>($"api/monedatipos/{singleton.EmpresaId}/-1");
+        if (response.IsSuccessful)
+        {
+            listMonedaTipo = JsonConvert.DeserializeObject<List<MonedaTipo>>(response.Data.ToString());
+            listMonedaTipo.Where(x => x.Estado == true).ToList();
+        }
+
+        if (Id > 0)
+        {
+            titulo = "EDITAR CARGO";
+            //response = await Http.GetFromJsonAsync<Response>($"api/ausentismostipos/{singleton.EmpresaId}/{Id}");
+            //if (response.IsSuccessful)
+            //{
+            //    model = JsonConvert.DeserializeObject<List<Usuario>>(response.Data.ToString()).FirstOrDefault();
+            //}
+        }
+        else
+        {
+            //model.FechaInicio = DateTime.Now;
+            //model.FechaFin = DateTime.Now;
+            titulo = "NUEVA SOLICITUD";
+        }
+    }
+
+
+    async Task CargarArchivo()
+    {
+
+        try
+        {
+            foreach (var file in await fileReaderService.CreateReference(inputElement).EnumerateFilesAsync())
+            {
+
+                string ArchivoBase64;
+
+                using (MemoryStream memorystream = await file.CreateMemoryStreamAsync(4 * 1024))
+                {
+
+                    byte[] bytesimage = new byte[memorystream.Length];
+                    memorystream.Read(bytesimage, 0, (int)memorystream.Length);
+                    ArchivoBase64 = Convert.ToBase64String(bytesimage);
+
+
+                    Archivo archivo = new Archivo();
+                    archivo.Base64 = ArchivoBase64;
+                    archivo.Formato = "pdf";
+                    archivo.Nombre = "Prueba.pdf";
+
+                    await Http.PostAsJsonAsync<Archivo>("api/uploadfiles", archivo);
+                    await LoadData();
+                }
+            }
+        }
+
+        catch (Exception ex)
+        {
+            string error = ex.Message;
+        }
+    }
+}

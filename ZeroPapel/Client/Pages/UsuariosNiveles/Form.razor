@@ -6,7 +6,7 @@
 @inject NavigationManager navigationManager
 @using Newtonsoft.Json;
 @inject ServicioSingleton singleton
-
+@inject IJSRuntime js
 
 
 <div class="row alert bg-info">
@@ -117,6 +117,7 @@
         else
         {
             msgError = response.Message;
+            await js.InvokeAsync<string>("MensajeAlerta", msgError);
         }
     }
 
@@ -128,7 +129,7 @@
 
     protected async Task LoadData()
     {
-       
+
         model = new UsuarioNivel();
         if (Id > 0)
         {

@@ -1,22 +1,33 @@
-﻿@page "/formausentismostipos"
-@page "/formausentismostipos/{Id:int}"
+﻿@page "/deletedocumentostipos/{Id:int}"
 @using ZeroPapel.Shared
 @inject HttpClient Http
 @using MatBlazor
 @inject NavigationManager navigationManager
 @using Newtonsoft.Json;
-@inject ServicioSingleton singleton
 @inject IJSRuntime js
-
+@inject ServicioSingleton singleton
 
 <div class="row alert bg-info">
     <div class="row col-md-1">
 
     </div>
     <div class="col-md-5">
-        <h5> <b>@titulo</b></h5>
+        <h5> <b>ELIMINAR TIPO DE DOCUMENTO</b></h5>
     </div>
 </div>
+
+
+<div class="row alert bg-warning">
+    <div class="row col-md-1">
+
+    </div>
+    <div class="col-md-5">
+        <MatThemeProvider>
+            <MatIcon Icon="warning"> </MatIcon> Esta  seguro de eliminar el tipo de documento?
+        </MatThemeProvider>
+    </div>
+</div>
+
 
 @if (msgError != null)
 {
@@ -33,27 +44,22 @@
 }
 
 
-
-<EditForm Model="@model" OnValidSubmit="Save">
+<EditForm Model="@model" OnValidSubmit="DeleteItem">
 
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-5">
-            <MatStringField @bind-Value="@model.Nombre" Label="Nombre" Style="width:100%" Required="true"></MatStringField>
+            <MatStringField @bind-Value="@model.Nombre" Label="Descripción" Style="width:100%" Disabled="true"></MatStringField>
         </div>
     </div>
-
     <br />
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-5">
-            <MatSelect Label="Estado" @bind-Value=@model.Estado Required="true">
-                <MatOption Value=true>ACTIVO</MatOption>
-                <MatOption Value=false>INACTIVO</MatOption>
-            </MatSelect>
+            <MatStringField @bind-Value="@model.EstadoDescripcion" Label="Estado" Style="width:100%" Disabled="true"></MatStringField>
         </div>
     </div>
-    <hr />
+    <br />
 
     <div class="row">
         <div class="col-md-1"></div>
@@ -62,11 +68,9 @@
                 <MatButton Raised="true" Icon="cancel" @onclick="Cancelar">Cancelar</MatButton>
             </MatThemeProvider>
         </div>
-        <br />
         <div class="col-md-2">
-
             <MatThemeProvider Theme="@theme1">
-                <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
+                <MatButton Raised="true" Icon="check_circle" Type="submit">Aceptar</MatButton>
             </MatThemeProvider>
         </div>
     </div>
@@ -76,10 +80,10 @@
 
     [Parameter]
     public int Id { get; set; }
-    string titulo = "";
-    string msgError = null;
-    public AusentismoTipo model = new AusentismoTipo();
+
+    public DocumentoTipo model = new DocumentoTipo();
     Response response = new Response();
+    string msgError = null;
 
     MatTheme theme1 = new MatTheme()
     {
@@ -96,60 +100,39 @@
         await LoadData();
     }
 
-    protected async Task Save()
+    protected async Task DeleteItem()
     {
-        model.EmpresaId = singleton.EmpresaId;
-        model.Nombre = model.Nombre.ToUpper();
 
-        if (Id != 0)
-        {
-
-            var result = await Http.PostAsJsonAsync<AusentismoTipo>($"api/ausentismostipos/edit", model);
-            response = result.Content.ReadFromJsonAsync<Response>().Result;
-        }
-        else
-        {
-            var result = await Http.PostAsJsonAsync<AusentismoTipo>($"api/ausentismostipos", model);
-            response = result.Content.ReadFromJsonAsync<Response>().Result;
-        }
+        var result = await Http.DeleteAsync($"api/documentostipos/{Id}");
+        response = result.Content.ReadFromJsonAsync<Response>().Result;
 
 
         if (response.IsSuccessful)
         {
-            navigationManager.NavigateTo("/indexausentismostipos");
+            navigationManager.NavigateTo("/indexdocumentostipos");
         }
         else
         {
             msgError = response.Message;
-            await js.InvokeAsync<string>("MensajeAlerta", msgError);
         }
+
     }
 
     protected async Task Cancelar()
     {
-        navigationManager.NavigateTo("/indexausentismostipos");
+        navigationManager.NavigateTo("/indexdocumentostipos");
     }
 
 
     protected async Task LoadData()
     {
-
-
         if (Id > 0)
         {
-            titulo = "EDITAR TIPO DE AUSENTISMO";
-            response = await Http.GetFromJsonAsync<Response>($"api/ausentismostipos/{singleton.EmpresaId}/{Id}");
+            response = await Http.GetFromJsonAsync<Response>($"api/documentostipos/{singleton.EmpresaId}/{Id}");
             if (response.IsSuccessful)
             {
-                model = JsonConvert.DeserializeObject<List<AusentismoTipo>>(response.Data.ToString()).FirstOrDefault();
+                model = JsonConvert.DeserializeObject<List<DocumentoTipo>>(response.Data.ToString()).FirstOrDefault();
             }
         }
-        else
-        {
-            model.Estado = true;
-            titulo = "NUEVO TIPO DE AUSENTISMO";
-        }
     }
-
-
 }

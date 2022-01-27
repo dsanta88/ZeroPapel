@@ -5,7 +5,7 @@
 @using MatBlazor
 @inject NavigationManager navigationManager
 @using Newtonsoft.Json;
-
+@inject IJSRuntime js
 
 
 <div class="row alert bg-info">
@@ -62,7 +62,7 @@
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-10">
-            <MatTextField @bind-Value="@model.Descripcion" Label="Descripción"  TextArea="true" Style="width:100%" ></MatTextField>
+            <MatTextField @bind-Value="@model.Descripcion" Label="Descripción" TextArea="true" Style="width:100%"></MatTextField>
         </div>
     </div>
 
@@ -93,7 +93,7 @@
     string msgError = null;
     public Parametro model = new Parametro();
     Response response = new Response();
-   
+
 
     MatTheme theme1 = new MatTheme()
     {
@@ -120,7 +120,7 @@
             var result = await Http.PostAsJsonAsync<Parametro>($"api/parametros/edit", model);
             response = result.Content.ReadFromJsonAsync<Response>().Result;
         }
-  
+
 
         if (response.IsSuccessful)
         {
@@ -129,6 +129,7 @@
         else
         {
             msgError = response.Message;
+            await js.InvokeAsync<string>("MensajeAlerta", msgError);
         }
     }
 

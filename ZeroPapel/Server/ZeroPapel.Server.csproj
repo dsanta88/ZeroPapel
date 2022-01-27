@@ -14,5 +14,9 @@
     <ProjectReference Include="..\Shared\ZeroPapel.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="upload\" />
+  </ItemGroup>
+
 
 </Project>

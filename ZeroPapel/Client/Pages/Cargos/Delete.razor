@@ -4,6 +4,8 @@
 @using MatBlazor
 @inject NavigationManager navigationManager
 @using Newtonsoft.Json;
+@inject IJSRuntime js
+@inject ServicioSingleton singleton
 
 <div class="row alert bg-info">
     <div class="row col-md-1">
@@ -107,7 +109,7 @@
 
     protected async Task DeleteItem()
     {
-   
+
         var result = await Http.DeleteAsync($"api/Cargos/{Id}");
         response = result.Content.ReadFromJsonAsync<Response>().Result;
 
@@ -133,10 +135,10 @@
     {
         if (Id > 0)
         {
-            response = await Http.GetFromJsonAsync<Response>($"api/Cargos/{Id}");
+            response = await Http.GetFromJsonAsync<Response>($"api/Cargo/{singleton.EmpresaId}/{Id}");
             if (response.IsSuccessful)
             {
-                model = JsonConvert.DeserializeObject<Cargo>(response.Data.ToString());
+                model = JsonConvert.DeserializeObject<List<Cargo>>(response.Data.ToString()).FirstOrDefault();
             }
         }
     }

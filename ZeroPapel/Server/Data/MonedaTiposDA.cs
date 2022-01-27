@@ -9,34 +9,32 @@ using ZeroPapel.Shared;
 
 namespace ZeroPapel.Server.Data
 {
-    public class ParametrosDA
+    public class MonedaTiposDA
     {
-
         LeerJson objJson = new LeerJson();
         LogEventosDA logDA = new LogEventosDA();
         string strConexionSQL = "";
 
 
-        public ParametrosDA()
+        public MonedaTiposDA()
         {
             strConexionSQL = objJson.GetStrConexion();
         }
-        public List<Parametro> ParametrosObtener(int empresaId, int id, string nombre)
+        public List<MonedaTipo> MonedaTiposObtener(int empresaId, int id)
         {
             DataSet ds = new DataSet();
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
             SqlCommand comandoSQL = new SqlCommand();
             SqlDataAdapter adaptadorSQL = new SqlDataAdapter();
-            List<Parametro> lst = new List<Parametro>();
+            List<MonedaTipo> lst = new List<MonedaTipo>();
 
             try
             {
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_parametros_obtener";
+                comandoSQL.CommandText = "sp_moneda_tipos_obtener";
                 comandoSQL.Parameters.AddWithValue("@EmpresaId", empresaId);
                 comandoSQL.Parameters.AddWithValue("@Id", id);
-                comandoSQL.Parameters.AddWithValue("@Nombre", nombre);
                 adaptadorSQL.SelectCommand = comandoSQL;
                 adaptadorSQL.Fill(ds);
 
@@ -46,12 +44,18 @@ namespace ZeroPapel.Server.Data
                     {
                         foreach (DataRow item in ds.Tables[0].Rows)
                         {
-                            Parametro obj = new Parametro();
+                            MonedaTipo obj = new MonedaTipo();
                             obj.Id = Convert.ToInt32(item["Id"].ToString());
-                            obj.Nombre = item["Nombre"].ToString();
-                            obj.Valor = item["Valor"].ToString();
-                            obj.Descripcion = item["Descripcion"].ToString();
-                            obj.TipoDato = item["TipoDato"].ToString();
+                            obj.Moneda = item["Moneda"].ToString();
+                            obj.Estado = Convert.ToBoolean(item["Estado"].ToString());
+                            if (obj.Estado)
+                            {
+                                obj.EstadoDescripcion = "ACTIVO";
+                            }
+                            else
+                            {
+                                obj.EstadoDescripcion = "INACTIVO";
+                            }
                             lst.Add(obj);
                         }
                     }
@@ -67,43 +71,7 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Parameters.Clear();
                 comandoSQL.Connection.Close();
             }
-
             return lst;
-        }
-
-
-        public bool ParametrosEditar(Parametro model)
-        {
-            SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
-            SqlCommand comandoSQL = new SqlCommand();
-
-            try
-            {
-                comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_parametros_editar";
-                comandoSQL.Parameters.AddWithValue("@Id", model.Id);
-                comandoSQL.Parameters.AddWithValue("@Nombre", model.Nombre);
-                comandoSQL.Parameters.AddWithValue("@Valor", model.Valor);
-                comandoSQL.Parameters.AddWithValue("@Descripcion", model.Descripcion);
-                comandoSQL.Parameters.AddWithValue("@TipoDato", model.TipoDato);
-
-                comandoSQL.Connection = conexionSQL;
-                comandoSQL.Connection.Open();
-                comandoSQL.ExecuteNonQuery();
-
-            }
-            catch (Exception ex)
-            {
-                LogEventosIngresar(ex);
-                return false;
-            }
-            finally
-            {
-                comandoSQL.Parameters.Clear();
-                comandoSQL.Connection.Close();
-            }
-
-            return true;
         }
 
         public bool LogEventosIngresar(Exception ex)

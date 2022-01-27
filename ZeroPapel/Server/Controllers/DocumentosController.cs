@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,18 +11,18 @@ namespace ZeroPapel.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AusentismosSolicitudesController : ControllerBase
+    public class DocumentosController : ControllerBase
     {
-        AusentismosSolicitudesDA datos = new AusentismosSolicitudesDA();
+        DocumentosDA datos = new DocumentosDA();
         Mensajes mensajes = new Mensajes();
 
-        [HttpGet("{id}/{usuarioId}/{jefeUsuarioId}")]
-        public IActionResult Get(int id, int usuarioId, int jefeUsuarioId)
+        [HttpGet("{empresaId}/{id}")]
+        public IActionResult Get(int empresaId, int id)
         {
             Response response = new Response();
             try
             {
-                List<AusentismoSolicitud> list = datos.AusentismosSolicitudesObtener(id, usuarioId,jefeUsuarioId);
+                List<Documento> list = datos.DocumentosObtener(empresaId, id);
                 response.IsSuccessful = true;
                 response.Data = list;
             }
@@ -33,22 +34,22 @@ namespace ZeroPapel.Server.Controllers
             return Ok(response);
         }
 
+
         [HttpPost("[action]")]
-        public IActionResult Guardar(AusentismoSolicitud model)
+        public IActionResult guardar(Documento model)
         {
             Response response = new Response();
             try
             {
-               if( datos.AusentismosSolicitudesIngresar(model))
+                if (datos.DocumentosIngresar(model))
                 {
                     response.IsSuccessful = true;
                 }
-               else
+                else
                 {
                     response.IsSuccessful = false;
                     response.Message = mensajes.msgErrorGuardar();
                 }
-                
             }
             catch (Exception ex)
             {
@@ -58,38 +59,13 @@ namespace ZeroPapel.Server.Controllers
             return Ok(response);
         }
 
-        //[HttpPost]
-        //public IActionResult Edit(AusentismoSolicitud model)
-        //{
-        //    Response response = new Response();
-        //    try
-        //    {
-        //        if (datos.AusentismosSolicitudesEditar(model))
-        //        {
-        //            response.IsSuccessful = true;
-        //        }
-        //        else
-        //        {
-        //            response.IsSuccessful = false;
-        //            response.Message = mensajes.msgErrorEditar();
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        response.Message = ex.Message;
-        //    }
-
-        //    return Ok(response);
-        //}
-
-
         [HttpPost("[action]")]
-        public IActionResult EditJefe(AusentismoSolicitud model)
+        public IActionResult Edit(Documento model)
         {
             Response response = new Response();
             try
             {
-                if (datos.AusentismosSolicitudesJefeEditar(model))
+                if (datos.DocumentosEditar(model))
                 {
                     response.IsSuccessful = true;
                 }
@@ -107,14 +83,13 @@ namespace ZeroPapel.Server.Controllers
             return Ok(response);
         }
 
-
         [HttpDelete("{Id}")]
         public IActionResult Delete(int id)
         {
             Response response = new Response();
             try
             {
-                if (datos.AusentismosSolicitudesEliminar(id))
+                if (datos.DocumentosEliminar(id))
                 {
                     response.IsSuccessful = true;
                 }

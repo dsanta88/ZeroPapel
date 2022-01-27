@@ -10,63 +10,59 @@
 @inject ServicioSingleton singleton
 
 
-    <div class="row alert" style="        text-align: center;background-color:forestgreen">
+    <div class="row alert" style="text-align: center;background-color:white">
         <br />
         <div class="col-md-12">
-            <img src="Images/logo-kyrovet.png" class="brand-image img-circle elevation-3"
-                 style="opacity: .8">
-            <br />
+           
         </div>
     </div>
 
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
 
-@*<div class="row alert" style="        text-align: center;background-color:forestgreen">
-    <br />
-    <br />
-    <br />
-    <br />
-
-    <br />
-    <div class="col-md-12">
-
-        <br />
-    </div>
-</div>*@
-<hr />
-<div class="row">
+<div class="row" >
     <div class="col-md-1">
-    </div>
 
-    <div class="col-md-2">
     </div>
-    <div class="col-md-6">
-        <div class="card">
-            <MatDialogTitle Style="text-align: center;background-color:forestgreen"> Login</MatDialogTitle>
+    <div class="col-md-4">
+        <img style="width:100%" src="Images/logo.png" />
+    </div>
+    <div class="col-md-4">
+        <div class="card" style="text-align:center;background-color:forestgreen;border-radius: 40px; width:90%">
+        
 
             <EditForm Model="@model" OnValidSubmit="Autenticar">
                 <br />
                 <div class="row">
                     <div class="col-md-2"></div>
+                   
                     <div class="col-md-4">
-                        <a>Email</a>
-                        <MatStringField @bind-Value="@model.Email" Style="width:300px" Type="email" Required="true" Icon="person_pin"></MatStringField>
+                        @*<label style="color:white; text-align:left">Email</label>*@
+                        <MatStringField @bind-Value="@model.Email" Style="width:300px" Label="Email" PlaceHolder="Email" Type="email" Required="true" Icon="person_pin"></MatStringField>
                     </div>
                 </div>
                 <br />
                 <div class="row">
                     <div class="col-md-2"></div>
+                
                     <div class="col-md-4">
-                        <a>Clave</a>
-                        <MatStringField @bind-Value="@model.Clave" Style="width:300px" Required="true" Type="password" Icon="lock"></MatStringField>
+                        @*<label style="color:white; text-align:left">Clave</label>*@
+                        <MatStringField @bind-Value="@model.Clave" Style="width:300px"  Label="Clave" Required="true"  PlaceHolder="Clave" Type="password" Icon="lock"></MatStringField>
+                        <br />
+                        <a href="" style="color:white; text-align:left">Olvido su contraseña?</a>
                     </div>
                 </div>
+              
                 <br />
                 <div class="row">
                     <div class="col-md-2"></div>
                     <div class="col-md-4">
 
-
-                        <MatButton Raised="true" Icon="save" Type="submit" Style="text-align: center;background-color:forestgreen;width:250px">Ingresar</MatButton>
+                        <MatButton Raised="true" Icon="save" Type="submit" Style="text-align: center;background-color:white;width:300px"><label style="color:black">Ingresar</label></MatButton>
 
                     </div>
                 </div>
@@ -131,6 +127,8 @@
                         singleton.NombreUsuario = user.NombreCompleto;
                         singleton.JefeUsuarioId = user.JefeUsuarioId;
                         singleton.Email = user.Email;
+                        singleton.EmpresaNombre = user.EmpresaNombre;
+                        singleton.EmpresaLogo = user.EmpresaLogo;
 
                         navigationManager.NavigateTo("/index");
                     }

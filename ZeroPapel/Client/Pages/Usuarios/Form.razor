@@ -7,7 +7,7 @@
 @using Newtonsoft.Json
 @inject ServicioSingleton singleton
 @inject IJSRuntime js
-
+@inject IJSRuntime js
 
 <div class="row alert bg-info">
     <div class="row col-md-1">
@@ -18,6 +18,19 @@
     </div>
 </div>
 
+@if(msgError != null)
+{
+    <div class="row alert bg-danger">
+        <div class="row col-md-1">
+
+        </div>
+        <div class="col-md-5">
+            <MatThemeProvider>
+                <MatIcon Icon="cancel"> </MatIcon>   @msgError
+            </MatThemeProvider>
+        </div>
+    </div>
+}
 
 <EditForm Model="@model" OnValidSubmit="Save">
     <div class="row">
@@ -264,7 +277,8 @@
             }
             else
             {
-                await js.InvokeAsync<string>("MensajeAlerta", response.Message);
+                msgError = response.Message;
+                await js.InvokeAsync<string>("MensajeAlerta", msgError);
             }
         }
         else
@@ -282,7 +296,7 @@
 
     protected async Task LoadData()
     {
-        model=new Usuario();
+        model = new Usuario();
         //Cargos
         response = await Http.GetFromJsonAsync<Response>($"api/cargos/{singleton.EmpresaId}/-1");
         if (response.IsSuccessful)
