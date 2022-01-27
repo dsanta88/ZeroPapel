@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ZeroPapel.Server.Helper;
 using ZeroPapel.Shared;
+using System.Globalization;
 
 namespace ZeroPapel.Server.Data
 {
@@ -48,9 +49,14 @@ namespace ZeroPapel.Server.Data
                             obj.Id = Convert.ToInt32(item["Id"].ToString());
                             obj.EmpresaId = Convert.ToInt32(item["EmpresaId"].ToString());
                             obj.CentroCostoId = item["CentroCostoId"].ToString();
+                            obj.CentroCostoNombre = item["CentroCostoNombre"].ToString();
                             obj.DocumentoTipoId = Convert.ToInt32(item["DocumentoTipoId"].ToString());
+                            obj.DocumentoTipoNombre = item["DocumentoTipoNombre"].ToString();
                             obj.MonedaId = Convert.ToInt32(item["MonedaId"].ToString());
-                            obj.ProvedorNit = item["ProvedorNit"].ToString();
+                            obj.MonedaNombre = item["MonedaNombre"].ToString();
+                            obj.ProveedorNit = item["ProveedorNit"].ToString();
+                            obj.FechaRecepcion = Convert.ToDateTime(item["FechaRecepcion"].ToString());
+                            obj.ProveedorNombre = item["ProveedorNombre"].ToString();
                             obj.NumeroDocumento = item["NumeroDocumento"].ToString();
                             obj.FechaExpedicion = Convert.ToDateTime(item["FechaExpedicion"].ToString());
                             obj.FechaVencimiento = Convert.ToDateTime(item["FechaVencimiento"].ToString());
@@ -58,6 +64,14 @@ namespace ZeroPapel.Server.Data
                             obj.ArchivoRuta = item["ArchivoRuta"].ToString();
                             obj.UsuarioRegistroId = Convert.ToInt32(item["UsuarioRegistroId"].ToString());
                             obj.FechaRegistro = Convert.ToDateTime(item["FechaRegistro"].ToString());
+
+                            obj.FechaRecepcionStr = obj.FechaRecepcion.ToString("d MMMM yyyy", CultureInfo.CreateSpecificCulture("es-MX"));
+                            obj.FechaExpedicionStr = obj.FechaExpedicion.ToString("d MMMM yyyy", CultureInfo.CreateSpecificCulture("es-MX"));
+                            obj.FechaVencimientoStr = obj.FechaVencimiento.ToString("d MMMM yyyy", CultureInfo.CreateSpecificCulture("es-MX"));
+                            obj.FechaRegistroStr = obj.FechaRegistro.ToString("d MMMM yyyy", CultureInfo.CreateSpecificCulture("es-MX"));
+                           
+
+
                             lst.Add(obj);
                         }
                     }
@@ -91,7 +105,7 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Parameters.AddWithValue("@CentroCostoId", model.CentroCostoId);
                 comandoSQL.Parameters.AddWithValue("@DocumentoTipoId", model.DocumentoTipoId);
                 comandoSQL.Parameters.AddWithValue("@MonedaId", model.MonedaId);
-                comandoSQL.Parameters.AddWithValue("@ProvedorNit", model.ProvedorNit);
+                comandoSQL.Parameters.AddWithValue("@ProveedorNit", model.ProveedorNit);
                 comandoSQL.Parameters.AddWithValue("@FechaRecepcion", model.FechaRecepcion);
                 comandoSQL.Parameters.AddWithValue("@NumeroDocumento", model.NumeroDocumento);
                 comandoSQL.Parameters.AddWithValue("@FechaExpedicion", model.FechaExpedicion);
@@ -131,7 +145,7 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Parameters.AddWithValue("@CentroCostoId", model.CentroCostoId);
                 comandoSQL.Parameters.AddWithValue("@DocumentoTipoId", model.DocumentoTipoId);
                 comandoSQL.Parameters.AddWithValue("@MonedaId", model.MonedaId);
-                comandoSQL.Parameters.AddWithValue("@ProvedorNit", model.ProvedorNit);
+                comandoSQL.Parameters.AddWithValue("@ProveedorNit", model.ProveedorNit);
                 comandoSQL.Parameters.AddWithValue("@FechaRecepcion", model.FechaRecepcion);
                 comandoSQL.Parameters.AddWithValue("@NumeroDocumento", model.NumeroDocumento);
                 comandoSQL.Parameters.AddWithValue("@FechaExpedicion", model.FechaExpedicion);

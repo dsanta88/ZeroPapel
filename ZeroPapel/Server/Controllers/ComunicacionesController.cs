@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ZeroPapel.Server.Data;
 using ZeroPapel.Server.Helper;
 using ZeroPapel.Shared;
 
@@ -14,6 +15,7 @@ namespace ZeroPapel.Server.Controllers
     public class ComunicacionesController : ControllerBase
     {
 
+        LogEventosDA logDA = new LogEventosDA();
 
         [HttpPost]
         public IActionResult Add(Email model)
@@ -29,6 +31,7 @@ namespace ZeroPapel.Server.Controllers
             {
                 response.IsSuccessful = false;
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);

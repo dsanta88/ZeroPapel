@@ -15,6 +15,7 @@ namespace ZeroPapel.Server.Controllers
     public class MonedaTiposController : ControllerBase
     {
         MonedaTiposDA datos = new MonedaTiposDA();
+        LogEventosDA logDA = new LogEventosDA();
         Mensajes mensajes = new Mensajes();
 
         [HttpGet("{empresaId}/{id}")]
@@ -30,6 +31,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);

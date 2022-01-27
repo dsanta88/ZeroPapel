@@ -105,10 +105,13 @@
             </div>
             <br />
             <div class="col-md-2">
+                @if (!visibleGuardar)
+                {
+                    <MatThemeProvider Theme="@theme1">
+                        <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
+                    </MatThemeProvider>
+                }
 
-                <MatThemeProvider Theme="@theme1">
-                    <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
-                </MatThemeProvider>
             </div>
         </div>
     </EditForm>
@@ -123,6 +126,7 @@
     string msgError = null;
     string msgNota = null;
     bool guardado = false;
+    bool visibleGuardar = true;
     ElementReference inputElement;
 
     List<AusentismoTipo> listAusentismosTipos = new List<AusentismoTipo>();
@@ -146,6 +150,7 @@
 
     protected async Task Save()
     {
+        visibleGuardar = false;
         msgError = null;
         model.UsuarioId = singleton.UsuarioId;
         model.JefeEstado = "P";
@@ -172,7 +177,7 @@
         if (msgError == null)
         {
             var result = await Http.PostAsJsonAsync<AusentismoSolicitud>($"api/AusentismosSolicitudes/Guardar", model);
-             response = result.Content.ReadFromJsonAsync<Response>().Result;
+            response = result.Content.ReadFromJsonAsync<Response>().Result;
 
             if (response.IsSuccessful)
             {
@@ -191,6 +196,8 @@
         {
             await js.InvokeAsync<string>("MensajeAlerta", msgError);
         }
+
+        visibleGuardar = true;
     }
 
     protected async Task Cancelar()

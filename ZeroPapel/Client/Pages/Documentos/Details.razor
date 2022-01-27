@@ -1,5 +1,5 @@
-﻿@page "/formdocumentos"
-@page "/formdocumentos/{Id:int}"
+﻿@page "/detailsdocumentos"
+@page "/detailsdocumentos/{Id:int}"
 @using ZeroPapel.Shared
 @using System.IO
 @using BlazorInputFile 
@@ -21,7 +21,7 @@
 
     </div>
     <div class="col-md-5">
-        <h5> <b> REGISTRAR DOCUMENTO</b></h5>
+        <h5> <b>DETALLE DOCUMENTO</b></h5>
     </div>
 </div>
 
@@ -40,9 +40,11 @@
 }
 
 
+
+
 @if (!guardado)
 {
-    <EditForm Model="@model" OnValidSubmit="Save">
+    <EditForm Model="@model">
 
         <div class="row">
             <div class="col-md-1"></div>
@@ -56,7 +58,9 @@
                                 Data="@listCentrosCosto"
                                 TextProperty="Descripcion"
                                 ValueProperty="Id"
-                                Style="width:100%" />
+                                Style="width:100%"
+                                Disabled="true"
+                                />
             </div>
             <div class="col-md-1"></div>
             <div class="col-md-3">
@@ -69,7 +73,9 @@
                                 Data="@listDocumentosTipo"
                                 TextProperty="Nombre"
                                 ValueProperty="Id"
-                                Style="width:100%" />
+                                Style="width:100%" 
+                                 Disabled="true"
+                                />
             </div>
         </div>
         <br />
@@ -85,7 +91,9 @@
                                 Data="@listProveedores"
                                 TextProperty="RazonSocialSucursal"
                                 ValueProperty="Nit"
-                                Style="width:100%" />
+                                Style="width:100%" 
+                                 Disabled="true"
+                                />
             </div>
             <div class="col-md-1"></div>
 
@@ -95,12 +103,12 @@
             <div class="col-md-1"></div>
             <div class="col-md-3">
                 <b>Fecha de recepción</b>
-                <RadzenDatePicker Style="width:100%" ShowTime="false" @bind-Value="@model.FechaRecepcion" HourFormat="12" DateFormat="d MMMM yyyy" />
+                <RadzenDatePicker Style="width:100%" ShowTime="false" @bind-Value="@model.FechaRecepcion" HourFormat="12" DateFormat="d MMMM yyyy"  Disabled="true" />
             </div>
             <div class="col-md-1"></div>
             <div class="col-md-3">
                 <b>Número de documento</b>
-                <MatStringField @bind-Value="@model.NumeroDocumento" Style="width:100%" Required="true"></MatStringField>
+                <MatStringField @bind-Value="@model.NumeroDocumento" Style="width:100%"  Disabled="true"></MatStringField>
             </div>
         </div>
         <br />
@@ -108,12 +116,12 @@
             <div class="col-md-1"></div>
             <div class="col-md-3">
                 <b>Fecha de expedición de documento</b>
-                <RadzenDatePicker Style="width:100%" ShowTime="false" @bind-Value="@model.FechaExpedicion" HourFormat="12" DateFormat="d MMMM yyyy" />
+                <RadzenDatePicker Style="width:100%" ShowTime="false" @bind-Value="@model.FechaExpedicion" HourFormat="12" DateFormat="d MMMM yyyy"  Disabled="true" />
             </div>
             <div class="col-md-1"></div>
             <div class="col-md-3">
                 <b>Fecha de vencimiento del documento</b>
-                <RadzenDatePicker Style="width:100%" ShowTime="false" @bind-Value="@model.FechaVencimiento" HourFormat="12" DateFormat="d MMMM yyyy" />
+                <RadzenDatePicker Style="width:100%" ShowTime="false" @bind-Value="@model.FechaVencimiento" HourFormat="12" DateFormat="d MMMM yyyy"  Disabled="true" />
             </div>
         </div>
         <br />
@@ -129,46 +137,41 @@
                                 Data="@listMonedaTipo"
                                 TextProperty="Moneda"
                                 ValueProperty="Id"
-                                Style="width:100%" />
+                                Style="width:100%" 
+                                 Disabled="true"
+                                />
             </div>
             <div class="col-md-1"></div>
             <div class="col-md-3">
                 <b>Valor</b>
-                <MatTextField @bind-Value="@model.Valor" Required="true" Style="width:100%"></MatTextField>
+                <MatTextField @bind-Value="@model.Valor"  Style="width:100%"  Disabled="true"></MatTextField>
             </div>
 
         </div>
         <br />
-
-        <div class="row">
-            <div class="col-md-1"></div>
-            <div class="col-md-3">
-                <b>Adjuntar docuement</b>
-                <input class="bg-light" type="file" @ref="@inputElement" accept=".pdf">
-            </div>
-
-        </div>
         <br />
         <div class="row">
             <div class="col-md-1"></div>
             <div class="col-md-10">
                 <b>Observación</b>
-                <MatTextField @bind-Value="@model.Observacion" TextArea="true" Style="width:100%"></MatTextField>
+                <MatTextField @bind-Value="@model.Observacion" TextArea="true" Style="width:100%"  Disabled="true"></MatTextField>
             </div>
         </div>
         <hr />
 
         <div class="row">
-            <div class="col-md-1"></div>
-            <br />
+            <div class="col-md-12">
+                <MatThemeProvider Theme="theme1">
+                    <MatButton Style="width:150px" Raised="true" Icon="visibility" @onclick="@(async () => await AbrirArchivo(model.ArchivoRuta))"> Abrir</MatButton>
+                </MatThemeProvider>
+                <embed src="@model.ArchivoRuta" style="width:100%;height:600px" controls />
+                <br />
+            </div>
+        </div>
+        <div class="row">
             <div class="col-md-2">
-                @if (visibleGuardar)
-                {
-                    <MatThemeProvider Theme="@theme1">
-                        <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
-                    </MatThemeProvider>
-                }
-
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="arrow_back" Text="Retornar" Size="ButtonSize.Medium" Click="@Retornar">
+                </RadzenButton>
             </div>
         </div>
     </EditForm>
@@ -193,7 +196,7 @@
     Response response = new Response();
     public bool stateUploadFile = false;
     public bool selectDocument = false;
-    public bool visibleGuardar = true;
+
 
     MatTheme theme1 = new MatTheme()
     {
@@ -204,115 +207,22 @@
         Primary = "red",
     };
 
+    MatTheme theme2 = new MatTheme()
+    {
+        Primary = "blue",
+    };
+
 
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
     }
 
-    protected async Task Save()
-    {
-        visibleGuardar = false;
-        selectDocument = false;
-        model.UsuarioRegistroId = singleton.UsuarioId;
-        model.EmpresaId = singleton.EmpresaId;
 
-        msgError = null;
-        model.UsuarioRegistroId = singleton.UsuarioId;
-
-
-
-        if (model.CentroCostoId == null)
-        {
-            msgError = "Debe seleccionar el centro de costos.";
-        }
-        else if (model.DocumentoTipoId <= 0)
-        {
-            msgError = "Debe ingresar el tipo de documento";
-        }
-        else if (model.ProveedorNit == null)
-        {
-            msgError = "Debe ingresar el proveedor.";
-        }
-
-        else if (model.FechaRecepcion <= Convert.ToDateTime("2020-01-01"))
-        {
-            msgError = "Fecha de recepción no valida.";
-        }
-        else if (model.NumeroDocumento == null || model.NumeroDocumento == "")
-        {
-            msgError = "Debe ingresar el número de documento";
-        }
-        else if (model.FechaExpedicion <= Convert.ToDateTime("2020-01-01"))
-        {
-            msgError = "Fecha de expedición no valida.";
-        }
-
-        else if (model.FechaVencimiento <= Convert.ToDateTime("2020-01-01"))
-        {
-            msgError = "Fecha de vencimiento no valida.";
-        }
-        else if (model.MonedaId <= 0)
-        {
-            msgError = "Debe seleccionar la moneda.";
-        }
-
-        else if (model.Valor <= 0)
-        {
-            msgError = "El valor debe ser mayor a cero.";
-        }
-
-
-        if (msgError == null)
-        {
-            string formato = "pdf";
-            string nombreFile = model.ProveedorNit + "-" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + DateTime.Now.Hour.ToString() + DateTime.Now.Minute.ToString() + DateTime.Now.Second.ToString() + "." + formato;
-
-            await CargarArchivo(nombreFile, formato);
-            if (!selectDocument)
-            {
-                msgError = "Debe seleccionar un archivo.";
-                await js.InvokeAsync<string>("MensajeAlerta", msgError);
-            }
-
-            if (stateUploadFile)
-            {
-                if (msgError == null)
-                {
-                    model.ArchivoRuta ="../Upload/Documentos/"+ nombreFile;
-                    var result = await Http.PostAsJsonAsync<Documento>($"api/documentos/guardar", model);
-                    response = result.Content.ReadFromJsonAsync<Response>().Result;
-
-                    if (response.IsSuccessful)
-                    {
-                        guardado = true;
-                        navigationManager.NavigateTo("/indexdocumentos");
-                    }
-                    else
-                    {
-                        msgError = response.Message;
-                        await js.InvokeAsync<string>("MensajeAlerta", msgError);
-                    }
-                }
-                else
-                {
-                    await js.InvokeAsync<string>("MensajeAlerta", msgError);
-                }
-            }
-        }
-        else
-        {
-            await js.InvokeAsync<string>("MensajeAlerta", msgError);
-        }
-
-        visibleGuardar = true;
-
-    }
 
 
     protected async Task LoadData()
     {
-        model.FechaRecepcion = DateTime.Now;
 
         //Centros Costo
         response = await Http.GetFromJsonAsync<Response>($"api/centroscosto");
@@ -349,15 +259,11 @@
 
         if (Id > 0)
         {
-            //response = await Http.GetFromJsonAsync<Response>($"api/ausentismostipos/{singleton.EmpresaId}/{Id}");
-            //if (response.IsSuccessful)
-            //{
-            //    model = JsonConvert.DeserializeObject<List<Usuario>>(response.Data.ToString()).FirstOrDefault();
-            //}
-        }
-        else
-        {
-            //model.FechaInicio = DateTime.Now;
+            response = await Http.GetFromJsonAsync<Response>($"api/documentos/{singleton.EmpresaId}/{Id}");
+            if (response.IsSuccessful)
+            {
+                model = JsonConvert.DeserializeObject<List<Documento>>(response.Data.ToString()).FirstOrDefault();
+            }
         }
     }
 
@@ -367,49 +273,9 @@
         await js.InvokeAsync<object>("open", url, "_blank");
     }
 
-    public async Task CargarArchivo(string nombreArchivo, string formato)
+
+    public void Retornar()
     {
-
-        try
-        {
-            foreach (var file in await fileReaderService.CreateReference(inputElement).EnumerateFilesAsync())
-            {
-                selectDocument = true;
-                string ArchivoBase64;
-
-                using (MemoryStream memorystream = await file.CreateMemoryStreamAsync(4 * 1024))
-                {
-
-                    byte[] bytesimage = new byte[memorystream.Length];
-                    memorystream.Read(bytesimage, 0, (int)memorystream.Length);
-                    ArchivoBase64 = Convert.ToBase64String(bytesimage);
-
-
-                    Archivo archivo = new Archivo();
-                    archivo.Base64 = ArchivoBase64;
-                    archivo.Formato = formato;
-                    archivo.Nombre = nombreArchivo;
-                    archivo.EmpresaId = singleton.EmpresaId;
-
-                    var result = await Http.PostAsJsonAsync<Archivo>("api/uploadfiles", archivo);
-                    response = result.Content.ReadFromJsonAsync<Response>().Result;
-                    if (response.IsSuccessful)
-                    {
-                        stateUploadFile = true;
-                    }
-                    else
-                    {
-                        msgError = response.Message;
-                        await js.InvokeAsync<string>("MensajeAlerta", msgError);
-                    }
-                }
-            }
-        }
-
-        catch (Exception ex)
-        {
-            stateUploadFile = false;
-            msgError = ex.Message;
-        }
+        navigationManager.NavigateTo($"/indexdocumentos");
     }
 }

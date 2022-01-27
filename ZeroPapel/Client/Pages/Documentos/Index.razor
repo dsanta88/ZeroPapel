@@ -5,27 +5,40 @@
 @inject NavigationManager navigationManager
 @using Newtonsoft.Json;
 @inject ServicioSingleton singleton
-
+@inject IJSRuntime js
 
 <div class="row alert bg-info">
     <div class="col-md-5">
-        <h5> <b>REGISTRO DOCUMENTO</b></h5>
+        <h5> <b>DOCUMENTOS</b></h5>
     </div>
 </div>
 
 
-<RadzenGrid  AllowColumnResize="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="20"
-            AllowSorting="true" Data="@list" TItem="AusentismoSolicitud" ColumnWidth="200px">
+<RadzenGrid AllowColumnResize="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="20"
+            AllowSorting="true" Data="@list" TItem="Documento" ColumnWidth="200px">
     <Columns>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="FechaSolicitudStr" Title="FechaSolicitud" Width="60%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="AusentismoTipoNombre" Title="Tipo" Width="50%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="FechaInicioStr" Title="FechaInicio" Width="60%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="FechaFinStr" Title="FechaFin" Width="60%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="Descripcion" Title="Descripción" Width="70%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="JefeEstadoDescripcion" Title="Estado(Jefe)" Width="30%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="JefeObservacion" Title="Observación(Jefe)" Width="50%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="GhEstadoDescripcion" Title="Estado(Gh)" Width="30%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="AusentismoSolicitud" Property="GhObservacion" Title="Observación(Gh)" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Documento" Property="FechaRecepcionStr" Title="FechaRecpción" Width="30%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Documento" Property="ProveedorNombre" Title="Proveedor" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Documento" Property="CentroCostoNombre" Title="CentroCosto" Width="30%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Documento" Property="DocumentoTipoNombre" Title="TipoDocumento" Width="40%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Documento" Property="NumeroDocumento" Title="NumDocumento" Width="20%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Documento" Property="FechaExpedicionStr" Title="FechaExpedicion" Width="30%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Documento" Property="FechaVencimientoStr" Title="FechaVencimiento" Width="30%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Documento" Property="MonedaNombre" Title="Moneda" Width="15%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Documento" Property="Valor" Title="Valor" Width="30%"></RadzenGridColumn>
+
+        <RadzenGridColumn TItem="Documento" Context="Documento" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="50%">
+            <Template Context="Documento">
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="edit" Text="Detalle" Size="ButtonSize.Medium" Click="@((args) =>Detalle(Documento.Id))">
+                </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="Documento" Context="Documento" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="50%">
+            <Template Context="Documento">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="open" Text="Abrir" Size="ButtonSize.Medium" Click="@((args) =>AbrirArchivo(Documento.ArchivoRuta))">
+                </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
     </Columns>
 </RadzenGrid>
 
@@ -34,7 +47,7 @@
 @code {
 
 
-    List<AusentismoSolicitud> list;
+    List<Documento> list;
     Response response = new Response();
 
     protected override async Task OnInitializedAsync()
@@ -44,13 +57,23 @@
 
     protected async Task LoadData()
     {
-        response = await Http.GetFromJsonAsync<Response>($"api/AusentismosSolicitudes/-1/{singleton.UsuarioId}/-1");
+        response = await Http.GetFromJsonAsync<Response>($"api/documentos/{singleton.EmpresaId}/-1");
         if (response.IsSuccessful)
         {
-            list = JsonConvert.DeserializeObject<List<AusentismoSolicitud>>(response.Data.ToString());
+            list = JsonConvert.DeserializeObject<List<Documento>>(response.Data.ToString());
         }
 
     }
 
+    public void Detalle(int id)
+    {
+        navigationManager.NavigateTo("/detailsdocumentos/" + id);
+    }
+
+
+    public async Task AbrirArchivo(string url)
+    {
+        await js.InvokeAsync<object>("open", url, "_blank");
+    }
 
 }

@@ -13,6 +13,7 @@ namespace ZeroPapel.Server.Controllers
     public class MenuController : Controller
     {
         MenuDA datos = new MenuDA();
+        LogEventosDA logDA = new LogEventosDA();
         Mensajes mensajes = new Mensajes();
 
         [HttpGet("[action]/{empresaId}")]
@@ -28,6 +29,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);

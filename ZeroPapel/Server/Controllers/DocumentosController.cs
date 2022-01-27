@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ZeroPapel.Server.Data;
@@ -13,8 +15,17 @@ namespace ZeroPapel.Server.Controllers
     [ApiController]
     public class DocumentosController : ControllerBase
     {
+
+        private readonly IWebHostEnvironment enviroment;
         DocumentosDA datos = new DocumentosDA();
         Mensajes mensajes = new Mensajes();
+        LogEventosDA logDA = new LogEventosDA();
+
+        public DocumentosController(IWebHostEnvironment enviroment)
+        {
+            this.enviroment = enviroment;
+        }
+
 
         [HttpGet("{empresaId}/{id}")]
         public IActionResult Get(int empresaId, int id)
@@ -29,6 +40,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
@@ -54,6 +66,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
@@ -78,6 +91,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
@@ -102,6 +116,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);

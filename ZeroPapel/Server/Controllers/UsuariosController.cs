@@ -13,6 +13,7 @@ namespace ZeroPapel.Server.Controllers
     public class UsuariosController : ControllerBase
     {
         UsuariosDA datos = new UsuariosDA();
+        LogEventosDA logDA = new LogEventosDA();
         Mensajes mensajes = new Mensajes();
 
 
@@ -30,6 +31,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
@@ -49,6 +51,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
@@ -75,6 +78,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
@@ -99,6 +103,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
@@ -123,6 +128,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);

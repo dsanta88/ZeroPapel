@@ -14,6 +14,7 @@ namespace ZeroPapel.Server.Controllers
     public class ProveedoresController : ControllerBase
     {
         ProveedoresDA datos = new ProveedoresDA();
+        LogEventosDA logDA = new LogEventosDA();
         Mensajes mensajes = new Mensajes();
 
         [HttpGet()]
@@ -29,6 +30,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);

@@ -14,7 +14,7 @@ namespace ZeroPapel.Server.Controllers
     public class ProcesosLogController : ControllerBase
     {
         ProcesosLogDA datos = new ProcesosLogDA();
- 
+        LogEventosDA logDA = new LogEventosDA();
 
         [HttpGet("{empresaId}/{id}")]
         public IActionResult Get(int empresaId, int id)
@@ -29,6 +29,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);

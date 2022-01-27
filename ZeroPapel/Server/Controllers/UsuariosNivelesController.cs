@@ -15,6 +15,7 @@ namespace ZeroPapel.Server.Controllers
     public class UsuariosNivelesController : ControllerBase
     {
         UsuariosNivelesDA datos = new UsuariosNivelesDA();
+        LogEventosDA logDA = new LogEventosDA();
         Mensajes mensajes = new Mensajes();
 
         [HttpGet("{empresaId}/{id}")]
@@ -30,6 +31,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
@@ -55,6 +57,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
@@ -79,6 +82,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
@@ -103,6 +107,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);

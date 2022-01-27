@@ -13,6 +13,7 @@ namespace ZeroPapel.Server.Controllers
     public class AusentismosSolicitudesController : ControllerBase
     {
         AusentismosSolicitudesDA datos = new AusentismosSolicitudesDA();
+        LogEventosDA logDA = new LogEventosDA();
         Mensajes mensajes = new Mensajes();
 
         [HttpGet("{id}/{usuarioId}/{jefeUsuarioId}")]
@@ -28,6 +29,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
@@ -53,34 +55,11 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
         }
-
-        //[HttpPost]
-        //public IActionResult Edit(AusentismoSolicitud model)
-        //{
-        //    Response response = new Response();
-        //    try
-        //    {
-        //        if (datos.AusentismosSolicitudesEditar(model))
-        //        {
-        //            response.IsSuccessful = true;
-        //        }
-        //        else
-        //        {
-        //            response.IsSuccessful = false;
-        //            response.Message = mensajes.msgErrorEditar();
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        response.Message = ex.Message;
-        //    }
-
-        //    return Ok(response);
-        //}
 
 
         [HttpPost("[action]")]
@@ -102,6 +81,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
@@ -127,6 +107,7 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
