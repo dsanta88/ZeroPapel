@@ -42,7 +42,7 @@
                    
                     <div class="col-md-4">
                         @*<label style="color:white; text-align:left">Email</label>*@
-                        <MatStringField @bind-Value="@model.Email" Style="width:300px" Label="Email" PlaceHolder="Email" Type="email" Required="true" Icon="person_pin"></MatStringField>
+                        <MatStringField @bind-Value="@model.Email" Style="width:300px" Label="Email" PlaceHolder="Email" Icon="person_pin"></MatStringField>
                     </div>
                 </div>
                 <br />
@@ -51,7 +51,7 @@
                 
                     <div class="col-md-4">
                         @*<label style="color:white; text-align:left">Clave</label>*@
-                        <MatStringField @bind-Value="@model.Clave" Style="width:300px"  Label="Clave" Required="true"  PlaceHolder="Clave" Type="password" Icon="lock"></MatStringField>
+                        <MatStringField @bind-Value="@model.Clave" Style="width:300px"  Label="Clave"   PlaceHolder="Clave" Type="password" Icon="lock"></MatStringField>
                         <br />
                         <a href="" style="color:white; text-align:left">Olvido su contraseña?</a>
                     </div>
@@ -94,6 +94,8 @@
     {
         try
         {
+            model.Email = "santadavid88@gmail.com";
+            model.Clave = "123456";
             result = "";
 
             if (model.Email == null || model.Email == "")
@@ -124,12 +126,13 @@
                         singleton.IsLogueado = true;
                         singleton.UsuarioId = user.Id;
                         singleton.EmpresaId = user.EmpresaId;
-                        singleton.NombreUsuario = user.NombreCompleto;
+                        singleton.UsuarioNombre = user.NombreCompleto;
                         singleton.JefeUsuarioId = user.JefeUsuarioId;
                         singleton.Email = user.Email;
                         singleton.EmpresaNombre = user.EmpresaNombre;
                         singleton.EmpresaLogo = user.EmpresaLogo;
 
+                        await RegistrarAuditoria(user);
                         navigationManager.NavigateTo("/index");
                     }
                     else
@@ -154,6 +157,24 @@
         {
             await js.InvokeAsync<string>("MensajeAlerta", result);
         }
+    }
+
+    protected async Task RegistrarAuditoria(Usuario model)
+    {
+
+        Auditoria auditoria = new Auditoria();
+        auditoria.EmpresaId = singleton.EmpresaId;
+        auditoria.Accion = "INICIARSESION";
+        auditoria.Tabla = "NA";
+        auditoria.Usuario = model.Email;
+        auditoria.UsuarioNombre = model.NombreCompleto;
+        auditoria.UsuarioRegistroId = model.Id;
+
+        auditoria.Mensaje = "El siguiente usuario inicio sesión: " + "----Id: " + model.Id + "----NombreCompleto:" + model.NombreCompleto + "----Email: " + model.Email;
+
+
+        await Http.PostAsJsonAsync<Auditoria>($"api/auditoria", auditoria);
+
     }
 }
 

@@ -17,6 +17,7 @@
 <RadzenGrid AllowColumnResize="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="20"
             AllowSorting="true" Data="@list" TItem="Documento" ColumnWidth="200px">
     <Columns>
+        <RadzenGridColumn TItem="Documento" Property="FechaRegistroStr" Title="FechaRegistro" Width="60%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Documento" Property="FechaRecepcionStr" Title="FechaRecpción" Width="30%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Documento" Property="ProveedorNombre" Title="Proveedor" Width="50%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Documento" Property="CentroCostoNombre" Title="CentroCosto" Width="30%"></RadzenGridColumn>

@@ -8,7 +8,7 @@ namespace ZeroPapel.Client
     public class ServicioSingleton
     {
         public int UsuarioId { get; set; }
-        public string NombreUsuario { get; set; }
+        public string UsuarioNombre { get; set; }
 
         public string Email { get; set; }
 
@@ -27,7 +27,7 @@ namespace ZeroPapel.Client
         public ServicioSingleton()
         {
             UsuarioId = 0;
-            NombreUsuario = "";
+            UsuarioNombre = "";
             Email = "";
             Rol = "";
             JefeUsuarioId = 0;

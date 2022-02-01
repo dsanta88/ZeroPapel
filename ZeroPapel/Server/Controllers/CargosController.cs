@@ -29,7 +29,6 @@ namespace ZeroPapel.Server.Controllers
             catch (Exception ex)
             {
                 response.Message = ex.Message;
-                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
@@ -106,6 +105,24 @@ namespace ZeroPapel.Server.Controllers
             {
                 response.Message = ex.Message;
                 logDA.LogEventoIngresar(ex);
+            }
+
+            return Ok(response);
+        }
+
+        [HttpGet("[action]/{empresaId}/{codigo}")]
+        public IActionResult CargosValidarCodigo(int empresaId, int codigo)
+        {
+            Response response = new Response();
+            try
+            {
+                Validacion valid = datos.CargosValidarCodigo(empresaId, codigo);
+                response.IsSuccessful = true;
+                response.Data = valid;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
             }
 
             return Ok(response);

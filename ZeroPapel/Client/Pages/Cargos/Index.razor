@@ -25,18 +25,25 @@
         <RadzenGridColumn TItem="Cargo" Property="Codigo" Title="Código" Width="100%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Cargo" Property="Nombre" Title="Nombre" Width="100%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Cargo" Property="EstadoDescripcion" Title="Estado" Width="100%"></RadzenGridColumn>
-        
+
 
         <RadzenGridColumn TItem="Cargo" Context="Cargo" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100%">
             <Template Context="Cargo">
                 <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="edit" Text="Editar" Size="ButtonSize.Medium" Click="@((args) =>Edit(Cargo.Id))">
                 </RadzenButton>
 
-                @*<RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Eliminar" Size="ButtonSize.Medium" Click="@((args) =>Delete(Cargo.Id))">
-                </RadzenButton>*@
             </Template>
         </RadzenGridColumn>
 
+
+
+
+        <RadzenGridColumn TItem="Cargo" Context="Cargo" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100%">
+            <Template Context="Cargo">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Eliminar" Size="ButtonSize.Medium" Click="@((args) =>Delete(Cargo.Id))">
+                </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
     </Columns>
 </RadzenGrid>
 

@@ -25,21 +25,32 @@
     <Columns>
         <RadzenGridColumn TItem="Rol" Property="Codigo" Title="Código" Width="30%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Rol" Property="Nombre" Title="Nombre" Width="100%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Rol" Property="ApruebaDocumentoDescripcion" Title="ApruebaDocumento" Width="30%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Rol" Property="ValorMinimoStr" Title="ValorMínimo" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Rol" Property="ValorMaximoStr" Title="ValorMáximo" Width="50%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Rol" Property="EstadoDescripcion" Title="Estado" Width="50%"></RadzenGridColumn>
-        
 
-        <RadzenGridColumn TItem="Rol" Context="Rol" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100%">
+        <RadzenGridColumn TItem="Rol" Context="Rol" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="50%">
             <Template Context="Rol">
 
                 <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="edit" Text="Editar" Size="ButtonSize.Medium" Click="@((args) =>Edit(Rol.Id))">
                 </RadzenButton>
-                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="lock" Text="Permisos" Size="ButtonSize.Medium" Click="@((args) =>Edit(Rol.Id))">
-                </RadzenButton>
-
-                @*<RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Eliminar" Size="ButtonSize.Medium" Click="@((args) =>Delete(Rol.Id))">
-                </RadzenButton>*@
             </Template>
         </RadzenGridColumn>
+        <RadzenGridColumn TItem="Rol" Context="Rol" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="50%">
+            <Template Context="Rol">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="lock" Text="Permisos" Size="ButtonSize.Medium" Click="@((args) =>Edit(Rol.Id))">
+                </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="Rol" Context="Rol" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="50%">
+            <Template Context="Rol">
+             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Eliminar" Size="ButtonSize.Medium" Click="@((args) =>Delete(Rol.Id))">
+        </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
+
+
 
     </Columns>
 </RadzenGrid>

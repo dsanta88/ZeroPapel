@@ -71,13 +71,16 @@
                 <MatButton Raised="true" Icon="cancel" @onclick="Cancelar">Cancelar</MatButton>
             </MatThemeProvider>
         </div>
-        <br />
-        <div class="col-md-2">
+        @if (visibleGuardar)
+        {
+            <br />
+            <div class="col-md-2">
+                <MatThemeProvider Theme="@theme1">
+                    <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
+                </MatThemeProvider>
+            </div>
+        }
 
-            <MatThemeProvider Theme="@theme1">
-                <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
-            </MatThemeProvider>
-        </div>
     </div>
 </EditForm>
 <br />
@@ -89,6 +92,8 @@
     string msgError = null;
     public DocumentoTipo model = new DocumentoTipo();
     Response response = new Response();
+    bool visibleGuardar = true;
+    public int codigoInicial = 0;
 
     MatTheme theme1 = new MatTheme()
     {
@@ -107,31 +112,65 @@
 
     protected async Task Save()
     {
+        visibleGuardar = false;
+        msgError = null;
         model.EmpresaId = singleton.EmpresaId;
         model.Nombre = model.Nombre.ToUpper();
 
-        if (Id != 0)
+        if (model.Codigo <= 0)
+        {
+            msgError = "El código debe ser mayor a cero.";
+        }
+
+        if (codigoInicial != model.Codigo)
         {
 
-            var result = await Http.PostAsJsonAsync<DocumentoTipo>($"api/documentostipos/Edit", model);
-            response = result.Content.ReadFromJsonAsync<Response>().Result;
+            Validacion val = new Validacion();
+            val.Mensaje = "ok";
+            response = await Http.GetFromJsonAsync<Response>($"api/DocumentosTipos/DocumentosTiposValidarCodigo/{singleton.EmpresaId}/{model.Codigo}");
+            if (response.IsSuccessful)
+            {
+                val = JsonConvert.DeserializeObject<Validacion>(response.Data.ToString());
+            }
+
+            if (val.Mensaje.ToLower() != "ok")
+            {
+                msgError = val.Mensaje;
+            }
+
+        }
+
+        if (msgError == null)
+        {
+
+            if (Id != 0)
+            {
+
+                var result = await Http.PostAsJsonAsync<DocumentoTipo>($"api/documentostipos/Edit", model);
+                response = result.Content.ReadFromJsonAsync<Response>().Result;
+            }
+            else
+            {
+                var result = await Http.PostAsJsonAsync<DocumentoTipo>($"api/documentostipos", model);
+                response = result.Content.ReadFromJsonAsync<Response>().Result;
+            }
+
+
+            if (response.IsSuccessful)
+            {
+                navigationManager.NavigateTo("/indexdocumentostipos");
+            }
+            else
+            {
+                msgError = response.Message;
+                await js.InvokeAsync<string>("MensajeAlerta", msgError);
+            }
         }
         else
         {
-            var result = await Http.PostAsJsonAsync<DocumentoTipo>($"api/documentostipos", model);
-            response = result.Content.ReadFromJsonAsync<Response>().Result;
-        }
-
-
-        if (response.IsSuccessful)
-        {
-            navigationManager.NavigateTo("/indexdocumentostipos");
-        }
-        else
-        {
-            msgError = response.Message;
             await js.InvokeAsync<string>("MensajeAlerta", msgError);
         }
+        visibleGuardar = true;
     }
 
     protected async Task Cancelar()
@@ -151,6 +190,7 @@
             if (response.IsSuccessful)
             {
                 model = JsonConvert.DeserializeObject<List<DocumentoTipo>>(response.Data.ToString()).FirstOrDefault();
+                codigoInicial = model.Codigo;
             }
         }
         else

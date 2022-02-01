@@ -49,14 +49,14 @@
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-5">
-            <MatStringField @bind-Value="@model.Codigo" Label="Código" Style="width:100%" Disabled="true"></MatStringField>
+            <MatTextField @bind-Value="@model.Codigo" Label="Código" Style="width:100%" Disabled="true"></MatTextField>
         </div>
     </div>
     <br />
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-5">
-            <MatStringField @bind-Value="@model.Nombre" Label="Descripción" Style="width:100%" Disabled="true"></MatStringField>
+            <MatStringField @bind-Value="@model.Nombre" Label="Nombre" Style="width:100%" Disabled="true"></MatStringField>
         </div>
     </div>
     <br />
@@ -116,6 +116,7 @@
 
         if (response.IsSuccessful)
         {
+            await RegistrarAuditoria(model, "Eliminar");
             navigationManager.NavigateTo("/indexCargos");
         }
         else
@@ -135,11 +136,54 @@
     {
         if (Id > 0)
         {
-            response = await Http.GetFromJsonAsync<Response>($"api/Cargo/{singleton.EmpresaId}/{Id}");
+            response = await Http.GetFromJsonAsync<Response>($"api/cargos/{singleton.EmpresaId}/{Id}");
             if (response.IsSuccessful)
             {
                 model = JsonConvert.DeserializeObject<List<Cargo>>(response.Data.ToString()).FirstOrDefault();
             }
+
         }
+    }
+    
+
+    protected async Task RegistrarAuditoria(Cargo model, string accion)
+    {
+        string accionDescipcion = "";
+
+        if (accion.ToLower() == "editar")
+        {
+            accionDescipcion = "edito";
+        }
+        else if (accion.ToLower() == "ingresar")
+        {
+            accionDescipcion = "ingreso";
+        }
+        else if (accion.ToLower() == "eliminar")
+        {
+            accionDescipcion = "elimino";
+        }
+
+
+        if (model.Estado)
+        {
+            model.EstadoDescripcion = "ACTIVO";
+        }
+        else
+        {
+            model.EstadoDescripcion = "INACTIVO";
+        }
+
+        Auditoria auditoria = new Auditoria();
+        auditoria.EmpresaId = singleton.EmpresaId;
+        auditoria.Accion = accion;
+        auditoria.Tabla = "Cargos";
+        auditoria.Usuario = singleton.Email;
+        auditoria.UsuarioNombre = singleton.UsuarioNombre;
+        auditoria.UsuarioRegistroId = singleton.UsuarioId;
+
+        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " el siguiente Cargo:----" + "Id: " + model.Id + "----Código:" + model.Codigo + "----Nombre: " + model.Nombre + "----Estado:" + model.EstadoDescripcion;
+
+        await Http.PostAsJsonAsync<Auditoria>($"api/auditoria", auditoria);
+
     }
 }

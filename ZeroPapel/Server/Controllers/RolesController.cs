@@ -109,5 +109,23 @@ namespace ZeroPapel.Server.Controllers
 
             return Ok(response);
         }
+
+        [HttpGet("[action]/{empresaId}/{codigo}")]
+        public IActionResult RolesValidarCodigo(int empresaId, int codigo)
+        {
+            Response response = new Response();
+            try
+            {
+                Validacion valid = datos.RolesValidarCodigo(empresaId, codigo);
+                response.IsSuccessful = true;
+                response.Data = valid;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+            }
+
+            return Ok(response);
+        }
     }
 }

@@ -39,7 +39,7 @@
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-5">
-            <MatStringField @bind-Value="@model.Codigo" Label="Código" Style="width:100%" Required="true"></MatStringField>
+            <MatTextField @bind-Value="@model.Codigo" Label="Código" Style="width:100%" Required="true"></MatTextField>
         </div>
     </div>
     <br />
@@ -49,8 +49,35 @@
             <MatStringField @bind-Value="@model.Nombre" Label="Nombre" Style="width:100%" Required="true"></MatStringField>
         </div>
     </div>
-
     <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <MatSelect Label="Aprueba Documento" @bind-Value=@model.ApruebaDocumento Required="true">
+                <MatOption Value=false>NO</MatOption>
+                <MatOption Value=true>SI</MatOption>
+            </MatSelect>
+        </div>
+    </div>
+    <br />
+    @if (model.ApruebaDocumento)
+    {
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-5">
+                <MatTextField @bind-Value="@model.ValorMinimo" Label="Valor Mínimo" Style="width:100%" ></MatTextField>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-5">
+                <MatTextField @bind-Value="@model.ValorMaximo" Label="Valor Máximo" Style="width:100%" ></MatTextField>
+            </div>
+        </div>
+        <br />
+    }
+
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-5">
@@ -70,12 +97,16 @@
             </MatThemeProvider>
         </div>
         <br />
-        <div class="col-md-2">
+        @if (visibleGuardar)
+        {
+            <div class="col-md-2">
 
-            <MatThemeProvider Theme="@theme1">
-                <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
-            </MatThemeProvider>
-        </div>
+                <MatThemeProvider Theme="@theme1">
+                    <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
+                </MatThemeProvider>
+            </div>
+        }
+
     </div>
 </EditForm>
 <br />
@@ -87,6 +118,8 @@
     string msgError = null;
     public Rol model = new Rol();
     Response response = new Response();
+    bool visibleGuardar = true;
+    public int codigoInicial = 0;
 
     MatTheme theme1 = new MatTheme()
     {
@@ -105,31 +138,86 @@
 
     protected async Task Save()
     {
+        string accion = "";
+        visibleGuardar = false;
+        msgError = null;
         model.EmpresaId = singleton.EmpresaId;
         model.Nombre = model.Nombre.ToUpper();
 
-        if (Id != 0)
+        if (model.Codigo <= 0)
+        {
+            msgError = "El código debe ser mayor a cero.";
+        }
+
+        if (model.ApruebaDocumento)
         {
 
-            var result = await Http.PostAsJsonAsync<Rol>($"api/roles/edit", model);
-            response = result.Content.ReadFromJsonAsync<Response>().Result;
+            if (model.ValorMinimo <= 0)
+            {
+                msgError = "El valor mínimo debe ser mayor a cero.";
+            }
+
+
+            if (model.ValorMinimo>=model.ValorMaximo)
+            {
+                msgError = "El valor máximo debe ser mayor al valor mínimo.";
+            }
         }
         else
         {
-            var result = await Http.PostAsJsonAsync<Rol>($"api/roles", model);
-            response = result.Content.ReadFromJsonAsync<Response>().Result;
+            model.ValorMinimo=0;
+            model.ValorMaximo = 0;
         }
 
-
-        if (response.IsSuccessful)
+        if(codigoInicial!=model.Codigo)
         {
-            navigationManager.NavigateTo("/indexroles");
+            Validacion val = new Validacion();
+            val.Mensaje = "ok";
+            response = await Http.GetFromJsonAsync<Response>($"api/Roles/RolesValidarCodigo/{singleton.EmpresaId}/{model.Codigo}");
+            if (response.IsSuccessful)
+            {
+                val = JsonConvert.DeserializeObject<Validacion>(response.Data.ToString());
+            }
+
+            if (val.Mensaje.ToLower() != "ok")
+            {
+                msgError = val.Mensaje;
+            }
+
+        }
+
+        if (msgError==null)
+        {
+            if (Id != 0)
+            {
+                accion = "Editar";
+                var result = await Http.PostAsJsonAsync<Rol>($"api/roles/edit", model);
+                response = result.Content.ReadFromJsonAsync<Response>().Result;
+            }
+            else
+            {
+                accion = "Ingresar";
+                var result = await Http.PostAsJsonAsync<Rol>($"api/roles", model);
+                response = result.Content.ReadFromJsonAsync<Response>().Result;
+            }
+
+
+            if (response.IsSuccessful)
+            {
+                await RegistrarAuditoria(model, accion);
+                navigationManager.NavigateTo("/indexroles");
+            }
+            else
+            {
+                msgError = response.Message;
+                await js.InvokeAsync<string>("MensajeAlerta", msgError);
+            }
         }
         else
         {
-            msgError = response.Message;
             await js.InvokeAsync<string>("MensajeAlerta", msgError);
         }
+        visibleGuardar = true;
     }
 
     protected async Task Cancelar()
@@ -149,6 +237,7 @@
             if (response.IsSuccessful)
             {
                 model = JsonConvert.DeserializeObject<List<Rol>>(response.Data.ToString()).FirstOrDefault();
+                codigoInicial = model.Codigo;
             }
         }
         else
@@ -158,5 +247,56 @@
         }
     }
 
+
+
+    protected async Task RegistrarAuditoria(Rol model, string accion)
+    {
+        string accionDescipcion = "";
+
+        if (accion.ToLower() == "editar")
+        {
+            accionDescipcion = "edito";
+        }
+        else if (accion.ToLower() == "ingresar")
+        {
+            accionDescipcion = "ingreso";
+        }
+        else if (accion.ToLower() == "eliminar")
+        {
+            accionDescipcion = "elimino";
+        }
+
+
+        if (model.ApruebaDocumento)
+        {
+            model.ApruebaDocumentoDescripcion = "SI";
+        }
+        else
+        {
+            model.ApruebaDocumentoDescripcion = "NO";
+        }
+
+        if (model.Estado)
+        {
+            model.EstadoDescripcion = "ACTIVO";
+        }
+        else
+        {
+            model.EstadoDescripcion = "INACTIVO";
+        }
+
+        Auditoria auditoria = new Auditoria();
+        auditoria.EmpresaId = singleton.EmpresaId;
+        auditoria.Accion = accion;
+        auditoria.Tabla = "Roles";
+        auditoria.Usuario = singleton.Email;
+        auditoria.UsuarioNombre = singleton.UsuarioNombre;
+        auditoria.UsuarioRegistroId = singleton.UsuarioId;
+
+        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " el siguiente Rol:----" + "Id: "+model.Id+ "----Código:" + model.Codigo + "----Nombre: " + model.Nombre + "----ApruebaDocumento:" + model.ApruebaDocumentoDescripcion + "----ValorMínimo:" + model.ValorMinimo + "----ValorMáximo:" + model.ValorMaximo + "----Estado:" + model.EstadoDescripcion;
+
+        await Http.PostAsJsonAsync<Auditoria>($"api/auditoria", auditoria);
+
+    }
 
 }

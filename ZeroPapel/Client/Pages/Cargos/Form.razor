@@ -39,7 +39,7 @@
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-5">
-            <MatStringField @bind-Value="@model.Codigo" Label="Código" Style="width:100%" Required="true"></MatStringField>
+            <MatTextField @bind-Value="@model.Codigo" Label="Código" Style="width:100%" Required="true"></MatTextField>
         </div>
     </div>
     <br />
@@ -69,13 +69,17 @@
                 <MatButton Raised="true" Icon="cancel" @onclick="Cancelar">Cancelar</MatButton>
             </MatThemeProvider>
         </div>
-        <br />
-        <div class="col-md-2">
+        @if (visibleGuardar)
+        {
+            <br />
+            <div class="col-md-2">
 
-            <MatThemeProvider Theme="@theme1">
-                <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
-            </MatThemeProvider>
-        </div>
+                <MatThemeProvider Theme="@theme1">
+                    <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
+                </MatThemeProvider>
+            </div>
+        }
+
     </div>
 </EditForm>
 <br />
@@ -87,6 +91,8 @@
     string msgError = null;
     public Cargo model = new Cargo();
     Response response = new Response();
+    bool visibleGuardar = true;
+    public int codigoInicial = 0;
 
     MatTheme theme1 = new MatTheme()
     {
@@ -105,31 +111,67 @@
 
     protected async Task Save()
     {
+        string accion = "";
+        visibleGuardar = false;
+        msgError = null;
         model.EmpresaId = singleton.EmpresaId;
         model.Nombre = model.Nombre.ToUpper();
 
-        if (Id != 0)
+        if (model.Codigo <= 0)
         {
+            msgError = "El código debe ser mayor a cero.";
+        }
 
-            var result = await Http.PostAsJsonAsync<Cargo>($"api/Cargos/Edit", model);
-            response = result.Content.ReadFromJsonAsync<Response>().Result;
+        if (codigoInicial != model.Codigo)
+        {
+            Validacion val = new Validacion();
+            val.Mensaje = "ok";
+
+            response = await Http.GetFromJsonAsync<Response>($"api/Cargos/CargosValidarCodigo/{singleton.EmpresaId}/{model.Codigo}");
+            if (response.IsSuccessful)
+            {
+                val = JsonConvert.DeserializeObject<Validacion>(response.Data.ToString());
+            }
+
+            if (val.Mensaje.ToLower() != "ok")
+            {
+                msgError = val.Mensaje;
+            }
+
+        }
+
+        if(msgError==null)
+        {
+            if (Id != 0)
+            {
+                accion = "Editar";
+                var result = await Http.PostAsJsonAsync<Cargo>($"api/Cargos/Edit", model);
+                response = result.Content.ReadFromJsonAsync<Response>().Result;
+            }
+            else
+            {
+                accion = "Ingresar";
+                var result = await Http.PostAsJsonAsync<Cargo>($"api/Cargos", model);
+                response = result.Content.ReadFromJsonAsync<Response>().Result;
+            }
+
+
+            if (response.IsSuccessful)
+            {
+                await RegistrarAuditoria(model, accion);
+                navigationManager.NavigateTo("/indexcargos");
+            }
+            else
+            {
+                msgError = response.Message;
+                await js.InvokeAsync<string>("MensajeAlerta", msgError);
+            }
         }
         else
         {
-            var result = await Http.PostAsJsonAsync<Cargo>($"api/Cargos", model);
-            response = result.Content.ReadFromJsonAsync<Response>().Result;
-        }
-
-
-        if (response.IsSuccessful)
-        {
-            navigationManager.NavigateTo("/indexcargos");
-        }
-        else
-        {
-            msgError = response.Message;
             await js.InvokeAsync<string>("MensajeAlerta", msgError);
         }
+        visibleGuardar = true;
     }
 
     protected async Task Cancelar()
@@ -149,6 +191,7 @@
             if (response.IsSuccessful)
             {
                 model = JsonConvert.DeserializeObject<List<Cargo>>(response.Data.ToString()).FirstOrDefault();
+                codigoInicial = model.Codigo;
             }
         }
         else
@@ -158,5 +201,46 @@
         }
     }
 
+
+    protected async Task RegistrarAuditoria(Cargo model, string accion)
+    {
+        string accionDescipcion = "";
+
+        if (accion.ToLower() == "editar")
+        {
+            accionDescipcion = "edito";
+        }
+        else if (accion.ToLower() == "ingresar")
+        {
+            accionDescipcion = "ingreso";
+        }
+        else if (accion.ToLower() == "eliminar")
+        {
+            accionDescipcion = "elimino";
+        }
+
+
+        if (model.Estado)
+        {
+            model.EstadoDescripcion = "ACTIVO";
+        }
+        else
+        {
+            model.EstadoDescripcion = "INACTIVO";
+        }
+
+        Auditoria auditoria = new Auditoria();
+        auditoria.EmpresaId = singleton.EmpresaId;
+        auditoria.Accion = accion;
+        auditoria.Tabla = "Cargos";
+        auditoria.Usuario = singleton.Email;
+        auditoria.UsuarioNombre = singleton.UsuarioNombre;
+        auditoria.UsuarioRegistroId = singleton.UsuarioId;
+
+        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " el siguiente Cargo:----" + "Id: " + model.Id + "----Código:" + model.Codigo + "----Nombre: " + model.Nombre + "----Estado:" + model.EstadoDescripcion;
+
+        await Http.PostAsJsonAsync<Auditoria>($"api/auditoria", auditoria);
+
+    }
 
 }

@@ -49,14 +49,35 @@
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-5">
-            <MatStringField @bind-Value="@model.Codigo" Label="Código" Style="width:100%" Disabled="true"></MatStringField>
+            <MatTextField @bind-Value="@model.Codigo" Label="Código" Style="width:100%" Disabled="true"></MatTextField>
         </div>
     </div>
     <br />
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-5">
-            <MatStringField @bind-Value="@model.Nombre" Label="Descripción" Style="width:100%" Disabled="true"></MatStringField>
+            <MatStringField @bind-Value="@model.Nombre" Label="Nombre" Style="width:100%" Disabled="true"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <MatStringField @bind-Value="@model.ApruebaDocumentoDescripcion" Label="Aprueba Documento" Style="width:100%" Disabled="true"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <MatStringField @bind-Value="@model.ValorMinimoStr" Label="Valor Mínimo" Style="width:100%" Disabled="true"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <MatStringField @bind-Value="@model.ValorMaximoStr" Label="Valor Máximo" Style="width:100%" Disabled="true"></MatStringField>
         </div>
     </div>
     <br />
@@ -116,6 +137,7 @@
 
         if (response.IsSuccessful)
         {
+            await RegistrarAuditoria(model, "Eliminar");
             navigationManager.NavigateTo("/indexroles");
         }
         else
@@ -142,5 +164,54 @@
             }
 
         }
+    }
+
+    protected async Task RegistrarAuditoria(Rol model, string accion)
+    {
+        string accionDescipcion = "";
+
+
+        if (accion.ToLower() == "editar")
+        {
+            accionDescipcion = "edito";
+        }
+        else if (accion.ToLower() == "ingresar")
+        {
+            accionDescipcion = "ingreso";
+        }
+        else if (accion.ToLower() == "eliminar")
+        {
+            accionDescipcion = "elimino";
+        }
+
+        if (model.ApruebaDocumento)
+        {
+            model.ApruebaDocumentoDescripcion = "SI";
+        }
+        else
+        {
+            model.ApruebaDocumentoDescripcion = "NO";
+        }
+
+        if (model.Estado)
+        {
+            model.EstadoDescripcion = "ACTIVO";
+        }
+        else
+        {
+            model.EstadoDescripcion = "INACTIVO";
+        }
+
+        Auditoria auditoria = new Auditoria();
+        auditoria.EmpresaId = singleton.EmpresaId;
+        auditoria.Accion = accion;
+        auditoria.Tabla = "Roles";
+        auditoria.Usuario = singleton.Email;
+        auditoria.UsuarioNombre = singleton.UsuarioNombre;
+        auditoria.UsuarioRegistroId = singleton.UsuarioId;
+
+        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " el siguiente Rol:----" + "Id: " + model.Id + "----Código:" + model.Codigo + "----Nombre: " + model.Nombre + "----ApruebaDocumento:" + model.ApruebaDocumentoDescripcion + "----ValorMínimo:" + model.ValorMinimo + "----ValorMáximo:" + model.ValorMaximo + "----Estado:" + model.EstadoDescripcion;
+        await Http.PostAsJsonAsync<Auditoria>($"api/auditoria", auditoria);
+
     }
 }
