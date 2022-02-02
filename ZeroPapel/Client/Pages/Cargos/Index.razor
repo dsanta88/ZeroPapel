@@ -22,10 +22,12 @@
 <RadzenGrid AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="20"
             AllowSorting="true" Data="@list" TItem="Cargo" ColumnWidth="200px">
     <Columns>
-        <RadzenGridColumn TItem="Cargo" Property="Codigo" Title="Código" Width="100%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Cargo" Property="Codigo" Title="Código" Width="30%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Cargo" Property="Nombre" Title="Nombre" Width="100%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="Cargo" Property="EstadoDescripcion" Title="Estado" Width="100%"></RadzenGridColumn>
-
+        <RadzenGridColumn TItem="Cargo" Property="ApruebaValorDocumentoDescripcion" Title="ApruebaValorDocumento" Width="30%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Cargo" Property="ValorMinimoStr" Title="ValorMínimo" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Cargo" Property="ValorMaximoStr" Title="ValorMáximo" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Cargo" Property="EstadoDescripcion" Title="Estado" Width="50%"></RadzenGridColumn>
 
         <RadzenGridColumn TItem="Cargo" Context="Cargo" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100%">
             <Template Context="Cargo">

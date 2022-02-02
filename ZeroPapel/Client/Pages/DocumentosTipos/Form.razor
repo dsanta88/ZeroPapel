@@ -122,7 +122,7 @@
             msgError = "El código debe ser mayor a cero.";
         }
 
-        if (codigoInicial != model.Codigo)
+        if (codigoInicial != model.Codigo && msgError == null)
         {
 
             Validacion val = new Validacion();
@@ -195,6 +195,19 @@
         }
         else
         {
+            response = await Http.GetFromJsonAsync<Response>($"api/documentostipos/{singleton.EmpresaId}/-1");
+            if (response.IsSuccessful)
+            {
+                List<DocumentoTipo> lstDtosTipo = JsonConvert.DeserializeObject<List<DocumentoTipo>>(response.Data.ToString());
+                if (lstDtosTipo.Count() > 0)
+                {
+                    model.Codigo = lstDtosTipo.Max(x => x.Codigo) + 1;
+                }
+                else
+                {
+                    model.Codigo = 1;
+                }
+            }
             model.Estado = true;
             titulo = "NUEVO TIPO DE DOCUMENTO";
         }

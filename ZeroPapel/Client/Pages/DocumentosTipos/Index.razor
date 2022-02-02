@@ -28,15 +28,20 @@
         <RadzenGridColumn TItem="DocumentoTipo" Property="EstadoDescripcion" Title="Estado" Width="100%"></RadzenGridColumn>
 
 
-        <RadzenGridColumn TItem="DocumentoTipo" Context="Cargo" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100%">
+        <RadzenGridColumn TItem="DocumentoTipo" Context="DocumentoTipo" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100%">
             <Template Context="DocumentoTipo">
                 <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="edit" Text="Editar" Size="ButtonSize.Medium" Click="@((args) =>Edit(DocumentoTipo.Id))">
                 </RadzenButton>
-
-                @*<RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Eliminar" Size="ButtonSize.Medium" Click="@((args) =>Delete(DocumentoTipo.Id))">
-                </RadzenButton>*@
             </Template>
         </RadzenGridColumn>
+        <RadzenGridColumn TItem="DocumentoTipo" Context="DocumentoTipo" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100%">
+            <Template Context="DocumentoTipo">
+
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="lock" Text="Aprobación" Size="ButtonSize.Medium" Click="@((args) =>AprobacionJerarquia(DocumentoTipo.Id))">
+                </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
+
 
     </Columns>
 </RadzenGrid>
@@ -85,4 +90,12 @@
     {
         navigationManager.NavigateTo("/deletedocumentostipos/" + id);
     }
+
+
+    public void AprobacionJerarquia(int id)
+    {
+        navigationManager.NavigateTo("/indexaprobacionjeraquia/" + id);
+    }
+
+    
 }

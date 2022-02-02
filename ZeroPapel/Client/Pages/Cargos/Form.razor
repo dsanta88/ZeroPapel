@@ -49,8 +49,35 @@
             <MatStringField @bind-Value="@model.Nombre" Label="Nombre" Style="width:100%" Required="true"></MatStringField>
         </div>
     </div>
-
     <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <MatSelect Label="Aprueba Valor Documento" @bind-Value=@model.ApruebaValorDocumento Required="true">
+                <MatOption Value=false>NO</MatOption>
+                <MatOption Value=true>SI</MatOption>
+            </MatSelect>
+        </div>
+    </div>
+    <br />
+    @if (model.ApruebaValorDocumento)
+    {
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-5">
+                <MatTextField @bind-Value="@model.ValorMinimo" Label="Valor Mínimo" Style="width:100%"></MatTextField>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-5">
+                <MatTextField @bind-Value="@model.ValorMaximo" Label="Valor Máximo" Style="width:100%"></MatTextField>
+            </div>
+        </div>
+        <br />
+    }
+
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-5">
@@ -69,9 +96,9 @@
                 <MatButton Raised="true" Icon="cancel" @onclick="Cancelar">Cancelar</MatButton>
             </MatThemeProvider>
         </div>
+        <br />
         @if (visibleGuardar)
         {
-            <br />
             <div class="col-md-2">
 
                 <MatThemeProvider Theme="@theme1">
@@ -122,11 +149,30 @@
             msgError = "El código debe ser mayor a cero.";
         }
 
-        if (codigoInicial != model.Codigo)
+        if (model.ApruebaValorDocumento)
+        {
+
+            if (model.ValorMinimo <= 0)
+            {
+                msgError = "El valor mínimo debe ser mayor a cero.";
+            }
+
+
+            if (model.ValorMinimo >= model.ValorMaximo)
+            {
+                msgError = "El valor máximo debe ser mayor al valor mínimo.";
+            }
+        }
+        else
+        {
+            model.ValorMinimo = 0;
+            model.ValorMaximo = 0;
+        }
+
+        if (codigoInicial != model.Codigo && msgError == null)
         {
             Validacion val = new Validacion();
             val.Mensaje = "ok";
-
             response = await Http.GetFromJsonAsync<Response>($"api/Cargos/CargosValidarCodigo/{singleton.EmpresaId}/{model.Codigo}");
             if (response.IsSuccessful)
             {
@@ -140,18 +186,18 @@
 
         }
 
-        if(msgError==null)
+        if (msgError == null)
         {
             if (Id != 0)
             {
                 accion = "Editar";
-                var result = await Http.PostAsJsonAsync<Cargo>($"api/Cargos/Edit", model);
+                var result = await Http.PostAsJsonAsync<Cargo>($"api/cargos/edit", model);
                 response = result.Content.ReadFromJsonAsync<Response>().Result;
             }
             else
             {
                 accion = "Ingresar";
-                var result = await Http.PostAsJsonAsync<Cargo>($"api/Cargos", model);
+                var result = await Http.PostAsJsonAsync<Cargo>($"api/cargos", model);
                 response = result.Content.ReadFromJsonAsync<Response>().Result;
             }
 
@@ -196,10 +242,25 @@
         }
         else
         {
+            response = await Http.GetFromJsonAsync<Response>($"api/cargos/{singleton.EmpresaId}/-1");
+            if (response.IsSuccessful)
+            {
+                List<Cargo> lstCargo = JsonConvert.DeserializeObject<List<Cargo>>(response.Data.ToString());
+                if (lstCargo.Count() > 0)
+                {
+                    model.Codigo = lstCargo.Max(x => x.Codigo) + 1;
+                }
+                else
+                {
+                    model.Codigo = 1;
+                }
+            }
+
             model.Estado = true;
             titulo = "NUEVO CARGO";
         }
     }
+
 
 
     protected async Task RegistrarAuditoria(Cargo model, string accion)
@@ -220,6 +281,15 @@
         }
 
 
+        if (model.ApruebaValorDocumento)
+        {
+            model.ApruebaValorDocumentoDescripcion = "SI";
+        }
+        else
+        {
+            model.ApruebaValorDocumentoDescripcion = "NO";
+        }
+
         if (model.Estado)
         {
             model.EstadoDescripcion = "ACTIVO";
@@ -237,7 +307,7 @@
         auditoria.UsuarioNombre = singleton.UsuarioNombre;
         auditoria.UsuarioRegistroId = singleton.UsuarioId;
 
-        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " el siguiente Cargo:----" + "Id: " + model.Id + "----Código:" + model.Codigo + "----Nombre: " + model.Nombre + "----Estado:" + model.EstadoDescripcion;
+        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " el siguiente Cargo:----" + "Id: " + model.Id + "----Código:" + model.Codigo + "----Nombre: " + model.Nombre + "----ApruebaValorDocumento:" + model.ApruebaValorDocumentoDescripcion + "----ValorMínimo:" + model.ValorMinimo + "----ValorMáximo:" + model.ValorMaximo + "----Estado:" + model.EstadoDescripcion;
 
         await Http.PostAsJsonAsync<Auditoria>($"api/auditoria", auditoria);
 

@@ -50,33 +50,6 @@
         </div>
     </div>
     <br />
-    <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-5">
-            <MatSelect Label="Aprueba Documento" @bind-Value=@model.ApruebaDocumento Required="true">
-                <MatOption Value=false>NO</MatOption>
-                <MatOption Value=true>SI</MatOption>
-            </MatSelect>
-        </div>
-    </div>
-    <br />
-    @if (model.ApruebaDocumento)
-    {
-        <div class="row">
-            <div class="col-md-1"></div>
-            <div class="col-md-5">
-                <MatTextField @bind-Value="@model.ValorMinimo" Label="Valor Mínimo" Style="width:100%" ></MatTextField>
-            </div>
-        </div>
-        <br />
-        <div class="row">
-            <div class="col-md-1"></div>
-            <div class="col-md-5">
-                <MatTextField @bind-Value="@model.ValorMaximo" Label="Valor Máximo" Style="width:100%" ></MatTextField>
-            </div>
-        </div>
-        <br />
-    }
 
     <div class="row">
         <div class="col-md-1"></div>
@@ -149,27 +122,8 @@
             msgError = "El código debe ser mayor a cero.";
         }
 
-        if (model.ApruebaDocumento)
-        {
 
-            if (model.ValorMinimo <= 0)
-            {
-                msgError = "El valor mínimo debe ser mayor a cero.";
-            }
-
-
-            if (model.ValorMinimo>=model.ValorMaximo)
-            {
-                msgError = "El valor máximo debe ser mayor al valor mínimo.";
-            }
-        }
-        else
-        {
-            model.ValorMinimo=0;
-            model.ValorMaximo = 0;
-        }
-
-        if(codigoInicial!=model.Codigo)
+        if(codigoInicial!=model.Codigo && msgError == null)
         {
             Validacion val = new Validacion();
             val.Mensaje = "ok";
@@ -242,6 +196,20 @@
         }
         else
         {
+            response = await Http.GetFromJsonAsync<Response>($"api/roles/{singleton.EmpresaId}/-1");
+            if (response.IsSuccessful)
+            {
+                List<Rol> lstRol = JsonConvert.DeserializeObject<List<Rol>>(response.Data.ToString());
+                if (lstRol.Count()>0)
+                {
+                    model.Codigo = lstRol.Max(x=>x.Codigo)+1;
+                }
+                else
+                {
+                    model.Codigo = 1;
+                }
+            }
+
             model.Estado = true;
             titulo = "NUEVO ROL";
         }
@@ -267,15 +235,6 @@
         }
 
 
-        if (model.ApruebaDocumento)
-        {
-            model.ApruebaDocumentoDescripcion = "SI";
-        }
-        else
-        {
-            model.ApruebaDocumentoDescripcion = "NO";
-        }
-
         if (model.Estado)
         {
             model.EstadoDescripcion = "ACTIVO";
@@ -293,7 +252,7 @@
         auditoria.UsuarioNombre = singleton.UsuarioNombre;
         auditoria.UsuarioRegistroId = singleton.UsuarioId;
 
-        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " el siguiente Rol:----" + "Id: "+model.Id+ "----Código:" + model.Codigo + "----Nombre: " + model.Nombre + "----ApruebaDocumento:" + model.ApruebaDocumentoDescripcion + "----ValorMínimo:" + model.ValorMinimo + "----ValorMáximo:" + model.ValorMaximo + "----Estado:" + model.EstadoDescripcion;
+        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " el siguiente Rol:----" + "Id: "+model.Id+ "----Código:" + model.Codigo + "----Nombre: " + model.Nombre + "----Estado:" + model.EstadoDescripcion;
 
         await Http.PostAsJsonAsync<Auditoria>($"api/auditoria", auditoria);
 

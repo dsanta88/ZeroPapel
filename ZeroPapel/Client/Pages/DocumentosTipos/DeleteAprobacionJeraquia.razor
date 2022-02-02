@@ -1,4 +1,5 @@
-﻿@page "/deleteroles/{Id:int}"
+﻿@page "/deleteaprobacionjeraquia"
+@page "/deleteaprobacionjeraquia/{DocumentoTipoId:int}/{Id}"
 @using ZeroPapel.Shared
 @inject HttpClient Http
 @using MatBlazor
@@ -12,10 +13,13 @@
 
     </div>
     <div class="col-md-5">
-        <h5> <b>ELIMINAR ROL</b></h5>
+        <h5> <b>ELIMINAR JERAQUIA DE APROBACIÓN</b></h5>
+    </div>
+
+    <div class="col-md-5">
+        <h5> <b>TIPO DE DOCUMENTO:@documentoTipoNombre </b></h5>
     </div>
 </div>
-
 
 <div class="row alert bg-warning">
     <div class="row col-md-1">
@@ -23,7 +27,7 @@
     </div>
     <div class="col-md-5">
         <MatThemeProvider>
-            <MatIcon Icon="warning"> </MatIcon> Esta  seguro de eliminar el rol?
+            <MatIcon Icon="warning"> </MatIcon> Esta  seguro de eliminar la jeraquia de aprobación?
         </MatThemeProvider>
     </div>
 </div>
@@ -45,18 +49,18 @@
 
 
 <EditForm Model="@model" OnValidSubmit="DeleteItem">
-
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-5">
-            <MatTextField @bind-Value="@model.Codigo" Label="Código" Style="width:100%" Disabled="true"></MatTextField>
+            <MatTextField @bind-Value="@model.JerarquiaOrden" Label="Orden Jeraquia" Style="width:100%" Disabled="true"></MatTextField>
         </div>
     </div>
+
     <br />
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-5">
-            <MatStringField @bind-Value="@model.Nombre" Label="Nombre" Style="width:100%" Disabled="true"></MatStringField>
+            <MatStringField @bind-Value="@model.CargoNombre" Label="Cargo" Style="width:100%" Disabled="true"></MatStringField>
         </div>
     </div>
     <br />
@@ -67,7 +71,7 @@
         </div>
     </div>
     <br />
-
+    <hr />
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-2">
@@ -85,10 +89,14 @@
 <br />
 @code {
 
-    [Parameter]
-    public int Id { get; set; }
+    [Parameter] public int Id { get; set; }
+    [Parameter] public int DocumentoTipoId { get; set; }
 
-    public Rol model = new Rol();
+    string titulo = "";
+    string documentoTipoNombre = "";
+
+
+    public DocumentoAprobacionJerarquia model = new DocumentoAprobacionJerarquia();
     Response response = new Response();
     string msgError = null;
 
@@ -102,22 +110,44 @@
     };
 
 
+
+
     protected override async Task OnInitializedAsync()
     {
+        var qs = navigationManager.ToAbsoluteUri(navigationManager.Uri).Query;
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(qs);
+
+        if (query.TryGetValue("DocumentoTipoId", out var item))
+        {
+            if (Int32.TryParse(item, out var id))
+            {
+                this.DocumentoTipoId = id;
+            }
+        }
+
+        if (query.TryGetValue("Id", out var id_str))
+        {
+            if (Int32.TryParse(id_str, out var id))
+            {
+                this.Id = id;
+            }
+        }
+
+
         await LoadData();
     }
 
     protected async Task DeleteItem()
     {
 
-        var result = await Http.DeleteAsync($"api/roles/{Id}");
+        var result = await Http.DeleteAsync($"api/DocumentosAprobacionJerarquia/{Id}");
         response = result.Content.ReadFromJsonAsync<Response>().Result;
 
 
         if (response.IsSuccessful)
         {
-            await RegistrarAuditoria(model, "Eliminar");
-            navigationManager.NavigateTo("/indexroles");
+            await RegistrarAuditoria(model, "eliminar");
+            navigationManager.NavigateTo("/indexaprobacionjeraquia/" + DocumentoTipoId);
         }
         else
         {
@@ -128,7 +158,7 @@
 
     protected async Task Cancelar()
     {
-        navigationManager.NavigateTo("/indexroles");
+        navigationManager.NavigateTo("/indexaprobacionjeraquia/" + DocumentoTipoId);
     }
 
 
@@ -136,19 +166,19 @@
     {
         if (Id > 0)
         {
-            response = await Http.GetFromJsonAsync<Response>($"api/roles/{singleton.EmpresaId}/{Id}");
+
+            response = await Http.GetFromJsonAsync<Response>($"api/DocumentosAprobacionJerarquia/{singleton.EmpresaId}/{Id}/{DocumentoTipoId}");
             if (response.IsSuccessful)
             {
-                model = JsonConvert.DeserializeObject<List<Rol>>(response.Data.ToString()).FirstOrDefault();
+                model = JsonConvert.DeserializeObject<List<DocumentoAprobacionJerarquia>>(response.Data.ToString()).FirstOrDefault();
+                documentoTipoNombre = model.DocumentoTipoNombre;
             }
-
         }
     }
 
-    protected async Task RegistrarAuditoria(Rol model, string accion)
+    protected async Task RegistrarAuditoria(DocumentoAprobacionJerarquia model, string accion)
     {
         string accionDescipcion = "";
-
 
         if (accion.ToLower() == "editar")
         {
@@ -163,6 +193,8 @@
             accionDescipcion = "elimino";
         }
 
+
+
         if (model.Estado)
         {
             model.EstadoDescripcion = "ACTIVO";
@@ -175,12 +207,12 @@
         Auditoria auditoria = new Auditoria();
         auditoria.EmpresaId = singleton.EmpresaId;
         auditoria.Accion = accion;
-        auditoria.Tabla = "Roles";
+        auditoria.Tabla = "DocumentosAprobacionJerarquia";
         auditoria.Usuario = singleton.Email;
         auditoria.UsuarioNombre = singleton.UsuarioNombre;
         auditoria.UsuarioRegistroId = singleton.UsuarioId;
 
-        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " el siguiente Rol:----" + "Id: " + model.Id + "----Código:" + model.Codigo + "----Nombre: " + model.Nombre + "----Estado:" + model.EstadoDescripcion;
+        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " el siguiente Documento Aprobacion Jerarquia:----" + "TipoDocumento: " + documentoTipoNombre +"----Id: " + model.Id + "----JeraquiaOrden:" + model.JerarquiaOrden + "----Cargo: " + model.CargoNombre +  "----Estado:" + model.EstadoDescripcion;
         await Http.PostAsJsonAsync<Auditoria>($"api/auditoria", auditoria);
 
     }

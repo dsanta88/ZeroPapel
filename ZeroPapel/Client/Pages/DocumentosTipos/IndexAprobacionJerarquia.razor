@@ -1,0 +1,133 @@
+﻿@page "/indexaprobacionjeraquia"
+@page "/indexaprobacionjeraquia/{DocumentoTipoId:int}"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json;
+@inject ServicioSingleton singleton
+
+
+<div class="row alert bg-info">
+    <div class="col-md-5">
+        <h5> <b>JERARQUIA DE APROBACIÓN</b></h5>
+    </div>
+
+    <div class="col-md-5">
+        <h5> <b>TIPO DE DOCUMENTO:</b> @model.Nombre</h5>
+    </div>
+</div>
+
+
+<div class="col-md-2">
+    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_box" Text="Nuevo" Size="ButtonSize.Medium" Click="@Add">
+    </RadzenButton>
+</div>
+
+<RadzenGrid AllowColumnResize="true"
+            AllowFiltering="true"
+            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+            AllowPaging="true" PageSize="20"
+            AllowSorting="true" Data="@list"
+            TItem="DocumentoAprobacionJerarquia"
+            ColumnWidth="200px">
+    <Columns>
+
+        <RadzenGridColumn TItem="DocumentoAprobacionJerarquia" Property="JerarquiaOrden" Title="Orden" Width="25%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="DocumentoAprobacionJerarquia" Property="CargoNombre" Title="Cargo" Width="100%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="DocumentoAprobacionJerarquia" Property="ApruebaValorDocumentoDescripcion" Title="ApruebaValor" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="DocumentoAprobacionJerarquia" Property="ValorMinimoStr" Title="ValorMínimo" Width="40%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="DocumentoAprobacionJerarquia" Property="ValorMaximoStr" Title="ValorMáximo" Width="40%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="DocumentoAprobacionJerarquia" Property="EstadoDescripcion" Title="Estado" Width="50%"></RadzenGridColumn>
+
+
+        <RadzenGridColumn TItem="DocumentoAprobacionJerarquia" Context="DocumentoAprobacionJerarquia" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="70%">
+            <Template Context="DocumentoAprobacionJerarquia">
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="edit" Text="Editar" Size="ButtonSize.Medium" Click="@((args) =>Edit(DocumentoAprobacionJerarquia.Id))">
+                </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
+
+        <RadzenGridColumn TItem="DocumentoAprobacionJerarquia" Context="DocumentoAprobacionJerarquia" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="70%">
+            <Template Context="DocumentoAprobacionJerarquia">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Eliminar" Size="ButtonSize.Medium" Click="@((args) =>Delete(DocumentoAprobacionJerarquia.Id))">
+                </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
+    </Columns>
+</RadzenGrid>
+
+<br />
+<hr />
+<div class="row">
+    <div class="col-md-2">
+        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="arrow_back" Text="Retornar" Size="ButtonSize.Medium" Click="@Retornar">
+        </RadzenButton>
+    </div>
+</div>
+
+
+@code {
+
+    [Parameter]
+    public int DocumentoTipoId { get; set; }
+    List<DocumentoAprobacionJerarquia> list;
+    Response response = new Response();
+    public DocumentoTipo model = new DocumentoTipo();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    protected async Task LoadData()
+    {
+
+
+        model = new DocumentoTipo();
+        if (DocumentoTipoId > 0)
+        {
+            response = await Http.GetFromJsonAsync<Response>($"api/documentostipos/{singleton.EmpresaId}/{DocumentoTipoId}");
+            if (response.IsSuccessful)
+            {
+                model = JsonConvert.DeserializeObject<List<DocumentoTipo>>(response.Data.ToString()).FirstOrDefault();
+            }
+        }
+
+
+        response = await Http.GetFromJsonAsync<Response>($"api/DocumentosAprobacionJerarquia/{singleton.EmpresaId}/-1/{DocumentoTipoId}");
+        if (response.IsSuccessful)
+        {
+            list = JsonConvert.DeserializeObject<List<DocumentoAprobacionJerarquia>>(response.Data.ToString());
+        }
+
+    }
+
+
+    public void Add()
+    {
+        navigationManager.NavigateTo("/formaprobacionjeraquia?DocumentoTipoId=" + DocumentoTipoId.ToString() + "&&Id=-1");
+    }
+
+
+    public void Edit(int id)
+    {
+        navigationManager.NavigateTo("/formaprobacionjeraquia?DocumentoTipoId=" + DocumentoTipoId.ToString() + "&&Id=" + id);
+    }
+
+
+
+
+    public void Delete(int id)
+    {
+        navigationManager.NavigateTo("/deleteaprobacionjeraquia?DocumentoTipoId=" + DocumentoTipoId.ToString() + "&&Id=" + id);
+    }
+
+    public void Retornar()
+    {
+        navigationManager.NavigateTo($"/indexdocumentostipos");
+    }
+
+
+}

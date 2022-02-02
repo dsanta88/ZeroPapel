@@ -1,39 +1,42 @@
-﻿using ZeroPapel.Server.Helper;
-using ZeroPapel.Shared;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
+using ZeroPapel.Server.Helper;
+using ZeroPapel.Shared;
 
 namespace ZeroPapel.Server.Data
 {
-    public class CargosDA
+    public class DocumentosAprobacionJerarquiaDA
     {
         LeerJson objJson = new LeerJson();
         LogEventosDA logDA = new LogEventosDA();
         string strConexionSQL = "";
 
 
-        public CargosDA()
+        public DocumentosAprobacionJerarquiaDA()
         {
             strConexionSQL = objJson.GetStrConexion();
         }
-        public List<Cargo> CargosObtener(int empresaId, int id)
+        public List<DocumentoAprobacionJerarquia> DocumentosAprobacionJerarquiaObtener(int empresaId, int id, int documentoTipoId)
         {
             DataSet ds = new DataSet();
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
             SqlCommand comandoSQL = new SqlCommand();
             SqlDataAdapter adaptadorSQL = new SqlDataAdapter();
-            List<Cargo> lst = new List<Cargo>();
+            List<DocumentoAprobacionJerarquia> lst = new List<DocumentoAprobacionJerarquia>();
 
             try
             {
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_cargos_obtener";
+                comandoSQL.CommandText = "sp_documentos_aprobacion_jerarquia_obtener";
                 comandoSQL.Parameters.AddWithValue("@EmpresaId", empresaId);
                 comandoSQL.Parameters.AddWithValue("@Id", id);
+                comandoSQL.Parameters.AddWithValue("@DocumentoTipoId", documentoTipoId);
                 adaptadorSQL.SelectCommand = comandoSQL;
                 adaptadorSQL.Fill(ds);
 
@@ -43,19 +46,23 @@ namespace ZeroPapel.Server.Data
                     {
                         foreach (DataRow item in ds.Tables[0].Rows)
                         {
-                            Cargo obj = new Cargo();
+                            DocumentoAprobacionJerarquia obj = new DocumentoAprobacionJerarquia();
                             obj.Id = Convert.ToInt32(item["Id"].ToString());
-                            obj.Codigo = Convert.ToInt32(item["Codigo"].ToString());
-                            obj.Nombre = item["Nombre"].ToString();
+                            obj.JerarquiaOrden = Convert.ToInt32(item["JerarquiaOrden"].ToString());
+                            obj.DocumentoTipoId = Convert.ToInt32(item["DocumentoTipoId"].ToString());
+                            obj.DocumentoTipoNombre = item["DocumentoTipoNombre"].ToString();
+                            obj.CargoId = Convert.ToInt32(item["CargoId"].ToString());
+                            obj.CargoNombre = item["CargoNombre"].ToString();
                             obj.ApruebaValorDocumento = Convert.ToBoolean(item["ApruebaValorDocumento"].ToString());
+                            obj.ApruebaValorDocumentoDescripcion = item["ApruebaValorDocumentoDescripcion"].ToString();
                             obj.ValorMinimo = Convert.ToDecimal(item["ValorMinimo"].ToString());
                             obj.ValorMaximo = Convert.ToDecimal(item["ValorMaximo"].ToString());
-                            obj.ApruebaValorDocumentoDescripcion = item["ApruebaValorDocumentoDescripcion"].ToString();
-                            obj.Estado = Convert.ToBoolean(item["Estado"].ToString());
+                            obj.Estado = Convert.ToBoolean(item["Estado"].ToString());                  
                             obj.EstadoDescripcion = item["EstadoDescripcion"].ToString();
 
                             obj.ValorMinimoStr = "$" + String.Format(CultureInfo.InvariantCulture, "{0:0,0}", obj.ValorMinimo);
                             obj.ValorMaximoStr = "$" + String.Format(CultureInfo.InvariantCulture, "{0:0,0}", obj.ValorMaximo);
+
                             lst.Add(obj);
                         }
                     }
@@ -75,21 +82,20 @@ namespace ZeroPapel.Server.Data
             return lst;
         }
 
-        public bool CargosIngresar(Cargo model)
+        public bool DocumentosAprobacionJerarquiaIngresar(DocumentoAprobacionJerarquia model)
         {
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
             SqlCommand comandoSQL = new SqlCommand();
 
             try
             {
+
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_cargos_ingresar";
+                comandoSQL.CommandText = "sp_documentos_aprobacion_jerarquia_ingresar";
                 comandoSQL.Parameters.AddWithValue("@EmpresaId", model.EmpresaId);
-                comandoSQL.Parameters.AddWithValue("@Codigo", model.Codigo);
-                comandoSQL.Parameters.AddWithValue("@Nombre", model.Nombre);
-                comandoSQL.Parameters.AddWithValue("@ApruebaValorDocumento", model.ApruebaValorDocumento);
-                comandoSQL.Parameters.AddWithValue("@ValorMinimo", model.ValorMinimo);
-                comandoSQL.Parameters.AddWithValue("@ValorMaximo", model.ValorMaximo);
+                comandoSQL.Parameters.AddWithValue("@JerarquiaOrden", model.JerarquiaOrden);
+                comandoSQL.Parameters.AddWithValue("@DocumentoTipoId", model.DocumentoTipoId);
+                comandoSQL.Parameters.AddWithValue("@CargoId", model.CargoId);
                 comandoSQL.Parameters.AddWithValue("@Estado", model.Estado);
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.Connection.Open();
@@ -110,7 +116,7 @@ namespace ZeroPapel.Server.Data
             return true;
         }
 
-        public bool CargosEditar(Cargo model)
+        public bool DocumentosAprobacionJerarquiaEditar(DocumentoAprobacionJerarquia model)
         {
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
             SqlCommand comandoSQL = new SqlCommand();
@@ -118,13 +124,11 @@ namespace ZeroPapel.Server.Data
             try
             {
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_cargos_editar";
+                comandoSQL.CommandText = "sp_documentos_aprobacion_jerarquia_editar";
                 comandoSQL.Parameters.AddWithValue("@Id", model.Id);
-                comandoSQL.Parameters.AddWithValue("@Codigo", model.Codigo);
-                comandoSQL.Parameters.AddWithValue("@Nombre", model.Nombre);
-                comandoSQL.Parameters.AddWithValue("@ApruebaValorDocumento", model.ApruebaValorDocumento);
-                comandoSQL.Parameters.AddWithValue("@ValorMinimo", model.ValorMinimo);
-                comandoSQL.Parameters.AddWithValue("@ValorMaximo", model.ValorMaximo);
+                comandoSQL.Parameters.AddWithValue("@JerarquiaOrden", model.JerarquiaOrden);
+                comandoSQL.Parameters.AddWithValue("@DocumentoTipoId", model.DocumentoTipoId);
+                comandoSQL.Parameters.AddWithValue("@CargoId", model.CargoId);
                 comandoSQL.Parameters.AddWithValue("@Estado", model.Estado);
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.Connection.Open();
@@ -145,7 +149,7 @@ namespace ZeroPapel.Server.Data
             return true;
         }
 
-        public bool CargosEliminar(int id)
+        public bool DocumentosAprobacionJerarquiaEliminar(int id)
         {
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
             SqlCommand comandoSQL = new SqlCommand();
@@ -153,7 +157,7 @@ namespace ZeroPapel.Server.Data
             try
             {
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_cargos_eliminar";
+                comandoSQL.CommandText = "sp_documentos_aprobacion_jerarquia_eliminar";
 
                 comandoSQL.Parameters.AddWithValue("@Id", id);
                 comandoSQL.Connection = conexionSQL;
@@ -175,7 +179,7 @@ namespace ZeroPapel.Server.Data
             return true;
         }
 
-        public Validacion CargosValidarCodigo(int empresaId, int codigo)
+        public Validacion DocumentosAprobacionJerarquiaValidarOrden(int empresaId,int documentoTipoId, int jeraquiaOrden)
         {
             DataSet ds = new DataSet();
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
@@ -187,9 +191,10 @@ namespace ZeroPapel.Server.Data
             {
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_cargos_validar_codigo";
+                comandoSQL.CommandText = "sp_documentos_aprobacion_jerarquia_validar_orden";
                 comandoSQL.Parameters.AddWithValue("@EmpresaId", empresaId);
-                comandoSQL.Parameters.AddWithValue("@Codigo", codigo);
+                comandoSQL.Parameters.AddWithValue("@DocumentoTipoId", documentoTipoId);
+                comandoSQL.Parameters.AddWithValue("@JeraquiaOrden", jeraquiaOrden);
                 adaptadorSQL.SelectCommand = comandoSQL;
                 adaptadorSQL.Fill(ds);
 
@@ -217,7 +222,6 @@ namespace ZeroPapel.Server.Data
 
             return obj;
         }
-
 
         public bool LogEventosIngresar(Exception ex)
         {

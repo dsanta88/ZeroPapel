@@ -47,15 +47,8 @@ namespace ZeroPapel.Server.Data
                             obj.Id = Convert.ToInt32(item["Id"].ToString());
                             obj.Codigo = Convert.ToInt32(item["Codigo"].ToString());
                             obj.Nombre = item["Nombre"].ToString();
-                            obj.ApruebaDocumento = Convert.ToBoolean(item["ApruebaDocumento"].ToString());
-                            obj.ValorMinimo = Convert.ToDecimal(item["ValorMinimo"].ToString());
-                            obj.ValorMaximo = Convert.ToDecimal(item["ValorMaximo"].ToString());
-                            obj.ApruebaDocumentoDescripcion =item["ApruebaDocumentoDescripcion"].ToString();
                             obj.Estado = Convert.ToBoolean(item["Estado"].ToString());
                             obj.EstadoDescripcion = item["EstadoDescripcion"].ToString();
-
-                            obj.ValorMinimoStr ="$"+ String.Format(CultureInfo.InvariantCulture, "{0:0,0}", obj.ValorMinimo);
-                            obj.ValorMaximoStr ="$"+ String.Format(CultureInfo.InvariantCulture, "{0:0,0}", obj.ValorMaximo);
                             lst.Add(obj);
                         }
                     }
@@ -87,9 +80,6 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Parameters.AddWithValue("@EmpresaId", model.EmpresaId);
                 comandoSQL.Parameters.AddWithValue("@Codigo", model.Codigo);
                 comandoSQL.Parameters.AddWithValue("@Nombre", model.Nombre);
-                comandoSQL.Parameters.AddWithValue("@ApruebaDocumento", model.ApruebaDocumento);
-                comandoSQL.Parameters.AddWithValue("@ValorMinimo", model.ValorMinimo);
-                comandoSQL.Parameters.AddWithValue("@ValorMaximo", model.ValorMaximo);
                 comandoSQL.Parameters.AddWithValue("@Estado", model.Estado);
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.Connection.Open();
@@ -122,9 +112,6 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Parameters.AddWithValue("@Id", model.Id);
                 comandoSQL.Parameters.AddWithValue("@Codigo", model.Codigo);
                 comandoSQL.Parameters.AddWithValue("@Nombre", model.Nombre);
-                comandoSQL.Parameters.AddWithValue("@ApruebaDocumento", model.ApruebaDocumento);
-                comandoSQL.Parameters.AddWithValue("@ValorMinimo", model.ValorMinimo);
-                comandoSQL.Parameters.AddWithValue("@ValorMaximo", model.ValorMaximo);
                 comandoSQL.Parameters.AddWithValue("@Estado", model.Estado);
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.Connection.Open();
