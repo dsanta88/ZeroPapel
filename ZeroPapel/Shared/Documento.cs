@@ -21,7 +21,11 @@ namespace ZeroPapel.Shared
         public string ProveedorNombre { get; set; }
         public DateTime FechaRecepcion { get; set; }
         public string FechaRecepcionStr { get; set; }
-        public string NumeroDocumento { get; set; }
+
+        public string DocumentoPrefijo { get; set; }
+        public int DocumentoNumero { get; set; }
+
+        public string DocumentoPrefijoNumero { get; set; }
         public DateTime FechaExpedicion { get; set; }
         public string FechaExpedicionStr { get; set; }
         public DateTime FechaVencimiento { get; set; }

@@ -98,9 +98,11 @@
                 <RadzenDatePicker Style="width:100%" ShowTime="false" @bind-Value="@model.FechaRecepcion" HourFormat="12" DateFormat="d MMMM yyyy" />
             </div>
             <div class="col-md-1"></div>
-            <div class="col-md-3">
-                <b>Número de documento</b>
-                <MatStringField @bind-Value="@model.NumeroDocumento" Style="width:100%" Required="true"></MatStringField>
+            <div class="col-md-4">
+                <b>Prefijo documento</b>
+                <MatStringField @bind-Value="@model.DocumentoPrefijo" Style="width:15%" Required="true"></MatStringField>
+                <b>Número documento</b>
+                <MatTextField @bind-Value="@model.DocumentoNumero" Style="width:25%" Required="true"></MatTextField>
             </div>
         </div>
         <br />
@@ -239,7 +241,12 @@
         {
             msgError = "Fecha de recepción no valida.";
         }
-        else if (model.NumeroDocumento == null || model.NumeroDocumento == "")
+
+        else if (model.DocumentoPrefijo == null || model.DocumentoPrefijo == "")
+        {
+            msgError = "Debe ingresar el prefijo del documento";
+        }
+        else if (model.DocumentoNumero <= 0)
         {
             msgError = "Debe ingresar el número de documento";
         }

@@ -57,7 +57,9 @@ namespace ZeroPapel.Server.Data
                             obj.ProveedorNit = item["ProveedorNit"].ToString();
                             obj.FechaRecepcion = Convert.ToDateTime(item["FechaRecepcion"].ToString());
                             obj.ProveedorNombre = item["ProveedorNombre"].ToString();
-                            obj.NumeroDocumento = item["NumeroDocumento"].ToString();
+                            obj.DocumentoPrefijo = item["DocumentoPrefijo"].ToString();
+                            obj.DocumentoNumero = Convert.ToInt32(item["DocumentoNumero"].ToString());
+                            obj.DocumentoPrefijoNumero = item["DocumentoPrefijoNumero"].ToString();
                             obj.FechaExpedicion = Convert.ToDateTime(item["FechaExpedicion"].ToString());
                             obj.FechaVencimiento = Convert.ToDateTime(item["FechaVencimiento"].ToString());
                             obj.Valor = Convert.ToDecimal(item["Valor"].ToString());
@@ -108,7 +110,8 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Parameters.AddWithValue("@MonedaId", model.MonedaId);
                 comandoSQL.Parameters.AddWithValue("@ProveedorNit", model.ProveedorNit);
                 comandoSQL.Parameters.AddWithValue("@FechaRecepcion", model.FechaRecepcion);
-                comandoSQL.Parameters.AddWithValue("@NumeroDocumento", model.NumeroDocumento);
+                comandoSQL.Parameters.AddWithValue("@DocumentoPrefijo", model.DocumentoPrefijo);
+                comandoSQL.Parameters.AddWithValue("@DocumentoNumero", model.DocumentoNumero);
                 comandoSQL.Parameters.AddWithValue("@FechaExpedicion", model.FechaExpedicion);
                 comandoSQL.Parameters.AddWithValue("@FechaVencimiento", model.FechaVencimiento);
                 comandoSQL.Parameters.AddWithValue("@Valor", model.Valor);
@@ -149,7 +152,8 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Parameters.AddWithValue("@MonedaId", model.MonedaId);
                 comandoSQL.Parameters.AddWithValue("@ProveedorNit", model.ProveedorNit);
                 comandoSQL.Parameters.AddWithValue("@FechaRecepcion", model.FechaRecepcion);
-                comandoSQL.Parameters.AddWithValue("@NumeroDocumento", model.NumeroDocumento);
+                comandoSQL.Parameters.AddWithValue("@DocumentoPrefijo", model.DocumentoPrefijo);
+                comandoSQL.Parameters.AddWithValue("@DocumentoNumero", model.DocumentoNumero);
                 comandoSQL.Parameters.AddWithValue("@FechaExpedicion", model.FechaExpedicion);
                 comandoSQL.Parameters.AddWithValue("@FechaVencimiento", model.FechaVencimiento);
                 comandoSQL.Parameters.AddWithValue("@Valor", model.Valor);

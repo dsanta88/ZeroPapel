@@ -1,238 +1,97 @@
 ﻿@inherits LayoutComponentBase
-
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json;
 @inject ServicioSingleton singleton
+@inject IJSRuntime js
+
 
 
 <div class="wrapper">
 
     <!-- Navbar -->
     <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-        <!-- Left navbar links -->
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-            </li>
-
-            <li class="nav-item d-none d-sm-inline-block">
-                <a class="nav-link">
-
-
-                </a>
-            </li>
-        </ul>
-
-
-        <!-- Right navbar links -->
-        <ul class="navbar-nav ml-auto">
-            <!-- Messages Dropdown Menu -->
-            <!-- Notifications Dropdown Menu -->
-            <li class="nav-item d-none d-sm-inline-block">
-                <a href="/login" class="nav-link">
-                    <i class="nav-icon fa fa-power-off"></i>
-                    <label>Cerrar Sesión</label>
-                </a>
-            </li>
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+        </li>
+    </ul>
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item d-none d-sm-inline-block">
+            <!-- Brand Logo -->
+ 
+            <a href="/login" class="nav-link">
+                <i class="nav-icon fa fa-power-off"></i>
+                <label>Cerrar Sesión</label>
+            </a>
+        </li>
         </ul>
     </nav>
-
-    <!-- /.navbar -->
     <!-- Main Sidebar Container -->
     <aside class="main-sidebar sidebar-dark-success bg-green elevation-4">
         <!-- Brand Logo -->
-        <a  class="brand-link bg-white">
-            <img src="@singleton.EmpresaLogo"  alt="" class="brand-image  elevation-3"
-                 style="opacity: .7">
-            <span class="brand-text font-weight-light">@singleton.EmpresaNombre</span>
+        <a class="brand-link bg-white " style="text-align:left">
+            <img src="@singleton.EmpresaLogo" style="width:120px; height:50px" />
         </a>
 
         <!-- Sidebar -->
         <div class="sidebar">
             <!-- Sidebar user panel (optional) -->
-            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                <div class="info">
-                    <a href="/index" class="d-block">@singleton.Email</a>
-                </div>
+            <div class="user-panel mt-2 pb-2 mb-2 d-flex">
+                @*<div class="info">*@
+                <a class="d-block">@singleton.UsuarioNombre</a>
+                @*</div>*@
             </div>
 
-            <!-- Sidebar Menu -->
-            <nav class="mt-2">
-                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                    <!-- Add icons to the links using the .nav-icon class
-    with font-awesome or any other icon font library -->
+            <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+                @*@if (list == null)
+                {
+                    <p><em>Loading....</em></p>
+                }
+                else
+                {*@
+                    <ul class="nav flex-column">
+                        @foreach (Menu item in list)
+                        {
+                            @if (item.PadreId == 0)
+                            {
+                                <li class="nav-item" px-3>
+                                    <NavLink class="nav-link" @onclick="()=>GetIsClicked(item)">
+                                        <span class="@item.Icono" aria-hidden="true"></span> @item.Nombre
+                                    </NavLink>
+                                    <ul class="nav flex-column">
+                                        @foreach (Menu men in list)
+                                        {
+                                            @if (item.Id == men.PadreId)
+                                            {
+                                                @if (expandSubNav && item.Id == clickedMenu)
+                                                {
+                                                    <li class="nav-item px-3">
+                                                        <NavLink class="nav-link" href="@men.Link" @onclick="()=>GetIsClicked(men)">
+                                                            <span class="@men.Icono" aria-hidden="true"></span> @men.Nombre
+                                                        </NavLink>
+                                                    </li>
+                                                }
+                                            }
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                        }
+                       
+                        <li class="nav-item" px-3>
+                            <hr />
+                            <NavLink href="/login" class="nav-link">
+                                <span class="nav-icon fa fa-power-off" aria-hidden="true"></span> Cerrar Sesión
+                            </NavLink>
+                        </li>
+                    </ul>
+                @*}*@
 
-                    <li class="nav-item has-treeview menu-open">
-                        <a class="nav-link active">
-                            <i class="nav-icon fas fa-cog"></i>
-                            <p>
-                                Configuraciones
-                                <i class="fas fa-angle-left right"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-
-                            <li class="nav-item">
-                                <a href="/indexroles" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Roles</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="/indexcargos" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Cargos</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="/indexusuarios" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Usuarios</p>
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a href="/indexmenu" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Menu</p>
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a href="/indexausentismostipos" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Tipos de ausentimos</p>
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a href="/indexparametros" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Parámetros</p>
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a href="/indexusuariosniveles" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Niveles de usuario</p>
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a href="/indexdocumentostipos" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Tipos de documentos</p>
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a href="/indexproveedores" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Proveedores</p>
-                                </a>
-                            </li>
-
-
-
-                        </ul>
-                    </li>
-
-                    <li class="nav-item has-treeview menu-open">
-                        <a class="nav-link active">
-                            <i class="nav-icon fas fa-list"></i>
-                            <p>
-                                Ausentismos
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="/formAusentismossolicitudes" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Solicitud</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="/indexausentismossolicitudes" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Historico Solicitudes</p>
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a href="/indexausentismosrevisarjefe" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Revisar</p>
-                                </a>
-                            </li>
-
-
-                        </ul>
-                    </li>
-
-
-                    <li class="nav-item has-treeview menu-open">
-                        <a class="nav-link active">
-                            <i class="nav-icon fas fa-list"></i>
-                            <p>
-                                Documentos
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="/formdocumentos" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Registro</p>
-                                </a>
-                            </li>
-                        </ul>
-
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="/indexdocumentos" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Documentos</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li class="nav-item has-treeview menu-open">
-                        <a class="nav-link active">
-                            <i class="nav-icon fas fa-list"></i>
-                            <p>
-                                Logs
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="/indexlogeventos" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Log de errores</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="/indexprocesoslog" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Log procesos</p>
-                                </a>
-                            </li>
-
-                        </ul>
-                    </li>
-
-
-
-
-                </ul>
-            </nav>
-
-
-
-            <!-- /.sidebar-menu -->
+            </div>
         </div>
-        <!-- /.sidebar -->
     </aside>
 
     <!-- Content Wrapper. Contains page content -->
@@ -249,3 +108,61 @@
     </aside>
     <!-- /.control-sidebar -->
 </div>
+
+
+
+@code {
+
+    Response response = new Response();
+    private bool collapseNavMenu = true;
+    List<Menu> list = new List<Menu>();
+    private bool expandSubNav;
+    private int clickedMenu = 0;
+    private bool hasLink = true;
+    private int prevClickedMenu = 0;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        if (hasLink)
+        {
+            collapseNavMenu = !collapseNavMenu;
+        }
+    }
+
+    public void GetIsClicked(Menu model)
+    {
+
+        clickedMenu = model.Id;
+        if (prevClickedMenu != clickedMenu)
+        {
+            expandSubNav = false;
+            if (model.Link != "" || model.Nombre == "Index")
+            {
+                hasLink = true;
+            }
+            else
+            {
+                expandSubNav = !expandSubNav;
+                hasLink = false;
+            }
+        }
+        else
+        {
+            expandSubNav = !expandSubNav;
+        }
+        prevClickedMenu = clickedMenu;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        response = await Http.GetFromJsonAsync<Response>($"api/menu/{singleton.EmpresaId}/-1");
+        if (response.IsSuccessful)
+        {
+            list = JsonConvert.DeserializeObject<List<Menu>>(response.Data.ToString());
+        }
+    }
+}
+
+

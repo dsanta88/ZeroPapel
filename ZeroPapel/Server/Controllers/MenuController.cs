@@ -16,24 +16,22 @@ namespace ZeroPapel.Server.Controllers
         LogEventosDA logDA = new LogEventosDA();
         Mensajes mensajes = new Mensajes();
 
-        [HttpGet("[action]/{empresaId}")]
-        public IActionResult GetMenu(int empresaId)
+        [HttpGet("{empresaId}/{id}")]
+        public IActionResult Get(int empresaId, int id)
         {
             Response response = new Response();
             try
             {
-                List<Menu> list = datos.MenuObtener(empresaId, -1);
+                List<Menu> list = datos.MenuObtener(empresaId, id);
                 response.IsSuccessful = true;
                 response.Data = list;
             }
             catch (Exception ex)
             {
                 response.Message = ex.Message;
-                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
         }
-
     }
 }
