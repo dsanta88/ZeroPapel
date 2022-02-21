@@ -89,8 +89,8 @@ namespace ZeroPapel.Server.Data
                             obj.FechaIngreso = Convert.ToDateTime(item["FechaIngreso"].ToString());
                             obj.FechaRetiro = Convert.ToDateTime(item["FechaRetiro"].ToString());
                             obj.Salario = Convert.ToDecimal(item["Salario"].ToString());
-                            obj.UsuarioRegistroId = Convert.ToInt32(item["UsuarioRegistroId"].ToString());
-                            obj.FechaRegistro = Convert.ToDateTime(item["FechaRegistro"].ToString());
+                            obj.UsuarioCreacionId = Convert.ToInt32(item["UsuarioCreacionId"].ToString());
+                            obj.FechaCreacion = Convert.ToDateTime(item["FechaCreacion"].ToString());
                             lst.Add(obj);
                        }
                     }
@@ -109,6 +109,60 @@ namespace ZeroPapel.Server.Data
 
             return lst;
         }
+
+
+        public List<Usuario> UsuariosXCargoObtener(int cargoId)
+        {
+            DataSet ds = new DataSet();
+            SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
+            SqlCommand comandoSQL = new SqlCommand();
+            SqlDataAdapter adaptadorSQL = new SqlDataAdapter();
+            List<Usuario> lst = new List<Usuario>();
+
+            try
+            {
+                comandoSQL.Connection = conexionSQL;
+                comandoSQL.CommandType = CommandType.StoredProcedure;
+                comandoSQL.CommandText = "sp_usuarios_x_cargo_obtener";
+                comandoSQL.Parameters.AddWithValue("@CargoId", cargoId);
+                adaptadorSQL.SelectCommand = comandoSQL;
+                adaptadorSQL.Fill(ds);
+
+                if (ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow item in ds.Tables[0].Rows)
+                        {
+
+                            Usuario obj = new Usuario();
+                            obj.Id = Convert.ToInt32(item["Id"].ToString());
+                            obj.CargoId = Convert.ToInt32(item["CargoId"].ToString());
+                            obj.CargoNombre = item["CargoNombre"].ToString();
+                            obj.Apellidos = item["Apellidos"].ToString();
+                            obj.Nombres = item["Nombres"].ToString();
+                            obj.NombreCompleto = item["NombreCompleto"].ToString();         
+                            obj.Celular = item["Celular"].ToString();
+                            obj.Email = item["Email"].ToString();                   
+                            lst.Add(obj);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                LogEventosIngresar(ex);
+            }
+            finally
+            {
+                comandoSQL.Parameters.Clear();
+                comandoSQL.Connection.Close();
+            }
+
+            return lst;
+        }
+
 
         public bool UsuariosIngresar(Usuario model)
         {
@@ -144,7 +198,7 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Parameters.AddWithValue("@FechaIngreso", model.FechaIngreso);
                 comandoSQL.Parameters.AddWithValue("@FechaRetiro", model.FechaRetiro);
                 comandoSQL.Parameters.AddWithValue("@Salario", model.Salario);
-                comandoSQL.Parameters.AddWithValue("@UsuarioRegistroId", model.UsuarioRegistroId);
+                comandoSQL.Parameters.AddWithValue("@UsuarioCreacionId", model.UsuarioCreacionId);
         
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.Connection.Open();
@@ -195,7 +249,7 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Parameters.AddWithValue("@FechaIngreso", model.FechaIngreso);
                 comandoSQL.Parameters.AddWithValue("@FechaRetiro", model.FechaRetiro);
                 comandoSQL.Parameters.AddWithValue("@Salario", model.Salario);
-                comandoSQL.Parameters.AddWithValue("@UsuarioRegistroId", model.UsuarioRegistroId);
+                comandoSQL.Parameters.AddWithValue("@UsuarioActualizacionId", model.UsuarioActualizacionId);
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.Connection.Open();
                 comandoSQL.ExecuteNonQuery();

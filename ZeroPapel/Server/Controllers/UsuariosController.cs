@@ -133,5 +133,24 @@ namespace ZeroPapel.Server.Controllers
 
             return Ok(response);
         }
+
+        [HttpGet("[action]/{cargoId}")]
+        public IActionResult GetUsuariosXCargo(int cargoId)
+        {
+            Response response = new Response();
+            try
+            {
+                List<Usuario> list = datos.UsuariosXCargoObtener(cargoId);
+                response.IsSuccessful = true;
+                response.Data = list;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
+            }
+
+            return Ok(response);
+        }
     }
 }

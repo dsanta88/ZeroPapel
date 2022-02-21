@@ -1,0 +1,294 @@
+﻿@page "/formdocumentosestados"
+@page "/formdocumentosestados/{Id:int}"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json;
+@inject ServicioSingleton singleton
+@inject IJSRuntime js
+
+
+<div class="row alert bg-info">
+    <div class="row col-md-1">
+
+    </div>
+    <div class="col-md-5">
+        <h5> <b>@titulo</b></h5>
+    </div>
+</div>
+
+@if (msgError != null)
+{
+    <div class="row alert bg-danger">
+        <div class="row col-md-1">
+
+        </div>
+        <div class="col-md-5">
+            <MatThemeProvider>
+                <MatIcon Icon="cancel"> </MatIcon>   @msgError
+            </MatThemeProvider>
+        </div>
+    </div>
+}
+
+
+
+<EditForm Model="@model" OnValidSubmit="Save">
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <MatTextField @bind-Value="@model.Codigo" Label="Código" Style="width:100%" Required="true"></MatTextField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <MatStringField @bind-Value="@model.Nombre" Label="Nombre" Style="width:100%" Required="true"></MatStringField>
+        </div>
+    </div>
+    <br />
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <a>Cargo</a>
+            <RadzenDropDown AllowClear="true"
+                            AllowFiltering="true"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            @bind-Value="model.CargoId"
+                            Multiple="false"
+                            Placeholder="[SELECCIONAR]"
+                            Data="@listCargos"
+                            TextProperty="Nombre"
+                            ValueProperty="Id"
+                            Style="width:100%" />
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <MatSelect Label="Estado" @bind-Value=@model.Estado Required="true">
+                <MatOption Value=true>ACTIVO</MatOption>
+                <MatOption Value=false>INACTIVO</MatOption>
+            </MatSelect>
+        </div>
+    </div>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            <MatThemeProvider Theme="@theme3">
+                <MatButton Raised="true" Icon="cancel" @onclick="Cancelar">Cancelar</MatButton>
+            </MatThemeProvider>
+        </div>
+        <br />
+        @if (visibleGuardar)
+        {
+            <div class="col-md-2">
+
+                <MatThemeProvider Theme="@theme1">
+                    <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
+                </MatThemeProvider>
+            </div>
+        }
+
+    </div>
+</EditForm>
+<br />
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+    string titulo = "";
+    string msgError = null;
+    public DocumentoEstado model = new DocumentoEstado();
+    Response response = new Response();
+    bool visibleGuardar = true;
+    public int codigoInicial = 0;
+    List<Cargo> listCargos = new List<Cargo>();
+
+
+    MatTheme theme1 = new MatTheme()
+    {
+        Primary = "green",
+    };
+    MatTheme theme3 = new MatTheme()
+    {
+        Primary = "red",
+    };
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    protected async Task Save()
+    {
+       
+        string accion = "";
+        visibleGuardar = false;
+        msgError = null;
+        model.EmpresaId = singleton.EmpresaId;
+        model.Nombre = model.Nombre.ToUpper();
+
+        if (model.Codigo <= 0)
+        {
+            msgError = "El código debe ser mayor a cero.";
+        }
+
+      
+
+        if(codigoInicial!=model.Codigo && msgError == null)
+        {
+            Validacion val = new Validacion();
+            val.Mensaje = "ok";
+            response = await Http.GetFromJsonAsync<Response>($"api/DocumentosEstados/DocumentosEstadosValidarCodigo/{singleton.EmpresaId}/{model.Codigo}");
+            if (response.IsSuccessful)
+            {
+                val = JsonConvert.DeserializeObject<Validacion>(response.Data.ToString());
+            }
+
+            if (val.Mensaje.ToLower() != "ok")
+            {
+                msgError = val.Mensaje;
+            }
+
+        }
+
+        if (msgError==null)
+        {
+            if (Id != 0)
+            {
+                accion = "Editar";
+                var result = await Http.PostAsJsonAsync<DocumentoEstado>($"api/DocumentosEstados/edit", model);
+                response = result.Content.ReadFromJsonAsync<Response>().Result;
+            }
+            else
+            {
+                accion = "Ingresar";
+                var result = await Http.PostAsJsonAsync<DocumentoEstado>($"api/DocumentosEstados", model);
+                response = result.Content.ReadFromJsonAsync<Response>().Result;
+            }
+
+
+            if (response.IsSuccessful)
+            {
+                await RegistrarAuditoria(model, accion);
+                navigationManager.NavigateTo("/indexdocumentosestados");
+            }
+            else
+            {
+                msgError = response.Message;
+                await js.InvokeAsync<string>("MensajeAlerta", msgError);
+            }
+        }
+        else
+        {
+            await js.InvokeAsync<string>("MensajeAlerta", msgError);
+        }
+        visibleGuardar = true;
+    }
+
+    protected async Task Cancelar()
+    {
+        navigationManager.NavigateTo("/indexdocumentosestados");
+    }
+
+
+    protected async Task LoadData()
+    {
+
+        model = new DocumentoEstado();
+        if (Id > 0)
+        {
+            titulo = "EDITAR ESTADO DOCUMENTO";
+            response = await Http.GetFromJsonAsync<Response>($"api/DocumentosEstados/{singleton.EmpresaId}/{Id}");
+            if (response.IsSuccessful)
+            {
+                model = JsonConvert.DeserializeObject<List<DocumentoEstado>>(response.Data.ToString()).FirstOrDefault();
+                codigoInicial = model.Codigo;
+            }
+        }
+        else
+        {
+            response = await Http.GetFromJsonAsync<Response>($"api/DocumentosEstados/{singleton.EmpresaId}/-1");
+            if (response.IsSuccessful)
+            {
+                List<DocumentoEstado> lstDocumentoEstado = JsonConvert.DeserializeObject<List<DocumentoEstado>>(response.Data.ToString());
+                if (lstDocumentoEstado.Count()>0)
+                {
+                    model.Codigo = lstDocumentoEstado.Max(x=>x.Codigo)+1;
+                }
+                else
+                {
+                    model.Codigo = 1;
+                }
+            }
+
+
+            model.Estado = true;
+            titulo = "NUEVO ESTADO DOCUMENTOL";
+        }
+
+        //Cargos
+        response = await Http.GetFromJsonAsync<Response>($"api/cargos/{singleton.EmpresaId}/-1");
+        if (response.IsSuccessful)
+        {
+            listCargos = JsonConvert.DeserializeObject<List<Cargo>>(response.Data.ToString());
+            listCargos = listCargos.Where(x => x.Estado == true).ToList();
+        }
+
+
+    }
+
+
+
+    protected async Task RegistrarAuditoria(DocumentoEstado model, string accion)
+    {
+        string accionDescipcion = "";
+
+        if (accion.ToLower() == "editar")
+        {
+            accionDescipcion = "edito";
+        }
+        else if (accion.ToLower() == "ingresar")
+        {
+            accionDescipcion = "ingreso";
+        }
+        else if (accion.ToLower() == "eliminar")
+        {
+            accionDescipcion = "elimino";
+        }
+
+
+        if (model.Estado)
+        {
+            model.EstadoDescripcion = "ACTIVO";
+        }
+        else
+        {
+            model.EstadoDescripcion = "INACTIVO";
+        }
+
+        Auditoria auditoria = new Auditoria();
+        auditoria.EmpresaId = singleton.EmpresaId;
+        auditoria.Accion = accion;
+        auditoria.Tabla = "DocumentosEstados";
+        auditoria.Usuario = singleton.Email;
+        auditoria.UsuarioNombre = singleton.UsuarioNombre;
+        auditoria.UsuarioRegistroId = singleton.UsuarioId;
+
+        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " el siguiente Estado Documento:----" + "Id: "+model.Id+ "----Código:" + model.Codigo + "----Nombre: " + model.Nombre + "----Estado:" + model.EstadoDescripcion + "----CargoId:" + model.CargoId;
+
+        await Http.PostAsJsonAsync<Auditoria>($"api/auditoria", auditoria);
+
+    }
+
+}

@@ -9,30 +9,31 @@ using ZeroPapel.Shared;
 
 namespace ZeroPapel.Server.Data
 {
-    public class MonedaTiposDA
+
+    public class DocumentosEstadosDA
     {
         LeerJson objJson = new LeerJson();
         LogEventosDA logDA = new LogEventosDA();
         string strConexionSQL = "";
 
 
-        public MonedaTiposDA()
+        public DocumentosEstadosDA()
         {
             strConexionSQL = objJson.GetStrConexion();
         }
-        public List<MonedaTipo> MonedaTiposObtener(int empresaId, int id)
+        public List<DocumentoEstado> DocumentosEstadosObtener(int empresaId, int id)
         {
             DataSet ds = new DataSet();
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
             SqlCommand comandoSQL = new SqlCommand();
             SqlDataAdapter adaptadorSQL = new SqlDataAdapter();
-            List<MonedaTipo> lst = new List<MonedaTipo>();
+            List<DocumentoEstado> lst = new List<DocumentoEstado>();
 
             try
             {
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_moneda_tipos_obtener";
+                comandoSQL.CommandText = "sp_documentos_estados_obtener";
                 comandoSQL.Parameters.AddWithValue("@EmpresaId", empresaId);
                 comandoSQL.Parameters.AddWithValue("@Id", id);
                 adaptadorSQL.SelectCommand = comandoSQL;
@@ -44,11 +45,13 @@ namespace ZeroPapel.Server.Data
                     {
                         foreach (DataRow item in ds.Tables[0].Rows)
                         {
-                            MonedaTipo obj = new MonedaTipo();
+                            DocumentoEstado obj = new DocumentoEstado();
                             obj.Id = Convert.ToInt32(item["Id"].ToString());
-                            obj.Moneda = item["Moneda"].ToString();
+                            obj.Codigo = Convert.ToInt32(item["Codigo"].ToString());
+                            obj.Nombre = item["Nombre"].ToString();
                             obj.Estado = Convert.ToBoolean(item["Estado"].ToString());
                             obj.EstadoDescripcion = item["EstadoDescripcion"].ToString();
+                            obj.CargoId = Convert.ToInt32(item["CargoId"].ToString());
                             lst.Add(obj);
                         }
                     }
@@ -64,11 +67,11 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Parameters.Clear();
                 comandoSQL.Connection.Close();
             }
+
             return lst;
         }
 
-
-        public bool MonedaTiposIngresar(MonedaTipo model)
+        public bool DocumentosEstadosIngresar(DocumentoEstado model)
         {
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
             SqlCommand comandoSQL = new SqlCommand();
@@ -76,10 +79,12 @@ namespace ZeroPapel.Server.Data
             try
             {
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_moneda_tipos_ingresar";
+                comandoSQL.CommandText = "sp_documentos_estados_ingresar";
                 comandoSQL.Parameters.AddWithValue("@EmpresaId", model.EmpresaId);
-                comandoSQL.Parameters.AddWithValue("@Moneda", model.Moneda);
+                comandoSQL.Parameters.AddWithValue("@Codigo", model.Codigo);
+                comandoSQL.Parameters.AddWithValue("@Nombre", model.Nombre);
                 comandoSQL.Parameters.AddWithValue("@Estado", model.Estado);
+                comandoSQL.Parameters.AddWithValue("@CargoId", model.CargoId);
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.Connection.Open();
                 comandoSQL.ExecuteNonQuery();
@@ -99,7 +104,7 @@ namespace ZeroPapel.Server.Data
             return true;
         }
 
-        public bool MonedaTiposEditar(MonedaTipo model)
+        public bool DocumentosEstadosEditar(DocumentoEstado model)
         {
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
             SqlCommand comandoSQL = new SqlCommand();
@@ -107,10 +112,12 @@ namespace ZeroPapel.Server.Data
             try
             {
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_moneda_tipos_editar";
+                comandoSQL.CommandText = "sp_documentos_estados_editar";
                 comandoSQL.Parameters.AddWithValue("@Id", model.Id);
-                comandoSQL.Parameters.AddWithValue("@Moneda", model.Moneda);
+                comandoSQL.Parameters.AddWithValue("@Codigo", model.Codigo);
+                comandoSQL.Parameters.AddWithValue("@Nombre", model.Nombre);
                 comandoSQL.Parameters.AddWithValue("@Estado", model.Estado);
+                comandoSQL.Parameters.AddWithValue("@CargoId", model.CargoId);
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.Connection.Open();
                 comandoSQL.ExecuteNonQuery();
@@ -130,7 +137,7 @@ namespace ZeroPapel.Server.Data
             return true;
         }
 
-        public bool MonedaTiposEliminar(int id)
+        public bool DocumentosEstadosEliminar(int id)
         {
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
             SqlCommand comandoSQL = new SqlCommand();
@@ -138,7 +145,7 @@ namespace ZeroPapel.Server.Data
             try
             {
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_moneda_tipos_eliminar";
+                comandoSQL.CommandText = "sp_documentos_estados_eliminar";
 
                 comandoSQL.Parameters.AddWithValue("@Id", id);
                 comandoSQL.Connection = conexionSQL;
@@ -160,10 +167,54 @@ namespace ZeroPapel.Server.Data
             return true;
         }
 
+        public Validacion DocumentosEstadosValidarCodigo(int empresaId, int codigo)
+        {
+            DataSet ds = new DataSet();
+            SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
+            SqlCommand comandoSQL = new SqlCommand();
+            SqlDataAdapter adaptadorSQL = new SqlDataAdapter();
+            Validacion obj = new Validacion();
+
+            try
+            {
+                comandoSQL.Connection = conexionSQL;
+                comandoSQL.CommandType = CommandType.StoredProcedure;
+                comandoSQL.CommandText = "sp_documentos_estados_validar_codigo";
+                comandoSQL.Parameters.AddWithValue("@EmpresaId", empresaId);
+                comandoSQL.Parameters.AddWithValue("@Codigo", codigo);
+                adaptadorSQL.SelectCommand = comandoSQL;
+                adaptadorSQL.Fill(ds);
+
+                if (ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow item in ds.Tables[0].Rows)
+                        {
+                            obj.Mensaje = item["Mensaje"].ToString();
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                LogEventosIngresar(ex);
+            }
+            finally
+            {
+                comandoSQL.Parameters.Clear();
+                comandoSQL.Connection.Close();
+            }
+
+            return obj;
+        }
+
         public bool LogEventosIngresar(Exception ex)
         {
             logDA.LogEventoIngresar(ex);
             return true;
         }
     }
+
 }

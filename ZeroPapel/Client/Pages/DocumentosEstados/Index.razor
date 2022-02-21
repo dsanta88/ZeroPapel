@@ -1,0 +1,94 @@
+﻿@page "/indexdocumentosestados"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@*@using Helpers*@
+@using Newtonsoft.Json;
+@inject ServicioSingleton singleton
+
+
+<div class="row alert bg-info">
+    <div class="col-md-5">
+        <h5> <b>ESTADOS DOCUMENTOS</b></h5>
+    </div>
+</div>
+
+
+<div class="col-md-2">
+    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_box" Text="Nuevo" Size="ButtonSize.Medium" Click="@Add">
+    </RadzenButton>
+</div>
+
+<RadzenGrid AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="20"
+            AllowSorting="true" Data="@list" TItem="DocumentoEstado" ColumnWidth="200px">
+    <Columns>
+        <RadzenGridColumn TItem="DocumentoEstado" Property="Codigo" Title="Código" Width="30%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="DocumentoEstado" Property="Nombre" Title="Nombre" Width="100%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="DocumentoEstado" Property="EstadoDescripcion" Title="Estado" Width="50%"></RadzenGridColumn>
+
+        <RadzenGridColumn TItem="DocumentoEstado" Context="DocumentoEstado" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="50%">
+            <Template Context="DocumentoEstado">
+
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="edit" Text="Editar" Size="ButtonSize.Medium" Click="@((args) =>Edit(DocumentoEstado.Id))">
+                </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
+
+        <RadzenGridColumn TItem="DocumentoEstado" Context="DocumentoEstado" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="50%">
+            <Template Context="DocumentoEstado">
+             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Eliminar" Size="ButtonSize.Medium" Click="@((args) =>Delete(DocumentoEstado.Id))">
+        </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
+
+
+
+    </Columns>
+</RadzenGrid>
+
+
+
+
+
+@code {
+
+
+    List<DocumentoEstado> list;
+    Response response = new Response();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    protected async Task LoadData()
+    {
+        response = await Http.GetFromJsonAsync<Response>($"api/DocumentosEstados/{singleton.EmpresaId}/-1");
+        if (response.IsSuccessful)
+        {
+            list = JsonConvert.DeserializeObject<List<DocumentoEstado>>(response.Data.ToString());
+        }
+
+    }
+
+
+    public void Add()
+    {
+        navigationManager.NavigateTo("/formdocumentosestados");
+    }
+
+
+    public void Edit(int id)
+    {
+        navigationManager.NavigateTo("/formdocumentosestados/" + id);
+    }
+
+
+
+
+    public void Delete(int id)
+    {
+        navigationManager.NavigateTo("/deletedocumentosestados/" + id);
+    }
+}

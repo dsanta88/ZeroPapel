@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,15 +7,13 @@ using System.Threading.Tasks;
 using ZeroPapel.Server.Data;
 using ZeroPapel.Shared;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace ZeroPapel.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MonedaTiposController : ControllerBase
+    public class BancosController : ControllerBase
     {
-        MonedaTiposDA datos = new MonedaTiposDA();
+        BancosDA datos = new BancosDA();
         LogEventosDA logDA = new LogEventosDA();
         Mensajes mensajes = new Mensajes();
 
@@ -24,14 +23,13 @@ namespace ZeroPapel.Server.Controllers
             Response response = new Response();
             try
             {
-                List<MonedaTipo> list = datos.MonedaTiposObtener(empresaId, id);
+                List<Banco> list = datos.BancosObtener(empresaId, id);
                 response.IsSuccessful = true;
                 response.Data = list;
             }
             catch (Exception ex)
             {
                 response.Message = ex.Message;
-                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
@@ -39,12 +37,12 @@ namespace ZeroPapel.Server.Controllers
 
 
         [HttpPost]
-        public IActionResult Add(MonedaTipo model)
+        public IActionResult Add(Banco model)
         {
             Response response = new Response();
             try
             {
-                if (datos.MonedaTiposIngresar(model))
+                if (datos.BancosIngresar(model))
                 {
                     response.IsSuccessful = true;
                 }
@@ -64,12 +62,12 @@ namespace ZeroPapel.Server.Controllers
         }
 
         [HttpPost("[action]")]
-        public IActionResult Edit(MonedaTipo model)
+        public IActionResult Edit(Banco model)
         {
             Response response = new Response();
             try
             {
-                if (datos.MonedaTiposEditar(model))
+                if (datos.BancosEditar(model))
                 {
                     response.IsSuccessful = true;
                 }
@@ -94,7 +92,7 @@ namespace ZeroPapel.Server.Controllers
             Response response = new Response();
             try
             {
-                if (datos.MonedaTiposEliminar(id))
+                if (datos.BancosEliminar(id))
                 {
                     response.IsSuccessful = true;
                 }

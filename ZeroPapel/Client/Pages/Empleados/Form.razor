@@ -1,0 +1,548 @@
+﻿@page "/formempleados"
+@page "/formempleados/{Id:int}"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json
+@inject ServicioSingleton singleton
+@inject IJSRuntime js
+@inject IJSRuntime js
+
+<div class="row alert bg-info">
+    <div class="row col-md-1">
+
+    </div>
+    <div class="col-md-5">
+        <h5> <b>@titulo</b></h5>
+    </div>
+</div>
+
+@if(msgError != null)
+{
+    <div class="row alert bg-danger">
+        <div class="row col-md-1">
+
+        </div>
+        <div class="col-md-5">
+            <MatThemeProvider>
+                <MatIcon Icon="cancel"> </MatIcon>   @msgError
+            </MatThemeProvider>
+        </div>
+    </div>
+}
+
+<EditForm Model="@model" OnValidSubmit="Save">
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.Nombres" Label="Nombre" Style="width:100%" Required="true"></MatStringField>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.Apellidos" Label="Apellido" Style="width:100%" Required="true"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatSelect Label="Tipo de Documento" Style="width:100%" @bind-Value="model.IdentificacionTipoId">
+                <MatOptionString></MatOptionString>
+                <MatOptionString Value="CC">CC DE CIUDADANIA</MatOptionString>
+                <MatOptionString Value="CE">CC DE EXTRANJERIA</MatOptionString>
+                <MatOptionString Value="PAS">PASAPORTE</MatOptionString>
+            </MatSelect>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.Identificacion" Label="Identificacion" Style="width:100%" Required="true"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatSelect Label="Municipio expedición " Style="width:100%" @bind-Value="model.MunicipioExpedicionId">
+                <MatOptionString></MatOptionString>
+                <MatOptionString Value="1">CALI</MatOptionString>
+                <MatOptionString Value="2">MEDELLIN</MatOptionString>
+                <MatOptionString Value="3">BOGOTA</MatOptionString>
+            </MatSelect>
+        </div>
+
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatSelect Label="Estado Civil " Style="width:100%" @bind-Value="model.EstadoCivilTipoId">
+                <MatOptionString></MatOptionString>
+                <MatOptionString Value="1">SOLTERO(A)</MatOptionString>
+                <MatOptionString Value="2">UNION LIBRE</MatOptionString>
+                <MatOptionString Value="3">CASADOA(A)</MatOptionString>
+                <MatOptionString Value="4">DIVORCIADO(A)</MatOptionString>
+                <MatOptionString Value="5">VIUDO(A)</MatOptionString>
+            </MatSelect>
+        </div>
+    </div>
+
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <p><b>Fecha de nacimiento</b></p>
+            <MatDatePicker @bind-Value="@model.FechaNacimiento" Format="MMMM dd, yyyy"></MatDatePicker>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatSelect Label="Municipio de nacimiento" Style="width:100%" @bind-Value="model.MunicipioNacimientoId">
+                <MatOptionString></MatOptionString>
+                <MatOptionString Value="1">CALI</MatOptionString>
+                <MatOptionString Value="2">MEDELLIN</MatOptionString>
+                <MatOptionString Value="3">BOGOTA</MatOptionString>
+            </MatSelect>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+
+            <MatSelect Label="Sexo" @bind-Value="model.Sexo">
+                <MatOptionString></MatOptionString>
+                <MatOptionString Value="M">MASCULINO</MatOptionString>
+                <MatOptionString Value="F">FEMENINO</MatOptionString>
+            </MatSelect>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+
+            <MatSelect Label="Tipo de sangre" @bind-Value="model.TipoSangre">
+                <MatOptionString></MatOptionString>
+                <MatOptionString Value="1">A+</MatOptionString>
+                <MatOptionString Value="2">0+</MatOptionString>
+                <MatOptionString Value="3">B+</MatOptionString>
+                <MatOptionString Value="4">AB+</MatOptionString>
+                <MatOptionString Value="5">A-</MatOptionString>
+                <MatOptionString Value="6">0-</MatOptionString>
+                <MatOptionString Value="7">B-</MatOptionString>
+                <MatOptionString Value="8">AB-</MatOptionString>
+            </MatSelect>
+        </div>
+
+
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.Email" Label="Email" Type="email" Style="width:100%"></MatStringField>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.Clave" Label="Clave" Type="password" Style="width:100%"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.Celular" Label="Celular" Type="email" Style="width:100%"></MatStringField>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.Telefono" Label="Teléfono" Style="width:100%"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatSelect Label="Municipio de dirección" Style="width:100%" @bind-Value="model.MunicipioDireccionId">
+                <MatOptionString></MatOptionString>
+                <MatOptionString Value="1">CALI</MatOptionString>
+                <MatOptionString Value="2">MEDELLIN</MatOptionString>
+                <MatOptionString Value="3">BOGOTA</MatOptionString>
+            </MatSelect>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.Direccion" Label="Dirección" Type="email" Style="width:100%"></MatStringField>
+        </div>
+    </div>
+    <hr />
+    <div class="row alert bg-light">
+        <div class="row col-md-1">
+
+        </div>
+        <div class="col-md-5">
+            <h5> <b>Persona de contacto</b></h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.PersonaContactoNombre" Label="Contacto Nombre" Style="width:100%" ></MatStringField>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.PersonaContactoCelular" Label="Contacto Celular" Style="width:100%" ></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.PersonaContactoTelefono" Label="Contacto Teléfono" Style="width:100%" ></MatStringField>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.PersonaContactoEmail" Label="Contacto Email" Style="width:100%" ></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatSelect Label="Parentesco" Style="width:100%" @bind-Value="model.PersonaContactoParentescoId">
+                <MatOptionString></MatOptionString>
+                <MatOptionString Value="1">PADRE</MatOptionString>
+                <MatOptionString Value="2">MADRE</MatOptionString>
+                <MatOptionString Value="3">HERMANO(A)</MatOptionString>
+                <MatOptionString Value="4">ABUELO(A)</MatOptionString>
+                <MatOptionString Value="5">AMIGO(A)</MatOptionString>
+            </MatSelect>
+        </div>
+    </div>
+    <hr />
+    <div class="row alert bg-light">
+        <div class="row col-md-1">
+
+        </div>
+        <div class="col-md-5">
+            <h5> <b>Entidades de salud</b></h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatSelect Label="Eps" Style="width:100%" @bind-Value="model.EpsId">
+                <MatOptionString></MatOptionString>
+                <MatOptionString Value="1">SURA</MatOptionString>
+                <MatOptionString Value="2">COOMEVA</MatOptionString>
+                <MatOptionString Value="3">COLSANITAS</MatOptionString>
+            </MatSelect>
+        </div>
+
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatSelect Label="Caja de compensación" Style="width:100%" @bind-Value="model.CajaCompensacionId">
+                <MatOptionString></MatOptionString>
+                <MatOptionString Value="1">COMPENSAR</MatOptionString>
+                <MatOptionString Value="2">COMFAMA</MatOptionString>
+                <MatOptionString Value="3">COMFENALCO</MatOptionString>
+                <MatOptionString Value="3">ASOCAJAS</MatOptionString>
+            </MatSelect>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatSelect Label="Fondo de pensión" Style="width:100%" @bind-Value="model.FondoPensionId">
+                <MatOptionString></MatOptionString>
+                <MatOptionString Value="1">PORVENIR</MatOptionString>
+                <MatOptionString Value="2">PROTECCIÓN</MatOptionString>
+                <MatOptionString Value="3">CALFONDOS</MatOptionString>
+            </MatSelect>
+        </div>
+
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatSelect Label="Fondo de cesantias" Style="width:100%" @bind-Value="model.FondoCesantiaId">
+                <MatOptionString></MatOptionString>
+                <MatOptionString Value="1">PORVENIR</MatOptionString>
+                <MatOptionString Value="2">PROTECCIÓN</MatOptionString>
+                <MatOptionString Value="3">CALFONDOS</MatOptionString>
+            </MatSelect>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatSelect Label="ARL" Style="width:100%" @bind-Value="model.ArlId">
+                <MatOptionString></MatOptionString>
+                <MatOptionString Value="1">EQUIDAD</MatOptionString>
+                <MatOptionString Value="2">SURA</MatOptionString>
+                <MatOptionString Value="3">COLMENA</MatOptionString>
+            </MatSelect>
+        </div>
+    </div>
+    <hr />
+    <div class="row alert bg-light">
+        <div class="row col-md-1">
+
+        </div>
+        <div class="col-md-5">
+            <h5> <b>Datos bancarios</b></h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatSelect Label="Banco" Style="width:100%" @bind-Value="model.BancoId">
+                <MatOptionString></MatOptionString>
+                <MatOptionString Value="1">BANCOLOMBIA</MatOptionString>
+                <MatOptionString Value="2">DAVIVIENDA</MatOptionString>
+                <MatOptionString Value="3">AV VILLAS</MatOptionString>
+            </MatSelect>
+        </div>
+
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatSelect Label="Tipo de cuenta" Style="width:100%" @bind-Value="model.TipoCuentaId">
+                <MatOptionString></MatOptionString>
+                <MatOptionString Value="1">AHORROS</MatOptionString>
+                <MatOptionString Value="2">CORRIENTE</MatOptionString>
+            </MatSelect>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.NumeroCuenta" Label="Número cuenta" Style="width:100%" ></MatStringField>
+        </div>
+    </div>
+    <hr />
+    <div class="row alert bg-light">
+        <div class="row col-md-1">
+
+        </div>
+        <div class="col-md-5">
+            <h5> <b>Información vestuario</b></h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.TallaCamisa" Label="Talla camisa" Style="width:100%" ></MatStringField>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.TallaPantalon" Label="Talla pantalón" Style="width:100%" ></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.TallaZapatos" Label="Talla zapatos" Style="width:100%" ></MatStringField>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.TallaOverol" Label="Talla overol" Style="width:100%"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <MatStringField @bind-Value="@model.TallaBata" Label="Talla bata" Style="width:100%" ></MatStringField>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            <MatThemeProvider Theme="@theme3">
+                <MatButton Raised="true" Icon="cancel" @onclick="Cancelar">Cancelar</MatButton>
+            </MatThemeProvider>
+        </div>
+        <div class="col-md-2">
+
+            <MatThemeProvider Theme="@theme1">
+                <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
+            </MatThemeProvider>
+        </div>
+    </div>
+</EditForm>
+<br />
+@code {
+
+    [Parameter] public int Id { get; set; }
+
+
+    public Usuario model = new Usuario();
+    Response response = new Response();
+    string titulo = "";
+    string msgError = null;
+    IEnumerable<int> ComboMultipleValues = new int[] { };
+
+    List<Cargo> listCargos = new List<Cargo>();
+    List<Usuario> listJefes = new List<Usuario>();
+    List<Rol> listRoles = new List<Rol>();
+    List<UsuarioNivel> listUsuariosNiveles = new List<UsuarioNivel>();
+
+    MatTheme theme1 = new MatTheme()
+    {
+        Primary = "green",
+    };
+    MatTheme theme3 = new MatTheme()
+    {
+        Primary = "red",
+    };
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await LoadData();
+    }
+
+    void ComboChange(object value)
+    {
+        List<Rol> lst = listRoles;
+        List<Rol> lstAux = new List<Rol>();
+        model.RolNombre = "";
+        foreach (var item in ComboMultipleValues)
+        {
+            Rol rol = lst.Where(x => x.Id == Convert.ToInt32(item)).FirstOrDefault();
+            lstAux.Add(rol);
+        }
+        foreach (var item in lstAux.OrderBy(x => x.Id))
+        {
+            model.RolNombre += item.Nombre + ",";
+        }
+    }
+
+    protected async Task Save()
+    {
+        model.EmpresaId = singleton.EmpresaId;
+        model.UsuarioCreacionId = singleton.UsuarioId;
+
+        if (model.FechaNacimiento <= Convert.ToDateTime("1900-01-01"))
+        {
+            model.FechaNacimiento = Convert.ToDateTime("1900-01-01");
+        }
+
+        if (model.FechaIngreso <= Convert.ToDateTime("1900-01-01"))
+        {
+            model.FechaIngreso = Convert.ToDateTime("1900-01-01");
+        }
+
+        if (model.FechaRetiro <= Convert.ToDateTime("1900-01-01"))
+        {
+            model.FechaRetiro = Convert.ToDateTime("1900-01-01");
+        }
+
+
+
+        msgError = null;
+
+        if (model.Sexo == null)
+        {
+            msgError = "Debe seleccionar el sexo.";
+        }
+
+        foreach (var item in ComboMultipleValues)
+        {
+            model.RolIds += item.ToString() + ",";
+        }
+
+
+
+        if (msgError == null)
+        {
+            if (Id != 0)
+            {
+
+                var result = await Http.PostAsJsonAsync<Usuario>($"api/usuarios/edit", model);
+                response = result.Content.ReadFromJsonAsync<Response>().Result;
+            }
+            else
+            {
+                //model.AreaId = IdEmpresa;
+                var result = await Http.PostAsJsonAsync<Usuario>($"api/usuarios", model);
+                response = result.Content.ReadFromJsonAsync<Response>().Result;
+            }
+
+            if (response.IsSuccessful)
+            {
+                navigationManager.NavigateTo("/indexusuarios");
+            }
+            else
+            {
+                msgError = response.Message;
+                await js.InvokeAsync<string>("MensajeAlerta", msgError);
+            }
+        }
+        else
+        {
+            await js.InvokeAsync<string>("MensajeAlerta", msgError);
+        }
+
+    }
+
+    public void Cancelar()
+    {
+        navigationManager.NavigateTo("/indexusuarios");
+    }
+
+
+    protected async Task LoadData()
+    {
+        model = new Usuario();
+        //Cargos
+        response = await Http.GetFromJsonAsync<Response>($"api/cargos/{singleton.EmpresaId}/-1");
+        if (response.IsSuccessful)
+        {
+            listCargos = JsonConvert.DeserializeObject<List<Cargo>>(response.Data.ToString());
+        }
+
+
+        //Jefes
+        response = await Http.GetFromJsonAsync<Response>($"api/usuarios/{singleton.EmpresaId}/-1");
+        if (response.IsSuccessful)
+        {
+            listJefes = JsonConvert.DeserializeObject<List<Usuario>>(response.Data.ToString());
+            listJefes = listJefes.Where(x => x.Estado == true).ToList();
+        }
+
+        //Roles
+        response = await Http.GetFromJsonAsync<Response>($"api/roles/{singleton.EmpresaId}/-1");
+        if (response.IsSuccessful)
+        {
+            listRoles = JsonConvert.DeserializeObject<List<Rol>>(response.Data.ToString());
+            listRoles = listRoles.Where(x => x.Estado == true).ToList();
+        }
+
+        //Niveles de usuario
+        response = await Http.GetFromJsonAsync<Response>($"api/usuariosniveles/{singleton.EmpresaId}/-1");
+        if (response.IsSuccessful)
+        {
+            listUsuariosNiveles = JsonConvert.DeserializeObject<List<UsuarioNivel>>(response.Data.ToString());
+        }
+
+
+
+        if (Id > 0)
+        {
+            titulo = "ACTUALIZAR INFORMACIÓN";
+            response = await Http.GetFromJsonAsync<Response>($"api/usuarios/{singleton.EmpresaId}/{Id}");
+            if (response.IsSuccessful)
+            {
+                model = JsonConvert.DeserializeObject<List<Usuario>>(response.Data.ToString()).FirstOrDefault();
+            }
+
+        }
+        else
+        {
+            model.Estado = true;
+            model.FechaIngreso = DateTime.Now;
+            titulo = "NUEVO EMPLEADO";
+
+        }
+    }
+}

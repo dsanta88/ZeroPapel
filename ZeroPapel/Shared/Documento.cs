@@ -39,6 +39,14 @@ namespace ZeroPapel.Shared
 
         public string ArchivoNombre { get; set; }
 
+        public string ResponsableActualCargo { get; set; }
+
+        public int JerarquiaOrden { get; set; }
+
+        public int EstadoActualId { get; set; }
+
+        public string EstadoActual { get; set; }
+     
 
     }
 }

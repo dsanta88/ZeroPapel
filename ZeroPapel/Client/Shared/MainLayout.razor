@@ -32,9 +32,14 @@
     <!-- Main Sidebar Container -->
     <aside class="main-sidebar sidebar-dark-success bg-green elevation-4">
         <!-- Brand Logo -->
-        <a class="brand-link bg-white " style="text-align:left">
-            <img src="@singleton.EmpresaLogo" style="width:120px; height:50px" />
-        </a>
+        <div>
+            <a class="brand-link bg-white" style="text-align:left">
+                <img src="@singleton.EmpresaLogo" style="width:120px; height:50px" />
+            </a>
+     
+        </div>
+ 
+
 
         <!-- Sidebar -->
         <div class="sidebar">
@@ -45,52 +50,61 @@
                 @*</div>*@
             </div>
 
-            <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-                @*@if (list == null)
+            @*<div class="@NavMenuCssClass">*@
+            @*@if (list == null)
+            {
+                <p><em>Loading....</em></p>
+            }
+            else
+            {*@
+        <ul class="nav flex-column">
+            @foreach (Menu item in list)
+            {
+                @if (item.PadreId == 0)
                 {
-                    <p><em>Loading....</em></p>
-                }
-                else
-                {*@
-                    <ul class="nav flex-column">
-                        @foreach (Menu item in list)
-                        {
-                            @if (item.PadreId == 0)
+                    <li class="nav-item " px-3>
+                        <a class="nav-link active" @onclick="()=>GetIsClicked(item)">
+                            <span class="@item.Icono" aria-hidden="true"></span> @item.Nombre
+                        </a>
+                        <ul class="nav flex-column">
+                            @foreach (Menu men in list)
                             {
-                                <li class="nav-item" px-3>
-                                    <NavLink class="nav-link" @onclick="()=>GetIsClicked(item)">
-                                        <span class="@item.Icono" aria-hidden="true"></span> @item.Nombre
-                                    </NavLink>
-                                    <ul class="nav flex-column">
-                                        @foreach (Menu men in list)
-                                        {
-                                            @if (item.Id == men.PadreId)
-                                            {
-                                                @if (expandSubNav && item.Id == clickedMenu)
-                                                {
-                                                    <li class="nav-item px-3">
-                                                        <NavLink class="nav-link" href="@men.Link" @onclick="()=>GetIsClicked(men)">
-                                                            <span class="@men.Icono" aria-hidden="true"></span> @men.Nombre
-                                                        </NavLink>
-                                                    </li>
-                                                }
-                                            }
-                                        }
-                                    </ul>
-                                </li>
+                                @if (item.Id == men.PadreId)
+                                {
+                                    @if (expandSubNav && item.Id == clickedMenu)
+                                    {
+                                        <li class="nav-item px-3">
+                                            <a class="nav-link" href="@men.Link" @onclick="()=>GetIsClicked(men)">
+                                                <span class="@men.Icono" aria-hidden="true"></span> @men.Nombre
+                                            </a>
+                                        </li>
+                                    }
+                                }
                             }
-                        }
-                       
-                        <li class="nav-item" px-3>
-                            <hr />
-                            <NavLink href="/login" class="nav-link">
-                                <span class="nav-icon fa fa-power-off" aria-hidden="true"></span> Cerrar Sesión
-                            </NavLink>
-                        </li>
-                    </ul>
-                @*}*@
+                        </ul>
+                    </li>
+                }
+            }
 
-            </div>
+            <li class="nav-item" px-3>
+                <hr />
+                <a href="/login" class="nav-link">
+                    <span class="nav-icon fa fa-power-off" aria-hidden="true"></span> Cerrar Sesión
+                </a>
+            </li>
+            <li class="nav-item" px-3>
+                <hr />
+                <a class="nav-link" data-widget="pushmenu" href="#" role="button">
+                    <i class="fas fa-bars"></i> Ocultar
+                </a>
+            </li>
+
+           
+
+        </ul>
+            @*}*@
+
+            @*</div>*@
         </div>
     </aside>
 
@@ -121,15 +135,15 @@
     private bool hasLink = true;
     private int prevClickedMenu = 0;
 
-    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    //private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-    private void ToggleNavMenu()
-    {
-        if (hasLink)
-        {
-            collapseNavMenu = !collapseNavMenu;
-        }
-    }
+    //private void ToggleNavMenu()
+    //{
+    //    if (hasLink)
+    //    {
+    //        collapseNavMenu = !collapseNavMenu;
+    //    }
+    //}
 
     public void GetIsClicked(Menu model)
     {

@@ -27,13 +27,13 @@ namespace ZeroPapel.Server.Controllers
         }
 
 
-        [HttpGet("{empresaId}/{id}")]
-        public IActionResult Get(int empresaId, int id)
+        [HttpGet("{empresaId}/{id}/{usuarioId}")]
+        public IActionResult Get(int empresaId, int id, int usuarioId)
         {
             Response response = new Response();
             try
             {
-                List<Documento> list = datos.DocumentosObtener(empresaId, id);
+                List<Documento> list = datos.DocumentosObtener(empresaId, id, usuarioId);
                 response.IsSuccessful = true;
                 response.Data = list;
             }

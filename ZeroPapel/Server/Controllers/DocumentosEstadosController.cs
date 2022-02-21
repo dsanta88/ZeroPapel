@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,15 +7,14 @@ using System.Threading.Tasks;
 using ZeroPapel.Server.Data;
 using ZeroPapel.Shared;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ZeroPapel.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MonedaTiposController : ControllerBase
+    public class DocumentosEstadosController : ControllerBase
     {
-        MonedaTiposDA datos = new MonedaTiposDA();
+        DocumentosEstadosDA datos = new DocumentosEstadosDA();
         LogEventosDA logDA = new LogEventosDA();
         Mensajes mensajes = new Mensajes();
 
@@ -24,14 +24,13 @@ namespace ZeroPapel.Server.Controllers
             Response response = new Response();
             try
             {
-                List<MonedaTipo> list = datos.MonedaTiposObtener(empresaId, id);
+                List<DocumentoEstado> list = datos.DocumentosEstadosObtener(empresaId, id);
                 response.IsSuccessful = true;
                 response.Data = list;
             }
             catch (Exception ex)
             {
                 response.Message = ex.Message;
-                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
@@ -39,12 +38,12 @@ namespace ZeroPapel.Server.Controllers
 
 
         [HttpPost]
-        public IActionResult Add(MonedaTipo model)
+        public IActionResult Add(DocumentoEstado model)
         {
             Response response = new Response();
             try
             {
-                if (datos.MonedaTiposIngresar(model))
+                if (datos.DocumentosEstadosIngresar(model))
                 {
                     response.IsSuccessful = true;
                 }
@@ -64,12 +63,12 @@ namespace ZeroPapel.Server.Controllers
         }
 
         [HttpPost("[action]")]
-        public IActionResult Edit(MonedaTipo model)
+        public IActionResult Edit(DocumentoEstado model)
         {
             Response response = new Response();
             try
             {
-                if (datos.MonedaTiposEditar(model))
+                if (datos.DocumentosEstadosEditar(model))
                 {
                     response.IsSuccessful = true;
                 }
@@ -94,7 +93,7 @@ namespace ZeroPapel.Server.Controllers
             Response response = new Response();
             try
             {
-                if (datos.MonedaTiposEliminar(id))
+                if (datos.DocumentosEstadosEliminar(id))
                 {
                     response.IsSuccessful = true;
                 }
@@ -112,5 +111,24 @@ namespace ZeroPapel.Server.Controllers
 
             return Ok(response);
         }
+
+        [HttpGet("[action]/{empresaId}/{codigo}")]
+        public IActionResult DocumentosEstadosValidarCodigo(int empresaId, int codigo)
+        {
+            Response response = new Response();
+            try
+            {
+                Validacion valid = datos.DocumentosEstadosValidarCodigo(empresaId, codigo);
+                response.IsSuccessful = true;
+                response.Data = valid;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+            }
+
+            return Ok(response);
+        }
     }
 }
+

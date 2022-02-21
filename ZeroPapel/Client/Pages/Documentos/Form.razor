@@ -2,7 +2,7 @@
 @page "/formdocumentos/{Id:int}"
 @using ZeroPapel.Shared
 @using System.IO
-@using BlazorInputFile 
+@using BlazorInputFile
 @inject HttpClient Http
 @using MatBlazor
 @inject NavigationManager navigationManager
@@ -98,11 +98,11 @@
                 <RadzenDatePicker Style="width:100%" ShowTime="false" @bind-Value="@model.FechaRecepcion" HourFormat="12" DateFormat="d MMMM yyyy" />
             </div>
             <div class="col-md-1"></div>
-            <div class="col-md-4">
+            <div class="col-md-5">
                 <b>Prefijo documento</b>
                 <MatStringField @bind-Value="@model.DocumentoPrefijo" Style="width:15%" Required="true"></MatStringField>
                 <b>Número documento</b>
-                <MatTextField @bind-Value="@model.DocumentoNumero" Style="width:25%" Required="true"></MatTextField>
+                <MatTextField @bind-Value="@model.DocumentoNumero" Style="width:15%" Required="true"></MatTextField>
             </div>
         </div>
         <br />
@@ -196,6 +196,10 @@
     public bool stateUploadFile = false;
     public bool selectDocument = false;
     public bool visibleGuardar = true;
+    string tipoDto;
+    string centroCosto;
+    string moneda;
+    string proveedor;
 
     MatTheme theme1 = new MatTheme()
     {
@@ -218,6 +222,18 @@
         selectDocument = false;
         model.UsuarioRegistroId = singleton.UsuarioId;
         model.EmpresaId = singleton.EmpresaId;
+        model.DocumentoPrefijo = model.DocumentoPrefijo.ToUpper();
+        model.DocumentoPrefijoNumero = model.DocumentoPrefijo + "-" + model.DocumentoNumero.ToString("D8");
+
+        model.FechaRecepcionStr = model.FechaRecepcion.ToString("d MMMM yyyy", CultureInfo.CreateSpecificCulture("es-MX"));
+        model.FechaExpedicionStr = model.FechaExpedicion.ToString("d MMMM yyyy", CultureInfo.CreateSpecificCulture("es-MX"));
+        model.FechaVencimientoStr = model.FechaVencimiento.ToString("d MMMM yyyy", CultureInfo.CreateSpecificCulture("es-MX"));
+
+        tipoDto = listDocumentosTipo.Where(x => x.Id == model.DocumentoTipoId).FirstOrDefault().Nombre;
+        centroCosto = listCentrosCosto.Where(x => x.Id == model.CentroCostoId).FirstOrDefault().Descripcion;
+        moneda = listMonedaTipo.Where(x => x.Id == model.MonedaId).FirstOrDefault().Moneda;
+        proveedor = listProveedores.Where(x => x.Nit == model.ProveedorNit).FirstOrDefault().RazonSocialSucursal;
+
 
         msgError = null;
         model.UsuarioRegistroId = singleton.UsuarioId;
@@ -286,13 +302,15 @@
             {
                 if (msgError == null)
                 {
-                    model.ArchivoRuta ="../Upload/Documentos/"+ nombreFile;
+                    model.ArchivoRuta = "../Upload/Documentos/" + nombreFile;
                     var result = await Http.PostAsJsonAsync<Documento>($"api/documentos/guardar", model);
                     response = result.Content.ReadFromJsonAsync<Response>().Result;
 
                     if (response.IsSuccessful)
                     {
                         guardado = true;
+                        await RegistrarAuditoria(model, "DOCUMENTO GENERADO");
+                        await NotificarResponable(model);
                         navigationManager.NavigateTo("/indexdocumentos");
                     }
                     else
@@ -353,19 +371,6 @@
             listMonedaTipo = JsonConvert.DeserializeObject<List<MonedaTipo>>(response.Data.ToString());
             listMonedaTipo.Where(x => x.Estado == true).ToList();
         }
-
-        if (Id > 0)
-        {
-            //response = await Http.GetFromJsonAsync<Response>($"api/ausentismostipos/{singleton.EmpresaId}/{Id}");
-            //if (response.IsSuccessful)
-            //{
-            //    model = JsonConvert.DeserializeObject<List<Usuario>>(response.Data.ToString()).FirstOrDefault();
-            //}
-        }
-        else
-        {
-            //model.FechaInicio = DateTime.Now;
-        }
     }
 
 
@@ -419,4 +424,90 @@
             msgError = ex.Message;
         }
     }
+
+    protected async Task RegistrarAuditoria(Documento model, string accion)
+    {
+
+        Auditoria auditoria = new Auditoria();
+        auditoria.EmpresaId = singleton.EmpresaId;
+        auditoria.Accion = accion;
+        auditoria.Tabla = "Documentos";
+        auditoria.Usuario = singleton.Email;
+        auditoria.UsuarioNombre = singleton.UsuarioNombre;
+        auditoria.UsuarioRegistroId = singleton.UsuarioId;
+
+
+        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " genero el siguiente documento:----" + "CentroCosto: " + centroCosto + "----TipoDocumento:" + tipoDto + "----Proveedor: " + proveedor + "----Nit:" + model.ProveedorNit + "----FechaRecepcion:" + model.FechaRecepcionStr + "----Documento:" + model.DocumentoPrefijoNumero  + "----FechaExpedición:" + model.FechaExpedicionStr + "----FechaVencimiento:" + model.FechaVencimientoStr + "----Moneda:" + moneda + "----Valor:" + model.Valor.ToString();
+
+        await Http.PostAsJsonAsync<Auditoria>($"api/auditoria", auditoria);
+
+    }
+
+
+
+    protected async Task NotificarResponable(Documento model)
+    {
+        bool state = true;
+
+        int cargoId = 0;
+        response = await Http.GetFromJsonAsync<Response>($"api/DocumentosAprobacionJerarquia/{singleton.EmpresaId}/-1/{model.DocumentoTipoId}");
+        if (response.IsSuccessful)
+        {
+            cargoId = JsonConvert.DeserializeObject<List<DocumentoAprobacionJerarquia>>(response.Data.ToString()).OrderBy(x => x.JerarquiaOrden).First().CargoId;
+        }
+
+
+        List<Usuario> listUsuarios = new List<Usuario>();
+        response = await Http.GetFromJsonAsync<Response>($"api/usuarios/GetUsuariosXCargo/{cargoId}");
+        if (response.IsSuccessful)
+        {
+            listUsuarios = JsonConvert.DeserializeObject<List<Usuario>>(response.Data.ToString()).ToList();
+        }
+        else
+        {
+            state = false;
+        }
+
+        if (state)
+        {
+
+            foreach (Usuario user in listUsuarios)
+            {
+
+                string mensaje = string.Format(@"
+             Hola <b>{0}, </b> tiene el siguiente <b>Documento</b> pendiente por revisar:
+             <br>
+             <br>
+             <b>TipoDocumento:</b> {1}
+             <br>
+             <b>Proveedor:</b> {2}
+             <br>
+             <b>Nit:</b> {3}
+             <br>
+             <b>Documento:</b> {4}
+             <br>
+             <b>Valor:</b> {5}
+             <br>
+             <b>FechaRecepción:</b> {6}
+            <br>
+             <b>FechaExpedición:</b> {7}
+            <br>
+             <b>FechaVencimiento:</b> {8}
+
+             <br>
+             <br>
+             ", user.NombreCompleto, tipoDto, proveedor, model.ProveedorNit, model.DocumentoPrefijoNumero, model.Valor + " " + moneda, model.FechaRecepcionStr, model.FechaExpedicionStr, model.FechaVencimientoStr);
+
+
+                Email emailModel = new Email();
+                emailModel.EmpresaId = singleton.EmpresaId;
+                emailModel.UsuarioId = singleton.UsuarioId;
+                emailModel.Mensaje = mensaje;
+                emailModel.Asunto = "DOCUMENTO PARA REVISAR: " + model.DocumentoPrefijoNumero;
+                emailModel.Destinatarios = user.Email;
+                await Http.PostAsJsonAsync<Email>($"api/Comunicaciones", emailModel);
+            }
+        }
+    }
+
 }

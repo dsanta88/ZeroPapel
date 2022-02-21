@@ -223,8 +223,8 @@
     protected async Task Save()
     {
         model.EmpresaId = singleton.EmpresaId;
-        model.UsuarioRegistroId = singleton.UsuarioId;
-
+        model.UsuarioCreacionId = singleton.UsuarioId;
+        model.UsuarioActualizacionId = singleton.UsuarioId;
         if (model.FechaNacimiento <= Convert.ToDateTime("1900-01-01"))
         {
             model.FechaNacimiento = Convert.ToDateTime("1900-01-01");

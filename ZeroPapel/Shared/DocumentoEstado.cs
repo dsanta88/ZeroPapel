@@ -6,14 +6,18 @@ using System.Threading.Tasks;
 
 namespace ZeroPapel.Shared
 {
-  public  class MonedaTipo
+   public class DocumentoEstado
     {
-        public int  Id { get; set; }
-
+        public int Id { get; set; }
         public int EmpresaId { get; set; }
-        public string Moneda { get; set; }
-        public bool Estado { get; set; }
+        public int Codigo { get; set; }
 
+
+        public string Nombre { get; set; }
+
+        public bool Estado { get; set; }
         public string EstadoDescripcion { get; set; }
+
+        public int CargoId { get; set; }
     }
 }

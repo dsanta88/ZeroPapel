@@ -21,7 +21,7 @@ namespace ZeroPapel.Server.Data
         {
             strConexionSQL = objJson.GetStrConexion();
         }
-        public List<Documento> DocumentosObtener(int empresaId, int id)
+        public List<Documento> DocumentosObtener(int empresaId, int id,int usuarioId)
         {
             DataSet ds = new DataSet();
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
@@ -36,6 +36,7 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.CommandText = "sp_documentos_obtener";
                 comandoSQL.Parameters.AddWithValue("@EmpresaId", empresaId);
                 comandoSQL.Parameters.AddWithValue("@Id", id);
+                comandoSQL.Parameters.AddWithValue("@usuarioId", usuarioId);
                 adaptadorSQL.SelectCommand = comandoSQL;
                 adaptadorSQL.Fill(ds);
      
@@ -67,6 +68,11 @@ namespace ZeroPapel.Server.Data
                             obj.Observacion = item["Observacion"].ToString();
                             obj.UsuarioRegistroId = Convert.ToInt32(item["UsuarioRegistroId"].ToString());
                             obj.FechaRegistro = Convert.ToDateTime(item["FechaRegistro"].ToString());
+                            obj.JerarquiaOrden = Convert.ToInt32(item["JerarquiaOrden"].ToString());
+                            obj.ResponsableActualCargo = item["ResponsableActualCargo"].ToString();
+                            obj.EstadoActualId = Convert.ToInt32(item["EstadoActualId"].ToString());
+                            obj.EstadoActual = item["EstadoActual"].ToString();
+
 
                             obj.FechaRecepcionStr = obj.FechaRecepcion.ToString("d MMMM yyyy", CultureInfo.CreateSpecificCulture("es-MX"));
                             obj.FechaExpedicionStr = obj.FechaExpedicion.ToString("d MMMM yyyy", CultureInfo.CreateSpecificCulture("es-MX"));

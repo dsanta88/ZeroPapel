@@ -1,0 +1,130 @@
+﻿@page "/indexempleados"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json;
+@inject IJSRuntime JSRuntime
+@using System.IO
+@inject ServicioSingleton singleton
+
+@inject HttpClient _httpClient
+
+<div class="row alert bg-info">
+    <div class="col-md-5">
+        <h5> <b>EMPLEADOS</b></h5>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-2">
+        <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_box" Text="Nuevo" Size="ButtonSize.Medium" Click="@Add">
+        </RadzenButton>
+    </div>
+
+    <div class="col-md-3">
+        <input class="bg-light" type="file" @ref="@inputElement" accept=".xls, .xlsx">
+    </div>
+
+    <div class="col-md-1">
+    </div>
+    <div class="col-md-2">
+        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="cloud_download" Text="Exportar Excel" Size="ButtonSize.Medium" Click="@(async() => await DownloadFile())">
+        </RadzenButton>
+    </div>
+</div>
+<br>
+<div class="row">
+    <div class="col-md-2">
+    </div>
+    <div class="col-md-2">
+        <a href="../PlantillasExcel/Empleados.xlsx" target="_blank">Descargar Plantilla</a>
+    </div>
+
+</div>
+
+<RadzenGrid 
+            AllowFiltering="true"
+            AllowColumnResize="true"
+            FilterMode="FilterMode.Simple"
+            AllowPaging="true" 
+            PageSize="20"
+            AllowSorting="true" 
+            Data="@list" 
+            TItem="Usuario"
+            LogicalFilterOperator="LogicalFilterOperator.Or"
+            >
+    <Columns>
+        <RadzenGridColumn TItem="Usuario" Property="NombreCompleto" Title="NombreCompleto" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Usuario" Property="Identificacion" Title="Identificacion" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Usuario" Property="SexoDescripcion" Title="Sexo" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Usuario" Property="CargoNombre" Title="Cargo" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Usuario" Property="Email" Title="Email" Width="40%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Usuario" Property="Celular" Title="Celular" Width="30%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Usuario" Property="UsuarioNivelDescripcion" Title="Nivel" Width="30%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Usuario" Property="JefeUsuarioNombre" Title="Jefe" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Usuario" Property="EstadoDescripcion" Title="Estado" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Usuario" Context="Usuario" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100%">
+            <Template Context="Usuario">
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="edit" Text="Editar" Size="ButtonSize.Medium" Click="@((args) =>Edit(Usuario.Id))">
+                </RadzenButton>
+                @*<RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Eliminar" Size="ButtonSize.Medium" Click="@((args) =>Edit(Usuario.Id))">
+                </RadzenButton>*@
+            </Template>
+        </RadzenGridColumn>
+
+    </Columns>
+</RadzenGrid>
+
+
+@code {
+
+    List<Usuario> list;
+    Response response = new Response();
+    ElementReference inputElement;
+    public int IsDownloadStarted { get; set; } = 0;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await LoadData();
+    }
+
+    protected async Task LoadData()
+    {
+        response = await Http.GetFromJsonAsync<Response>($"api/usuarios/{singleton.EmpresaId}/-1");
+        if (response.IsSuccessful)
+        {
+            list = JsonConvert.DeserializeObject<List<Usuario>>(response.Data.ToString());
+        }
+
+    }
+
+    public void Add()
+    {
+        navigationManager.NavigateTo("/formempleados");
+    }
+
+
+    public void Edit(int id)
+    {
+        navigationManager.NavigateTo("/formempleados/" + id);
+    }
+
+
+
+
+    protected async Task DownloadFile()
+    {
+        IsDownloadStarted = 1;
+        StateHasChanged();
+
+
+        var response = await _httpClient.GetAsync($"api/files/DownloadExcel/{singleton.EmpresaId}");
+        response.EnsureSuccessStatusCode();
+        var fileBytes = await response.Content.ReadAsByteArrayAsync();
+        var fileName = $"Empleados{DateTime.Now.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)}.xlsx";
+        await JSRuntime.InvokeAsync<object>("saveAsFile", fileName, Convert.ToBase64String(fileBytes));
+        IsDownloadStarted = 2;
+    }
+}
