@@ -165,7 +165,23 @@
                             ValueProperty="Id"
                             Style="width:100%" />
         </div>
-
+        @if (model.EstadoActualId == 2)
+        {
+        <div class="col-md-3">
+            <b>Usuario Traslado</b>
+            <RadzenDropDown AllowClear="true"
+                            AllowFiltering="true"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            @bind-Value="model.TrasladoUsuarioId"
+                            Multiple="false" 
+                            Placeholder="[SELECCIONAR]"
+                            Data="@listUsuarios"
+                            TextProperty="NombreCompleto"
+                            ValueProperty="Id"
+                            Style="width:100%"
+                           />
+        </div>
+        }
     </div>
     <hr />
 
@@ -231,6 +247,9 @@
     List<MonedaTipo> listMonedaTipo = new List<MonedaTipo>();
     List<DocumentoEstado> listDocumentosEstados = new List<DocumentoEstado>();
     List<DocumentoSeguimiento> listDtoSeguimiento = new List<DocumentoSeguimiento>();
+    List<Usuario> listUsuarios = new List<Usuario>();
+
+
     public Documento model = new Documento();
     Response response = new Response();
     public bool stateUploadFile = false;
@@ -313,6 +332,14 @@
 
 
 
+        response = await Http.GetFromJsonAsync<Response>($"api/usuarios/{singleton.EmpresaId}/-1");
+        if (response.IsSuccessful)
+        {
+            listUsuarios = JsonConvert.DeserializeObject<List<Usuario>>(response.Data.ToString());
+            listUsuarios.Where(x => x.Estado == true).ToList();
+        }
+
+
         if (Id > 0)
         {
             response = await Http.GetFromJsonAsync<Response>($"api/documentos/{singleton.EmpresaId}/-1/{singleton.UsuarioId}");
@@ -341,12 +368,18 @@
             DocumentoSeguimiento seguimiento = new DocumentoSeguimiento();
             seguimiento.DocumentoId = Id;
             seguimiento.DocumentoEstadoId = model.EstadoActualId;
-            seguimiento.JerarquiaOrden = model.JerarquiaOrden;
+            seguimiento.JerarquiaOrden = model.JerarquiaOrden+1;
             seguimiento.Observacion = "";
             seguimiento.UsuarioRegistroId = singleton.UsuarioId;
 
             var result = await Http.PostAsJsonAsync<DocumentoSeguimiento>($"api/DocumentosSeguimiento", seguimiento);
             response = result.Content.ReadFromJsonAsync<Response>().Result;
+
+            if (response.IsSuccessful)
+            {
+                await NotificarResponable(model,seguimiento);
+                navigationManager.NavigateTo("/indexdocumentos");
+            }
         }
         else
         {
@@ -355,6 +388,71 @@
         visibleGuardar = true;
     }
 
+
+    protected async Task NotificarResponable(Documento model, DocumentoSeguimiento seguimiento)
+    {
+        bool state = true;
+
+        int cargoId = 0;
+        response = await Http.GetFromJsonAsync<Response>($"api/DocumentosAprobacionJerarquia/{singleton.EmpresaId}/-1/{model.DocumentoTipoId}");
+        if (response.IsSuccessful)
+        {
+            cargoId = JsonConvert.DeserializeObject<List<DocumentoAprobacionJerarquia>>(response.Data.ToString()).Where(x => x.JerarquiaOrden== seguimiento.JerarquiaOrden).FirstOrDefault().CargoId;
+        }
+
+
+        List<Usuario> listUsuarios = new List<Usuario>();
+        response = await Http.GetFromJsonAsync<Response>($"api/usuarios/GetUsuariosXCargo/{cargoId}");
+        if (response.IsSuccessful)
+        {
+            listUsuarios = JsonConvert.DeserializeObject<List<Usuario>>(response.Data.ToString()).ToList();
+        }
+        else
+        {
+            state = false;
+        }
+
+        if (state)
+        {
+
+            foreach (Usuario user in listUsuarios)
+            {
+
+                string mensaje = string.Format(@"
+             Hola <b>{0}, </b> tiene el siguiente <b>Documento</b> pendiente por revisar:
+             <br>
+             <br>
+             <b>TipoDocumento:</b> {1}
+             <br>
+             <b>Proveedor:</b> {2}
+             <br>
+             <b>Nit:</b> {3}
+             <br>
+             <b>Documento:</b> {4}
+             <br>
+             <b>Valor:</b> {5}
+             <br>
+             <b>FechaRecepción:</b> {6}
+            <br>
+             <b>FechaExpedición:</b> {7}
+            <br>
+             <b>FechaVencimiento:</b> {8}
+
+             <br>
+             <br>
+             ", user.NombreCompleto, model.DocumentoTipoNombre, model.ProveedorNombre, model.ProveedorNit, model.DocumentoPrefijoNumero, model.Valor + " " + model.MonedaNombre, model.FechaRecepcionStr, model.FechaExpedicionStr, model.FechaVencimientoStr);
+
+
+                Email emailModel = new Email();
+                emailModel.EmpresaId = singleton.EmpresaId;
+                emailModel.UsuarioId = singleton.UsuarioId;
+                emailModel.Mensaje = mensaje;
+                emailModel.Asunto = "DOCUMENTO PARA REVISAR: " + model.DocumentoPrefijoNumero;
+                emailModel.Destinatarios = "santadavid88@gmail.com";//user.Email;
+                await Http.PostAsJsonAsync<Email>($"api/Comunicaciones", emailModel);
+            }
+        }
+    }
 
     public void Cancelar()
     {

@@ -1,0 +1,152 @@
+﻿@page "/indexrolespermisos"
+@page "/indexrolespermisos/{Id:int}"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@*@using Helpers*@
+@using Newtonsoft.Json;
+@inject ServicioSingleton singleton
+@inject IJSRuntime js
+
+<div class="row alert bg-info">
+    <div class="col-md-5">
+        <h5> <b>ROLES  PERMISOS MENU</b></h5>
+    </div>
+</div>
+
+
+@if (msgError != null)
+{
+    <div class="row alert bg-danger">
+        <div class="row col-md-1">
+
+        </div>
+        <div class="col-md-5">
+            <MatThemeProvider>
+                <MatIcon Icon="cancel"> </MatIcon>   @msgError
+            </MatThemeProvider>
+        </div>
+    </div>
+}
+
+@if (list.Count > 0)
+{
+
+
+    <RadzenGrid AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="50"
+                AllowSorting="true" Data="@list" TItem="RolMenuPermiso" ExpandMode="DataGridExpandMode.Single">
+        <Columns>
+            <RadzenGridColumn TItem="RolMenuPermiso" Property="MenuPadre" Title="Menu" Width="50%"></RadzenGridColumn>
+            <RadzenGridColumn TItem="RolMenuPermiso" Property="MenuHijo" Title="SubMenu" Width="70%"></RadzenGridColumn>
+            <RadzenGridColumn TItem="RolMenuPermiso" Title="Check" Context="sampleBlazorModelsSampleOrder" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="40%">
+                <Template Context="RolMenuPermiso">
+                    @if (RolMenuPermiso.RolPermiso)
+                    {
+                        <RadzenCheckBox Name="Comprometer" TValue="bool" Value="true"
+                                        Change="@(args => CheckComprometer(RolMenuPermiso))" />
+                    }
+                    else
+                    {
+                        <RadzenCheckBox Name="Comprometer" TValue="bool" Change="@(args => CheckComprometer(RolMenuPermiso))" />
+                    }
+                </Template>
+            </RadzenGridColumn>
+
+        </Columns>
+    </RadzenGrid>
+}
+
+<hr />
+<EditForm Model="@model" OnValidSubmit="Save">
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            <MatThemeProvider Theme="@theme3">
+                <MatButton Raised="true" Icon="cancel" @onclick="Cancelar">Cancelar</MatButton>
+            </MatThemeProvider>
+        </div>
+        <br />
+        <div class="col-md-2">
+
+            <MatThemeProvider Theme="@theme1">
+                <MatButton Raised="true" Icon="save" Type="submit">Guardar</MatButton>
+            </MatThemeProvider>
+        </div>
+    </div>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    List<RolMenuPermiso> list = new List<RolMenuPermiso>();
+
+    string msgError = null;
+    RolMenuPermiso model = new RolMenuPermiso();
+    Response response = new Response();
+
+    MatTheme theme1 = new MatTheme()
+    {
+        Primary = "green",
+    };
+    MatTheme theme3 = new MatTheme()
+    {
+        Primary = "red",
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    protected async Task LoadData()
+    {
+        response = await Http.GetFromJsonAsync<Response>($"api/RolMenuPermisos/{Id}");
+        if (response.IsSuccessful)
+        {
+            list = JsonConvert.DeserializeObject<List<RolMenuPermiso>>(response.Data.ToString());
+        }
+
+    }
+
+    protected async Task Cancelar()
+    {
+        navigationManager.NavigateTo("/indexroles");
+    }
+    protected async Task Save()
+    {
+        model.RolId = Id;
+
+        foreach (RolMenuPermiso item in list.Where(x=>x.RolPermiso))
+        {
+            model.ArrayMenuIds = model.ArrayMenuIds + item.MenuId.ToString() + ",";
+        }
+
+        if (Id != 0)
+        {
+            var result = await Http.PostAsJsonAsync<RolMenuPermiso>($"api/RolMenuPermisos/edit", model);
+            response = result.Content.ReadFromJsonAsync<Response>().Result;
+        }
+
+        if (response.IsSuccessful)
+        {
+            navigationManager.NavigateTo("/indexroles");
+        }
+        else
+        {
+            msgError = response.Message;
+            await js.InvokeAsync<string>("MensajeAlerta", msgError);
+        }
+    }
+
+    private void CheckComprometer(RolMenuPermiso permiso)
+    {
+
+      list.Where(x=>x.RolId==permiso.RolId && x.MenuId==permiso.MenuId).Select(c => { c.RolPermiso = !permiso.RolPermiso; return c; }).ToList();
+
+    }
+
+}
+

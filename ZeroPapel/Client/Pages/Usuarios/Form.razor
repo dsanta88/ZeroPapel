@@ -101,19 +101,16 @@
         <div class="col-md-1"></div>
         <div class="col-md-4">
             <a>Rol</a>
-            <div class="col-md-5">
                 <RadzenDropDown AllowClear="true"
                                 AllowFiltering="true"
                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                @bind-Value="ComboMultipleValues"
-                                Multiple="true"
-                                Placeholder="Select..."
+                                @bind-Value="model.RolId"
+                                Multiple="false"
+                                Placeholder="[SELECCIONAR]"
                                 Data="@listRoles"
                                 TextProperty="Nombre"
                                 ValueProperty="Id"
-                                Change="@(args => ComboChange(args))"
-                                Style="margin-bottom: 20px; width:400px;" />
-            </div>
+                                Style="width:100%" />
         </div>
         <div class="col-md-1"></div>
         <div class="col-md-4">
@@ -249,10 +246,10 @@
             msgError = "Debe seleccionar el sexo.";
         }
 
-        foreach (var item in ComboMultipleValues)
-        {
-            model.RolIds += item.ToString() + ",";
-        }
+        //foreach (var item in ComboMultipleValues)
+        //{
+        //    model.RolIds += item.ToString() + ",";
+        //}
 
 
 

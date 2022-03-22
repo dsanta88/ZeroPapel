@@ -32,6 +32,8 @@ namespace ZeroPapel.Shared
         public string FechaVencimientoStr { get; set; }
         public Decimal Valor { get; set; }
         public string ArchivoRuta { get; set; }
+
+        public string AnexoRuta { get; set; }
         public int UsuarioRegistroId { get; set; }
         public DateTime FechaRegistro { get; set; }
         public string FechaRegistroStr { get; set; }
@@ -46,7 +48,9 @@ namespace ZeroPapel.Shared
         public int EstadoActualId { get; set; }
 
         public string EstadoActual { get; set; }
-     
+
+        public int TrasladoUsuarioId { get; set; }
+
 
     }
 }

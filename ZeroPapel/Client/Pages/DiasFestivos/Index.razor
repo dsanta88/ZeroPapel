@@ -1,0 +1,92 @@
+﻿@page "/indexdiasfestivos"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@*@using Helpers*@
+@using Newtonsoft.Json;
+@inject ServicioSingleton singleton
+
+
+<div class="row alert bg-info">
+    <div class="col-md-5">
+        <h5> <b>DÍAS FESTIVOS</b></h5>
+    </div>
+</div>
+
+
+<div class="col-md-2">
+    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_box" Text="Nuevo" Size="ButtonSize.Medium" Click="@Add">
+    </RadzenButton>
+</div>
+
+<RadzenGrid AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="20"
+            AllowSorting="true" Data="@list" TItem="DiaFestivo" ColumnWidth="200px">
+    <Columns>
+        <RadzenGridColumn TItem="DiaFestivo" Property="FechaStr" Title="Fecha" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="DiaFestivo" Property="Descripcion" Title="Descripción" Width="100%"></RadzenGridColumn>
+
+        <RadzenGridColumn TItem="DiaFestivo" Context="DiaFestivo" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="50%">
+            <Template Context="DiaFestivo">
+
+                <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="edit" Text="Editar" Size="ButtonSize.Medium" Click="@((args) =>Edit(DiaFestivo.Id))">
+                </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
+        <RadzenGridColumn TItem="DiaFestivo" Context="Rol" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="50%">
+            <Template Context="DiaFestivo">
+             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Eliminar" Size="ButtonSize.Medium" Click="@((args) =>Delete(DiaFestivo.Id))">
+        </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
+
+
+
+    </Columns>
+</RadzenGrid>
+
+
+
+
+
+@code {
+
+
+    List<DiaFestivo> list;
+    Response response = new Response();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    protected async Task LoadData()
+    {
+        response = await Http.GetFromJsonAsync<Response>($"api/diasfestivos/-1/-1");
+        if (response.IsSuccessful)
+        {
+            list = JsonConvert.DeserializeObject<List<DiaFestivo>>(response.Data.ToString());
+        }
+
+    }
+
+
+    public void Add()
+    {
+        navigationManager.NavigateTo("/formdiasfestivos");
+    }
+
+
+    public void Edit(int id)
+    {
+        navigationManager.NavigateTo("/formdiasfestivos/" + id);
+    }
+
+
+
+
+    public void Delete(int id)
+    {
+        navigationManager.NavigateTo("/deletediasfestivos/" + id);
+    }
+}

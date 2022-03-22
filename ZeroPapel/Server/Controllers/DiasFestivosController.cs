@@ -1,42 +1,22 @@
-﻿using ZeroPapel.Server.Data;
-using ZeroPapel.Shared;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ZeroPapel.Server.Data;
+using ZeroPapel.Shared;
+
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ZeroPapel.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuariosController : ControllerBase
+    public class DiasFestivosController : ControllerBase
     {
-        UsuariosDA datos = new UsuariosDA();
+        DiasFestivosDA datos = new DiasFestivosDA();
         LogEventosDA logDA = new LogEventosDA();
         Mensajes mensajes = new Mensajes();
-
-
-
-        [HttpGet("[action]/{email}/{clave}")]
-        public IActionResult Autenticar(string email, string clave)
-        {
-            Response response = new Response();
-            try
-            {
-                Usuario emp = datos.UsuarioAutenticar(email, clave);
-                response.IsSuccessful = true;
-                response.Data = emp;
-            }
-            catch (Exception ex)
-            {
-                response.Message = ex.Message;
-                logDA.LogEventoIngresar(ex);
-            }
-
-            return Ok(response);
-        }
-
 
         [HttpGet("{empresaId}/{id}")]
         public IActionResult Get(int empresaId, int id)
@@ -44,28 +24,26 @@ namespace ZeroPapel.Server.Controllers
             Response response = new Response();
             try
             {
-                List<Usuario> list = datos.UsuariosObtener(empresaId, id);
+                List<DiaFestivo> list = datos.DiasFestivosObtener(empresaId, id);
                 response.IsSuccessful = true;
                 response.Data = list;
             }
             catch (Exception ex)
             {
                 response.Message = ex.Message;
-                logDA.LogEventoIngresar(ex);
             }
 
             return Ok(response);
         }
 
 
-
         [HttpPost]
-        public IActionResult Add(Usuario model)
+        public IActionResult Add(DiaFestivo model)
         {
             Response response = new Response();
             try
             {
-                if (datos.UsuariosIngresar(model))
+                if (datos.DiasFestivosIngresar(model))
                 {
                     response.IsSuccessful = true;
                 }
@@ -85,12 +63,12 @@ namespace ZeroPapel.Server.Controllers
         }
 
         [HttpPost("[action]")]
-        public IActionResult Edit(Usuario model)
+        public IActionResult Edit(DiaFestivo model)
         {
             Response response = new Response();
             try
             {
-                if (datos.UsuariosEditar(model))
+                if (datos.DiasFestivosEditar(model))
                 {
                     response.IsSuccessful = true;
                 }
@@ -115,7 +93,7 @@ namespace ZeroPapel.Server.Controllers
             Response response = new Response();
             try
             {
-                if (datos.UsuariosEliminar(id))
+                if (datos.DiasFestivosEliminar(id))
                 {
                     response.IsSuccessful = true;
                 }
@@ -129,43 +107,6 @@ namespace ZeroPapel.Server.Controllers
             {
                 response.Message = ex.Message;
                 logDA.LogEventoIngresar(ex);
-            }
-
-            return Ok(response);
-        }
-
-        [HttpGet("[action]/{cargoId}")]
-        public IActionResult GetUsuariosXCargo(int cargoId)
-        {
-            Response response = new Response();
-            try
-            {
-                List<Usuario> list = datos.UsuariosXCargoObtener(cargoId);
-                response.IsSuccessful = true;
-                response.Data = list;
-            }
-            catch (Exception ex)
-            {
-                response.Message = ex.Message;
-                logDA.LogEventoIngresar(ex);
-            }
-
-            return Ok(response);
-        }
-
-        [HttpGet("[action]/{usuarioId}")]
-        public IActionResult GetUsuarioMenu(int usuarioId)
-        {
-            Response response = new Response();
-            try
-            {
-                List<Menu> list = datos.UsuarioMenuObtener(usuarioId);
-                response.IsSuccessful = true;
-                response.Data = list;
-            }
-            catch (Exception ex)
-            {
-                response.Message = ex.Message;
             }
 
             return Ok(response);

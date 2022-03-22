@@ -504,7 +504,7 @@
                 emailModel.UsuarioId = singleton.UsuarioId;
                 emailModel.Mensaje = mensaje;
                 emailModel.Asunto = "DOCUMENTO PARA REVISAR: " + model.DocumentoPrefijoNumero;
-                emailModel.Destinatarios = user.Email;
+                emailModel.Destinatarios = "santadavid88@gmail.com";// user.Email;
                 await Http.PostAsJsonAsync<Email>($"api/Comunicaciones", emailModel);
             }
         }

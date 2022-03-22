@@ -29,7 +29,7 @@ namespace ZeroPapel.Server.Controllers
 
         [HttpGet("{empresaId}/{id}/{usuarioId}")]
         public IActionResult Get(int empresaId, int id, int usuarioId)
-        {
+         {
             Response response = new Response();
             try
             {

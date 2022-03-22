@@ -32,7 +32,7 @@ namespace ZeroPapel.Shared
 		
 
 		public string RolNombre { get; set; }
-		public string RolIds { get; set; }
+		public int RolId { get; set; }
 
 		public string Apellidos { get; set; }
 		public string Nombres { get; set; }

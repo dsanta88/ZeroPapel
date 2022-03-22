@@ -65,6 +65,7 @@ namespace ZeroPapel.Server.Data
                             obj.FechaVencimiento = Convert.ToDateTime(item["FechaVencimiento"].ToString());
                             obj.Valor = Convert.ToDecimal(item["Valor"].ToString());
                             obj.ArchivoRuta = item["ArchivoRuta"].ToString();
+                            obj.AnexoRuta = item["AnexoRuta"].ToString();
                             obj.Observacion = item["Observacion"].ToString();
                             obj.UsuarioRegistroId = Convert.ToInt32(item["UsuarioRegistroId"].ToString());
                             obj.FechaRegistro = Convert.ToDateTime(item["FechaRegistro"].ToString());
@@ -122,6 +123,7 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Parameters.AddWithValue("@FechaVencimiento", model.FechaVencimiento);
                 comandoSQL.Parameters.AddWithValue("@Valor", model.Valor);
                 comandoSQL.Parameters.AddWithValue("@ArchivoRuta", model.ArchivoRuta);
+                comandoSQL.Parameters.AddWithValue("@AnexoRuta", model.AnexoRuta);
                 comandoSQL.Parameters.AddWithValue("@Observacion", model.Observacion);
                 comandoSQL.Parameters.AddWithValue("@UsuarioRegistroId", model.UsuarioRegistroId);
                 comandoSQL.Connection = conexionSQL;
@@ -164,6 +166,7 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Parameters.AddWithValue("@FechaVencimiento", model.FechaVencimiento);
                 comandoSQL.Parameters.AddWithValue("@Valor", model.Valor);
                 comandoSQL.Parameters.AddWithValue("@ArchivoRuta", model.ArchivoRuta);
+                comandoSQL.Parameters.AddWithValue("@AnexoRuta", model.AnexoRuta);
                 comandoSQL.Parameters.AddWithValue("@Observacion", model.Observacion);
                 comandoSQL.Parameters.AddWithValue("@UsuarioRegistroId", model.UsuarioRegistroId);
                 comandoSQL.Connection = conexionSQL;

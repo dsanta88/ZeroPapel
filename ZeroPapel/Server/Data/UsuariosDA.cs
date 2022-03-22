@@ -48,6 +48,8 @@ namespace ZeroPapel.Server.Data
                             Usuario obj = new Usuario();
                             obj.Id= Convert.ToInt32(item["Id"].ToString());
                             obj.EmpresaId = Convert.ToInt32(item["EmpresaId"].ToString());
+                            obj.RolId = Convert.ToInt32(item["RolId"].ToString());
+                            obj.RolNombre =item["RolNombre"].ToString();
                             obj.CargoId = Convert.ToInt32(item["CargoId"].ToString());
                             obj.CargoNombre = item["CargoNombre"].ToString();
                             obj.JefeUsuarioId = Convert.ToInt32(item["JefeUsuarioId"].ToString());
@@ -179,6 +181,7 @@ namespace ZeroPapel.Server.Data
         comandoSQL.CommandType = CommandType.StoredProcedure;
                 comandoSQL.CommandText = "sp_usuarios_ingresar";
                 comandoSQL.Parameters.AddWithValue("@EmpresaId", model.EmpresaId);
+                comandoSQL.Parameters.AddWithValue("@RolId", model.RolId);
                 comandoSQL.Parameters.AddWithValue("@CargoId", model.CargoId);
                 comandoSQL.Parameters.AddWithValue("@JefeUsuarioId", model.JefeUsuarioId);
                 comandoSQL.Parameters.AddWithValue("@UsuarioNivelId", model.UsuarioNivelId);
@@ -230,6 +233,7 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.CommandText = "sp_usuarios_editar";
                 comandoSQL.Parameters.AddWithValue("@Id", model.Id);
                 comandoSQL.Parameters.AddWithValue("@EmpresaId", model.EmpresaId);
+                comandoSQL.Parameters.AddWithValue("@RolId", model.RolId);
                 comandoSQL.Parameters.AddWithValue("@CargoId", model.CargoId);
                 comandoSQL.Parameters.AddWithValue("@JefeUsuarioId", model.JefeUsuarioId);
                 comandoSQL.Parameters.AddWithValue("@UsuarioNivelId", model.UsuarioNivelId);
@@ -350,6 +354,59 @@ namespace ZeroPapel.Server.Data
         }
 
 
+
+        public List<Menu> UsuarioMenuObtener(int UsuarioId)
+        {
+            DataSet ds = new DataSet();
+            SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
+            SqlCommand comandoSQL = new SqlCommand();
+            SqlDataAdapter adaptadorSQL = new SqlDataAdapter();
+            List<Menu> lst = new List<Menu>();
+
+            try
+            {
+                comandoSQL.Connection = conexionSQL;
+                comandoSQL.CommandType = CommandType.StoredProcedure;
+                comandoSQL.CommandText = "sp_usuarios_menu_obtener";
+                comandoSQL.Parameters.AddWithValue("@UsuarioId", UsuarioId);
+                adaptadorSQL.SelectCommand = comandoSQL;
+                adaptadorSQL.Fill(ds);
+
+                if (ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow item in ds.Tables[0].Rows)
+                        {
+                            Menu obj = new Menu();
+                            obj.Id = Convert.ToInt32(item["Id"].ToString());
+                            obj.PadreId = Convert.ToInt32(item["PadreId"].ToString());
+                            obj.PadreNombre = item["PadreNombre"].ToString();
+                            obj.Nombre = item["Nombre"].ToString();
+                            obj.Orden = Convert.ToInt32(item["Orden"].ToString());
+                            obj.Link = item["Link"].ToString();
+                            obj.Estado = Convert.ToBoolean(item["Estado"].ToString());
+                            obj.Icono = item["Icono"].ToString();
+                            obj.UsuarioRegistroId = Convert.ToInt32(item["UsuarioRegistroId"].ToString());
+                            obj.FechaRegistro = Convert.ToDateTime(item["FechaRegistro"].ToString());
+                            lst.Add(obj);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                LogEventosIngresar(ex);
+            }
+            finally
+            {
+                comandoSQL.Parameters.Clear();
+                comandoSQL.Connection.Close();
+            }
+
+            return lst;
+        }
         public bool LogEventosIngresar(Exception ex)
         {
             logDA.LogEventoIngresar(ex);
