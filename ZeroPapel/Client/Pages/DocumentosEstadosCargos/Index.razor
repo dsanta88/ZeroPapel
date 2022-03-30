@@ -1,0 +1,159 @@
+﻿@page "/permisosdocumentosestados"
+@page "/permisosdocumentosestados/{Id:int}/{Estado}"
+@using ZeroPapel.Shared
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json;
+@inject ServicioSingleton singleton
+@inject IJSRuntime js
+
+<div class="row alert bg-info">
+    <div class="col-md-4">
+        <h5> <b>CARGOS POR ESTADOS DE DOCUMENTO</b></h5>
+    </div>
+    <div class="col-md-5">
+        <h5> <b>ESTADO:</b> @Estado</h5>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-4">
+        <a>Seleccionar item</a>
+        <RadzenDropDown AllowClear="true"
+                        AllowFiltering="true"
+                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                        @bind-Value="model.CargoId"
+                        Multiple="false"
+                        Placeholder="[SELECCIONAR]"
+                        Data="@listCargos"
+                        TextProperty="Nombre"
+                        ValueProperty="Id"
+                        Style="width:100%" />
+
+    </div>
+    <div class="col-md-1"></div>
+    <div class="col-md-2">
+        <RadzenButton ButtonStyle="ButtonStyle.Info"
+                      Icon="add_box"
+                      Text="Agregar"
+                      Size="ButtonSize.Medium"
+                      Click="@Agregar">
+        </RadzenButton>
+    </div>
+</div>
+<RadzenGrid AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="20"
+            AllowSorting="true" Data="@list" TItem="DocumentoEstadoCargo" ColumnWidth="200px">
+    <Columns>
+        <RadzenGridColumn TItem="DocumentoEstadoCargo" Property="CargoNombre" Title="Cargo" Width="30%"></RadzenGridColumn>
+
+        <RadzenGridColumn TItem="DocumentoEstadoCargo" Context="DocumentoEstadoCargo" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="50%">
+            <Template Context="DocumentoEstadoCargo">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Eliminar" Size="ButtonSize.Medium" Click="@((args) =>Delete(DocumentoEstadoCargo.Id))">
+                </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
+
+
+
+    </Columns>
+</RadzenGrid>
+
+
+<hr />
+<div class="row">
+    <div class="col-md-2">
+        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="arrow_back" Text="Retornar" Size="ButtonSize.Medium" Click="@Retornar">
+        </RadzenButton>
+    </div>
+</div>
+@code {
+
+    [Parameter] public int Id { get; set; }
+    [Parameter] public string Estado { get; set; }
+
+    List<DocumentoEstadoCargo> list;
+    DocumentoEstadoCargo model = new DocumentoEstadoCargo();
+    List<Cargo> listCargos = new List<Cargo>();
+    Response response = new Response();
+
+
+    MatTheme theme1 = new MatTheme()
+    {
+        Primary = "red",
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    protected async Task LoadData()
+    {
+
+        //Cargos
+        response = await Http.GetFromJsonAsync<Response>($"api/cargos/{singleton.EmpresaId}/-1");
+        if (response.IsSuccessful)
+        {
+            listCargos = JsonConvert.DeserializeObject<List<Cargo>>(response.Data.ToString());
+        }
+
+
+        response = await Http.GetFromJsonAsync<Response>($"api/DocumentosEstadosCargos/{Id}");
+        if (response.IsSuccessful)
+        {
+            list = JsonConvert.DeserializeObject<List<DocumentoEstadoCargo>>(response.Data.ToString());
+        }
+    }
+
+    private async Task Agregar()
+    {
+        if (model.CargoId == 0)
+        {
+            await js.InvokeAsync<string>("MensajeAlerta", "Debe seleccionar un cargo.");
+        }
+        else
+        {
+            model.DocumentoEstadoId = Id;
+            var result = await Http.PostAsJsonAsync<DocumentoEstadoCargo>($"api/DocumentosEstadosCargos", model);
+            response = result.Content.ReadFromJsonAsync<Response>().Result;
+            if (response.IsSuccessful)
+            {
+                model = new DocumentoEstadoCargo();
+                await LoadData();
+                await js.InvokeAsync<string>("MensajeoK", "Registro guardado de forma correcta.");
+
+            }
+            else
+            {
+                await js.InvokeAsync<string>("MensajeAlerta", response.Message);
+            }
+        }
+
+    }
+
+    private async Task Delete(int id)
+    {
+
+        var result = await Http.DeleteAsync($"api/DocumentosEstadosCargos/{id}");
+        response = result.Content.ReadFromJsonAsync<Response>().Result;
+        if (response.IsSuccessful)
+        {
+            await LoadData();
+            await js.InvokeAsync<string>("MensajeoK", "Registro eliminado de forma correcta.");
+        }
+        else
+        {
+            await js.InvokeAsync<string>("MensajeAlerta", response.Message);
+        }
+    }
+
+
+    protected async Task Retornar()
+    {
+        navigationManager.NavigateTo("/indexdocumentosestados");
+    }
+}
+
+

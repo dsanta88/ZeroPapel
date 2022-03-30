@@ -7,7 +7,7 @@
 @using Newtonsoft.Json
 @inject ServicioSingleton singleton
 @inject IJSRuntime js
-@inject IJSRuntime js
+
 
 <div class="row alert bg-info">
     <div class="row col-md-1">
@@ -150,6 +150,21 @@
                 <MatOption Value=false>INACTIVO</MatOption>
             </MatSelect>
         </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-4">
+            <a>Empresa</a>
+            <RadzenDropDown AllowClear="true"
+                            AllowFiltering="true"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            @bind-Value="model.EmpresaId"
+                            Multiple="false"
+                            Placeholder="[SELECCIONAR]"
+                            Data="@listEmpresas"
+                            TextProperty="Nombre"
+                            ValueProperty="Id"
+                            Style="width:100%" />
+
+        </div>
     </div>
     <hr />
     <div class="row">
@@ -183,6 +198,8 @@
     List<Usuario> listJefes = new List<Usuario>();
     List<Rol> listRoles = new List<Rol>();
     List<UsuarioNivel> listUsuariosNiveles = new List<UsuarioNivel>();
+    List<Empresa> listEmpresas = new List<Empresa>();
+
 
     MatTheme theme1 = new MatTheme()
     {
@@ -219,7 +236,6 @@
 
     protected async Task Save()
     {
-        model.EmpresaId = singleton.EmpresaId;
         model.UsuarioCreacionId = singleton.UsuarioId;
         model.UsuarioActualizacionId = singleton.UsuarioId;
         if (model.FechaNacimiento <= Convert.ToDateTime("1900-01-01"))
@@ -245,11 +261,6 @@
         {
             msgError = "Debe seleccionar el sexo.";
         }
-
-        //foreach (var item in ComboMultipleValues)
-        //{
-        //    model.RolIds += item.ToString() + ",";
-        //}
 
 
 
@@ -294,6 +305,8 @@
     protected async Task LoadData()
     {
         model = new Usuario();
+
+
         //Cargos
         response = await Http.GetFromJsonAsync<Response>($"api/cargos/{singleton.EmpresaId}/-1");
         if (response.IsSuccessful)
@@ -323,6 +336,14 @@
         if (response.IsSuccessful)
         {
             listUsuariosNiveles = JsonConvert.DeserializeObject<List<UsuarioNivel>>(response.Data.ToString());
+        }
+
+
+        //
+        response = await Http.GetFromJsonAsync<Response>($"api/empresas/-1");
+        if (response.IsSuccessful)
+        {
+            listEmpresas = JsonConvert.DeserializeObject<List<Empresa>>(response.Data.ToString());
         }
 
 

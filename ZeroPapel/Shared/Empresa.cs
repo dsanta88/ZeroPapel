@@ -6,16 +6,9 @@ using System.Threading.Tasks;
 
 namespace ZeroPapel.Shared
 {
-   public class DocumentoEstado
+  public  class Empresa
     {
         public int Id { get; set; }
-        public int EmpresaId { get; set; }
-        public int Codigo { get; set; }
-
-
         public string Nombre { get; set; }
-
-        public bool Estado { get; set; }
-        public string EstadoDescripcion { get; set; }
     }
 }

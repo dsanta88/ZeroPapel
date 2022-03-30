@@ -54,24 +54,6 @@
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-5">
-            <a>Cargo</a>
-            <RadzenDropDown AllowClear="true"
-                            AllowFiltering="true"
-                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            @bind-Value="model.CargoId"
-                            Multiple="false"
-                            Placeholder="[SELECCIONAR]"
-                            Data="@listCargos"
-                            TextProperty="Nombre"
-                            ValueProperty="Id"
-                            Style="width:100%" />
-        </div>
-        <div class="col-md-1"></div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-5">
             <MatSelect Label="Estado" @bind-Value=@model.Estado Required="true">
                 <MatOption Value=true>ACTIVO</MatOption>
                 <MatOption Value=false>INACTIVO</MatOption>
@@ -111,7 +93,7 @@
     Response response = new Response();
     bool visibleGuardar = true;
     public int codigoInicial = 0;
-    List<Cargo> listCargos = new List<Cargo>();
+
 
 
     MatTheme theme1 = new MatTheme()
@@ -236,16 +218,6 @@
             model.Estado = true;
             titulo = "NUEVO ESTADO DOCUMENTOL";
         }
-
-        //Cargos
-        response = await Http.GetFromJsonAsync<Response>($"api/cargos/{singleton.EmpresaId}/-1");
-        if (response.IsSuccessful)
-        {
-            listCargos = JsonConvert.DeserializeObject<List<Cargo>>(response.Data.ToString());
-            listCargos = listCargos.Where(x => x.Estado == true).ToList();
-        }
-
-
     }
 
 
@@ -285,7 +257,7 @@
         auditoria.UsuarioNombre = singleton.UsuarioNombre;
         auditoria.UsuarioRegistroId = singleton.UsuarioId;
 
-        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " el siguiente Estado Documento:----" + "Id: "+model.Id+ "----Código:" + model.Codigo + "----Nombre: " + model.Nombre + "----Estado:" + model.EstadoDescripcion + "----CargoId:" + model.CargoId;
+        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " el siguiente Estado Documento:----" + "Id: "+model.Id+ "----Código:" + model.Codigo + "----Nombre: " + model.Nombre + "----Estado:" + model.EstadoDescripcion ;
 
         await Http.PostAsJsonAsync<Auditoria>($"api/auditoria", auditoria);
 

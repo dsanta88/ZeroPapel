@@ -40,8 +40,7 @@
 }
 
 
-@if (!guardado)
-{
+
     <EditForm Model="@model" OnValidSubmit="Save">
 
         <div class="row">
@@ -145,10 +144,14 @@
         <div class="row">
             <div class="col-md-1"></div>
             <div class="col-md-3">
-                <b>Adjuntar docuement</b>
-                <input class="bg-light" type="file" @ref="@inputElement" accept=".pdf">
+                <b>Adjuntar documento</b>
+                <input class="bg-light" type="file" @ref="@inputElementFactura" accept=".pdf">
             </div>
-
+            <div class="col-md-1"></div>
+            <div class="col-md-3">
+                <b>Anexo</b>
+                <input class="bg-light" type="file" @ref="@inputElementAnexo" accept=".pdf">
+            </div>
         </div>
         <br />
         <div class="row">
@@ -174,7 +177,7 @@
             </div>
         </div>
     </EditForm>
-}
+
 
 <br />
 @code {
@@ -183,8 +186,9 @@
     public int Id { get; set; }
     string msgError = null;
     string msgNota = null;
-    bool guardado = false;
-    ElementReference inputElement;
+    //bool guardado = false;
+    ElementReference inputElementFactura;
+    ElementReference inputElementAnexo;
     string status;
 
     List<CentroCosto> listCentrosCosto = new List<CentroCosto>();
@@ -200,6 +204,7 @@
     string centroCosto;
     string moneda;
     string proveedor;
+    bool anexo = false;
 
     MatTheme theme1 = new MatTheme()
     {
@@ -218,6 +223,7 @@
 
     protected async Task Save()
     {
+        anexo = false;
         visibleGuardar = false;
         selectDocument = false;
         model.UsuarioRegistroId = singleton.UsuarioId;
@@ -289,9 +295,16 @@
         if (msgError == null)
         {
             string formato = "pdf";
-            string nombreFile = model.ProveedorNit + "-" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + DateTime.Now.Hour.ToString() + DateTime.Now.Minute.ToString() + DateTime.Now.Second.ToString() + "." + formato;
+            string aux = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + DateTime.Now.Hour.ToString() + DateTime.Now.Minute.ToString() + DateTime.Now.Second.ToString() + "." + formato;
+            string nombreFact = "F-"+model.ProveedorNit + "-" + aux;
+            string nombreAnexo = "A-"+model.ProveedorNit + "-" + aux;
 
-            await CargarArchivo(nombreFile, formato);
+            //Cargar acchivo factura
+            await CargarArchivo(nombreFact, formato, inputElementFactura,"F");
+
+            //Cargar acchivo factura
+            await CargarArchivo(nombreAnexo, formato, inputElementAnexo,"A");
+
             if (!selectDocument)
             {
                 msgError = "Debe seleccionar un archivo.";
@@ -302,16 +315,24 @@
             {
                 if (msgError == null)
                 {
-                    model.ArchivoRuta = "../Upload/Documentos/" + nombreFile;
+                    string auxRuta = "../Upload/Documentos/";
+                    model.ArchivoRuta =auxRuta + nombreFact;
+                    if(anexo)
+                    {
+                        model.AnexoRuta = auxRuta + nombreAnexo;
+                    }
+
                     var result = await Http.PostAsJsonAsync<Documento>($"api/documentos/guardar", model);
                     response = result.Content.ReadFromJsonAsync<Response>().Result;
 
                     if (response.IsSuccessful)
                     {
-                        guardado = true;
+
                         await RegistrarAuditoria(model, "DOCUMENTO GENERADO");
                         await NotificarResponable(model);
-                        navigationManager.NavigateTo("/indexdocumentos");
+                        model = new Documento();
+                        await js.InvokeAsync<string>("MensajeoK", "Documento cargado de forma correcta.");
+                        //guardado = false;
                     }
                     else
                     {
@@ -379,7 +400,7 @@
         await js.InvokeAsync<object>("open", url, "_blank");
     }
 
-    public async Task CargarArchivo(string nombreArchivo, string formato)
+    public async Task CargarArchivo(string nombreArchivo, string formato, ElementReference inputElement, string tipoArchivo)
     {
 
         try
@@ -408,6 +429,10 @@
                     if (response.IsSuccessful)
                     {
                         stateUploadFile = true;
+                        if (tipoArchivo == "A")
+                        {
+                            anexo = true;
+                        }
                     }
                     else
                     {

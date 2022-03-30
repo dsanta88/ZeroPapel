@@ -37,8 +37,15 @@
 
         <RadzenGridColumn TItem="DocumentoEstado" Context="DocumentoEstado" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="50%">
             <Template Context="DocumentoEstado">
-             <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Eliminar" Size="ButtonSize.Medium" Click="@((args) =>Delete(DocumentoEstado.Id))">
-        </RadzenButton>
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="lock" Text="Permisos" Size="ButtonSize.Medium" Click="@((args) =>Permisos(DocumentoEstado.Id))">
+                </RadzenButton>
+            </Template>
+        </RadzenGridColumn>
+
+        <RadzenGridColumn TItem="DocumentoEstado" Context="DocumentoEstado" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="50%">
+            <Template Context="DocumentoEstado">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Eliminar" Size="ButtonSize.Medium" Click="@((args) =>Delete(DocumentoEstado.Id))">
+                </RadzenButton>
             </Template>
         </RadzenGridColumn>
 
@@ -85,6 +92,12 @@
     }
 
 
+
+    public void Permisos(int id)
+    {
+        string estado = list.Where(x => x.Id == id).FirstOrDefault().Nombre;
+        navigationManager.NavigateTo("/permisosdocumentosestados/" + id+"/"+ estado);
+    }
 
 
     public void Delete(int id)

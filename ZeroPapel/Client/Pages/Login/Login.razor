@@ -94,8 +94,6 @@
     {
         try
         {
-            model.Email = "dir.produccion@kyrovet.com";
-            model.Clave = "123456";
             result = "";
 
             if (model.Email == null || model.Email == "")
@@ -131,6 +129,7 @@
                         singleton.Email = user.Email;
                         singleton.EmpresaNombre = user.EmpresaNombre;
                         singleton.EmpresaLogo = user.EmpresaLogo;
+              
 
                         await RegistrarAuditoria(user);
                         navigationManager.NavigateTo("/index");

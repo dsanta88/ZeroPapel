@@ -15,7 +15,6 @@ namespace ZeroPapel.Server.Data
         LogEventosDA logDA = new LogEventosDA();
         string strConexionSQL = "";
 
-
         public UsuariosDA()
         {
             strConexionSQL = objJson.GetStrConexion();
@@ -48,6 +47,7 @@ namespace ZeroPapel.Server.Data
                             Usuario obj = new Usuario();
                             obj.Id= Convert.ToInt32(item["Id"].ToString());
                             obj.EmpresaId = Convert.ToInt32(item["EmpresaId"].ToString());
+                            obj.EmpresaNombre = item["EmpresaNombre"].ToString();
                             obj.RolId = Convert.ToInt32(item["RolId"].ToString());
                             obj.RolNombre =item["RolNombre"].ToString();
                             obj.CargoId = Convert.ToInt32(item["CargoId"].ToString());
@@ -111,7 +111,6 @@ namespace ZeroPapel.Server.Data
 
             return lst;
         }
-
 
         public List<Usuario> UsuariosXCargoObtener(int cargoId)
         {
@@ -352,8 +351,6 @@ namespace ZeroPapel.Server.Data
 
             return obj;
         }
-
-
 
         public List<Menu> UsuarioMenuObtener(int UsuarioId)
         {

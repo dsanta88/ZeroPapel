@@ -52,6 +52,7 @@
         <RadzenGridColumn TItem="Usuario" Property="UsuarioNivelDescripcion" Title="Nivel" Width="30%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Usuario" Property="JefeUsuarioNombre" Title="Jefe" Width="50%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Usuario" Property="EstadoDescripcion" Title="Estado" Width="50%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Usuario" Property="EmpresaNombre" Title="Empresa" Width="50%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Usuario" Context="Usuario" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100%">
             <Template Context="Usuario">
                 <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="edit" Text="Editar" Size="ButtonSize.Medium" Click="@((args) =>Edit(Usuario.Id))">

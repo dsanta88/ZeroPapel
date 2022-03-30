@@ -33,6 +33,7 @@ namespace ZeroPapel.Shared
         public Decimal Valor { get; set; }
         public string ArchivoRuta { get; set; }
 
+
         public string AnexoRuta { get; set; }
         public int UsuarioRegistroId { get; set; }
         public DateTime FechaRegistro { get; set; }

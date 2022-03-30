@@ -101,6 +101,84 @@ namespace ZeroPapel.Server.Data
             return lst;
         }
 
+        public List<Documento> DocumentosHistorico(int usuarioId)
+        {
+            DataSet ds = new DataSet();
+            SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
+            SqlCommand comandoSQL = new SqlCommand();
+            SqlDataAdapter adaptadorSQL = new SqlDataAdapter();
+            List<Documento> lst = new List<Documento>();
+
+            try
+            {
+                comandoSQL.Connection = conexionSQL;
+                comandoSQL.CommandType = CommandType.StoredProcedure;
+                comandoSQL.CommandText = "sp_documentos_historico";
+                comandoSQL.Parameters.AddWithValue("@usuarioId", usuarioId);
+                adaptadorSQL.SelectCommand = comandoSQL;
+                adaptadorSQL.Fill(ds);
+
+                if (ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow item in ds.Tables[0].Rows)
+                        {
+                            Documento obj = new Documento();
+                            obj.Id = Convert.ToInt32(item["Id"].ToString());
+                            obj.EmpresaId = Convert.ToInt32(item["EmpresaId"].ToString());
+                            obj.CentroCostoId = item["CentroCostoId"].ToString();
+                            obj.CentroCostoNombre = item["CentroCostoNombre"].ToString();
+                            obj.DocumentoTipoId = Convert.ToInt32(item["DocumentoTipoId"].ToString());
+                            obj.DocumentoTipoNombre = item["DocumentoTipoNombre"].ToString();
+                            obj.MonedaId = Convert.ToInt32(item["MonedaId"].ToString());
+                            obj.MonedaNombre = item["MonedaNombre"].ToString();
+                            obj.ProveedorNit = item["ProveedorNit"].ToString();
+                            obj.FechaRecepcion = Convert.ToDateTime(item["FechaRecepcion"].ToString());
+                            obj.ProveedorNombre = item["ProveedorNombre"].ToString();
+                            obj.DocumentoPrefijo = item["DocumentoPrefijo"].ToString();
+                            obj.DocumentoNumero = Convert.ToInt32(item["DocumentoNumero"].ToString());
+                            obj.DocumentoPrefijoNumero = item["DocumentoPrefijoNumero"].ToString();
+                            obj.FechaExpedicion = Convert.ToDateTime(item["FechaExpedicion"].ToString());
+                            obj.FechaVencimiento = Convert.ToDateTime(item["FechaVencimiento"].ToString());
+                            obj.Valor = Convert.ToDecimal(item["Valor"].ToString());
+                            obj.ArchivoRuta = item["ArchivoRuta"].ToString();
+                            obj.AnexoRuta = item["AnexoRuta"].ToString();
+                            obj.Observacion = item["Observacion"].ToString();
+                            obj.UsuarioRegistroId = Convert.ToInt32(item["UsuarioRegistroId"].ToString());
+                            obj.FechaRegistro = Convert.ToDateTime(item["FechaRegistro"].ToString());
+                            obj.JerarquiaOrden = Convert.ToInt32(item["JerarquiaOrden"].ToString());
+                            obj.ResponsableActualCargo = item["ResponsableActualCargo"].ToString();
+                            obj.EstadoActualId = Convert.ToInt32(item["EstadoActualId"].ToString());
+                            obj.EstadoActual = item["EstadoActual"].ToString();
+
+
+                            obj.FechaRecepcionStr = obj.FechaRecepcion.ToString("d MMMM yyyy", CultureInfo.CreateSpecificCulture("es-MX"));
+                            obj.FechaExpedicionStr = obj.FechaExpedicion.ToString("d MMMM yyyy", CultureInfo.CreateSpecificCulture("es-MX"));
+                            obj.FechaVencimientoStr = obj.FechaVencimiento.ToString("d MMMM yyyy", CultureInfo.CreateSpecificCulture("es-MX"));
+                            obj.FechaRegistroStr = obj.FechaRegistro.ToString("d MMMM yyyy h:mm tt", CultureInfo.CreateSpecificCulture("es-MX"));
+
+
+
+                            lst.Add(obj);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                LogEventosIngresar(ex);
+            }
+            finally
+            {
+                comandoSQL.Parameters.Clear();
+                comandoSQL.Connection.Close();
+            }
+
+            return lst;
+        }
+
         public bool DocumentosIngresar(Documento model)
         {
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);

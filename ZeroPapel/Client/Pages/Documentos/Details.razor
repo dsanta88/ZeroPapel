@@ -167,45 +167,60 @@
         </div>
         @if (model.EstadoActualId == 2)
         {
-        <div class="col-md-3">
-            <b>Usuario Traslado</b>
-            <RadzenDropDown AllowClear="true"
-                            AllowFiltering="true"
-                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            @bind-Value="model.TrasladoUsuarioId"
-                            Multiple="false" 
-                            Placeholder="[SELECCIONAR]"
-                            Data="@listUsuarios"
-                            TextProperty="NombreCompleto"
-                            ValueProperty="Id"
-                            Style="width:100%"
-                           />
-        </div>
+            <div class="col-md-3">
+                <b>Usuario Traslado</b>
+                <RadzenDropDown AllowClear="true"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                @bind-Value="model.TrasladoUsuarioId"
+                                Multiple="false"
+                                Placeholder="[SELECCIONAR]"
+                                Data="@listUsuarios"
+                                TextProperty="NombreCompleto"
+                                ValueProperty="Id"
+                                Style="width:100%" />
+            </div>
         }
     </div>
     <hr />
-
     <div class="row">
-        <div class="col-md-6">
-            @*<MatThemeProvider Theme="theme1">
-                <MatButton Style="width:150px" Raised="true" Icon="visibility" @onclick="@(async () => await AbrirArchivo(model.ArchivoRuta))"> Abrir</MatButton>
-            </MatThemeProvider>*@
+        <div class="col-md-1">
+            <b>Factura</b>
+        </div>
+
+        <div class="col-md-10">
             <embed src="@model.ArchivoRuta" style="width:100%;height:500px" controls />
             <br />
         </div>
-        <div class="col-md-6">
-            <div class="row alert bg-info">
-                    <b>Seguimiento</b>
+    </div>
+    @if (model.AnexoRuta != null)
+    {
+        <br />
+        <div class="row">
+            <div class="col-md-1">
+                <b>Anexo</b>
             </div>
-            <br />
+
+            <div class="col-md-10">
+                <embed src="@model.AnexoRuta" style="width:100%;height:500px" controls />
+                <br />
+            </div>
+        </div>
+    }
+    <hr />
+    <div class="row">
+        <div class="col-md-11">
+            <div class="row alert bg-info">
+                <b>Seguimiento</b>
+            </div>
             @foreach (DocumentoSeguimiento item in listDtoSeguimiento)
             {
-        <RadzenIcon Icon="check_circle" />  @(item.FechaRegistroStr + "--------" + item.UsuarioNombre) <label>@item.EstadoDescripcion</label> @(" el documento." )
+                <RadzenIcon Icon="check_circle" /> @(item.FechaRegistroStr + "--------" + item.UsuarioNombre) <label>@item.EstadoDescripcion</label> @(" el documento." )
                 <br />
             }
         </div>
     </div>
-    <br />
+    <hr />
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-2">

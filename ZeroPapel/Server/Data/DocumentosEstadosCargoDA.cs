@@ -10,32 +10,31 @@ using ZeroPapel.Shared;
 namespace ZeroPapel.Server.Data
 {
 
-    public class DocumentosEstadosDA
+    public class DocumentosEstadosCargoDA
     {
         LeerJson objJson = new LeerJson();
         LogEventosDA logDA = new LogEventosDA();
         string strConexionSQL = "";
 
 
-        public DocumentosEstadosDA()
+        public DocumentosEstadosCargoDA()
         {
             strConexionSQL = objJson.GetStrConexion();
         }
-        public List<DocumentoEstado> DocumentosEstadosObtener(int empresaId, int id)
+        public List<DocumentoEstadoCargo> DocumentosEstadosCargoObtener(int documentoEstadoId)
         {
             DataSet ds = new DataSet();
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
             SqlCommand comandoSQL = new SqlCommand();
             SqlDataAdapter adaptadorSQL = new SqlDataAdapter();
-            List<DocumentoEstado> lst = new List<DocumentoEstado>();
+            List<DocumentoEstadoCargo> lst = new List<DocumentoEstadoCargo>();
 
             try
             {
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_documentos_estados_obtener";
-                comandoSQL.Parameters.AddWithValue("@EmpresaId", empresaId);
-                comandoSQL.Parameters.AddWithValue("@Id", id);
+                comandoSQL.CommandText = "sp_documentos_estados_cargos_obtener";
+                comandoSQL.Parameters.AddWithValue("@DocumentoEstadoId", documentoEstadoId);
                 adaptadorSQL.SelectCommand = comandoSQL;
                 adaptadorSQL.Fill(ds);
 
@@ -45,12 +44,11 @@ namespace ZeroPapel.Server.Data
                     {
                         foreach (DataRow item in ds.Tables[0].Rows)
                         {
-                            DocumentoEstado obj = new DocumentoEstado();
+                            DocumentoEstadoCargo obj = new DocumentoEstadoCargo();
                             obj.Id = Convert.ToInt32(item["Id"].ToString());
-                            obj.Codigo = Convert.ToInt32(item["Codigo"].ToString());
-                            obj.Nombre = item["Nombre"].ToString();
-                            obj.Estado = Convert.ToBoolean(item["Estado"].ToString());
-                            obj.EstadoDescripcion = item["EstadoDescripcion"].ToString();
+                            obj.DocumentoEstadoId = Convert.ToInt32(item["DocumentoEstadoId"].ToString());
+                            obj.CargoId = Convert.ToInt32(item["CargoId"].ToString());
+                            obj.CargoNombre = item["CargoNombre"].ToString();              
                             lst.Add(obj);
                         }
                     }
@@ -70,7 +68,7 @@ namespace ZeroPapel.Server.Data
             return lst;
         }
 
-        public bool DocumentosEstadosIngresar(DocumentoEstado model)
+        public bool DocumentosEstadosCargoIngresar(DocumentoEstadoCargo model)
         {
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
             SqlCommand comandoSQL = new SqlCommand();
@@ -78,11 +76,9 @@ namespace ZeroPapel.Server.Data
             try
             {
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_documentos_estados_ingresar";
-                comandoSQL.Parameters.AddWithValue("@EmpresaId", model.EmpresaId);
-                comandoSQL.Parameters.AddWithValue("@Codigo", model.Codigo);
-                comandoSQL.Parameters.AddWithValue("@Nombre", model.Nombre);
-                comandoSQL.Parameters.AddWithValue("@Estado", model.Estado);
+                comandoSQL.CommandText = "sp_documentos_estados_cargos_ingresar";
+                comandoSQL.Parameters.AddWithValue("@DocumentoEstadoId", model.DocumentoEstadoId);
+                comandoSQL.Parameters.AddWithValue("@CargoId", model.CargoId);
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.Connection.Open();
                 comandoSQL.ExecuteNonQuery();
@@ -102,7 +98,9 @@ namespace ZeroPapel.Server.Data
             return true;
         }
 
-        public bool DocumentosEstadosEditar(DocumentoEstado model)
+
+
+        public bool DocumentosEstadosCargosEliminar(int id)
         {
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
             SqlCommand comandoSQL = new SqlCommand();
@@ -110,39 +108,7 @@ namespace ZeroPapel.Server.Data
             try
             {
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_documentos_estados_editar";
-                comandoSQL.Parameters.AddWithValue("@Id", model.Id);
-                comandoSQL.Parameters.AddWithValue("@Codigo", model.Codigo);
-                comandoSQL.Parameters.AddWithValue("@Nombre", model.Nombre);
-                comandoSQL.Parameters.AddWithValue("@Estado", model.Estado);
-                comandoSQL.Connection = conexionSQL;
-                comandoSQL.Connection.Open();
-                comandoSQL.ExecuteNonQuery();
-
-            }
-            catch (Exception ex)
-            {
-                LogEventosIngresar(ex);
-                return false;
-            }
-            finally
-            {
-                comandoSQL.Parameters.Clear();
-                comandoSQL.Connection.Close();
-            }
-
-            return true;
-        }
-
-        public bool DocumentosEstadosEliminar(int id)
-        {
-            SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
-            SqlCommand comandoSQL = new SqlCommand();
-
-            try
-            {
-                comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_documentos_estados_eliminar";
+                comandoSQL.CommandText = "sp_documentos_estados_cargos_eliminar";
 
                 comandoSQL.Parameters.AddWithValue("@Id", id);
                 comandoSQL.Connection = conexionSQL;

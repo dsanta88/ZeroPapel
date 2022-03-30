@@ -46,10 +46,10 @@ namespace ZeroPapel.Server.Controllers
                 //Convierte a Bites
                 var bytesss = Convert.FromBase64String(model.Base64);
 
-                string documentoRuta = parametrosDA.ParametrosObtener(model.EmpresaId, -1, "DocumentoRuta").FirstOrDefault().Valor;
+                string documentoRuta = parametrosDA.ParametrosObtener(model.EmpresaId, -1, "DocumentoRuta").FirstOrDefault().Valor.Trim();
               
 
-                 string path = documentoRuta + @"/" + model.Nombre;
+                 string path = documentoRuta+@"/" + model.Nombre;
                 using (var imageFile = new FileStream(path, FileMode.Create))
                 {
                     imageFile.Write(bytesss, 0, bytesss.Length);

@@ -47,6 +47,26 @@ namespace ZeroPapel.Server.Controllers
         }
 
 
+        [HttpGet("[action]/{usuarioId}")]
+        public IActionResult Historico(int usuarioId)
+        {
+            Response response = new Response();
+            try
+            {
+                List<Documento> list = datos.DocumentosHistorico(usuarioId);
+                response.IsSuccessful = true;
+                response.Data = list;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                logDA.LogEventoIngresar(ex);
+            }
+
+            return Ok(response);
+        }
+
+
         [HttpPost("[action]")]
         public IActionResult guardar(Documento model)
         {
