@@ -18,13 +18,13 @@ namespace ZeroPapel.Server.Controllers
         LogEventosDA logDA = new LogEventosDA();
         Mensajes mensajes = new Mensajes();
 
-        [HttpGet("{documentoEstadoId}")]
-        public IActionResult Get(int documentoEstadoId)
+        [HttpGet("{documentoEstadoId}/{cargoId}")]
+        public IActionResult Get(int documentoEstadoId, int cargoId)
         {
             Response response = new Response();
             try
             {
-                List<DocumentoEstadoCargo> list = datos.DocumentosEstadosCargoObtener(documentoEstadoId);
+                List<DocumentoEstadoCargo> list = datos.DocumentosEstadosCargoObtener(documentoEstadoId, cargoId);
                 response.IsSuccessful = true;
                 response.Data = list;
             }
@@ -35,6 +35,8 @@ namespace ZeroPapel.Server.Controllers
 
             return Ok(response);
         }
+
+
 
 
         [HttpPost]

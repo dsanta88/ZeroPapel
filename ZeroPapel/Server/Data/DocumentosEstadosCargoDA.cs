@@ -21,7 +21,7 @@ namespace ZeroPapel.Server.Data
         {
             strConexionSQL = objJson.GetStrConexion();
         }
-        public List<DocumentoEstadoCargo> DocumentosEstadosCargoObtener(int documentoEstadoId)
+        public List<DocumentoEstadoCargo> DocumentosEstadosCargoObtener(int documentoEstadoId, int cargoId)
         {
             DataSet ds = new DataSet();
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
@@ -35,6 +35,7 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.CommandType = CommandType.StoredProcedure;
                 comandoSQL.CommandText = "sp_documentos_estados_cargos_obtener";
                 comandoSQL.Parameters.AddWithValue("@DocumentoEstadoId", documentoEstadoId);
+                comandoSQL.Parameters.AddWithValue("@CargoId", cargoId);
                 adaptadorSQL.SelectCommand = comandoSQL;
                 adaptadorSQL.Fill(ds);
 
@@ -47,6 +48,7 @@ namespace ZeroPapel.Server.Data
                             DocumentoEstadoCargo obj = new DocumentoEstadoCargo();
                             obj.Id = Convert.ToInt32(item["Id"].ToString());
                             obj.DocumentoEstadoId = Convert.ToInt32(item["DocumentoEstadoId"].ToString());
+                            obj.DocumentoEstadoNombre = item["DocumentoEstadoNombre"].ToString();
                             obj.CargoId = Convert.ToInt32(item["CargoId"].ToString());
                             obj.CargoNombre = item["CargoNombre"].ToString();              
                             lst.Add(obj);

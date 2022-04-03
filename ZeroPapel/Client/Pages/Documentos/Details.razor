@@ -17,11 +17,11 @@
 
 
 <div class="row alert bg-info">
-    <div class="row col-md-1">
-
-    </div>
     <div class="col-md-5">
         <h5> <b>REVISAR DOCUMENTO</b></h5>
+    </div>
+    <div class="col-md-5">
+        <h5> <b>DOCUMENTO NÚMERO</b>@model.DocumentoPrefijoNumero</h5>
     </div>
 </div>
 
@@ -52,42 +52,45 @@
     <div class="row">
         <div class="col-md-3">
             <b>Centro de costo</b>
-            <RadzenDropDown AllowClear="true"
-                            AllowFiltering="true"
-                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            @bind-Value="model.CentroCostoId"
-                            Multiple="false" Placeholder="[SELECCIONAR]"
-                            Data="@listCentrosCosto"
-                            TextProperty="Descripcion"
-                            ValueProperty="Id"
-                            Style="width:100%"
-                            Disabled="true" />
+            <MatStringField Style="width:100%" @bind-Value="@model.CentroCostoNombre" Disabled="true" />
+            @*<RadzenDropDown AllowClear="true"
+                AllowFiltering="true"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                @bind-Value="model.CentroCostoId"
+                Multiple="false" Placeholder="[SELECCIONAR]"
+                Data="@listCentrosCosto"
+                TextProperty="Descripcion"
+                ValueProperty="Id"
+                Style="width:100%"
+                Disabled="true" />*@
         </div>
         <div class="col-md-3">
             <b>Tipo documento</b>
-            <RadzenDropDown AllowClear="true"
-                            AllowFiltering="true"
-                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            @bind-Value="model.DocumentoTipoId"
-                            Multiple="false" Placeholder="[SELECCIONAR]"
-                            Data="@listDocumentosTipo"
-                            TextProperty="Nombre"
-                            ValueProperty="Id"
-                            Style="width:100%"
-                            Disabled="true" />
+            <MatStringField Style="width:100%" @bind-Value="@model.DocumentoTipoNombre" Disabled="true" />
+            @*<RadzenDropDown AllowClear="true"
+                AllowFiltering="true"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                @bind-Value="model.DocumentoTipoId"
+                Multiple="false" Placeholder="[SELECCIONAR]"
+                Data="@listDocumentosTipo"
+                TextProperty="Nombre"
+                ValueProperty="Id"
+                Style="width:100%"
+                Disabled="true" />*@
         </div>
         <div class="col-md-3">
             <b>Proveedor</b>
-            <RadzenDropDown AllowClear="true"
-                            AllowFiltering="true"
-                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            @bind-Value="model.ProveedorNit"
-                            Multiple="false" Placeholder="[SELECCIONAR]"
-                            Data="@listProveedores"
-                            TextProperty="RazonSocialSucursal"
-                            ValueProperty="Nit"
-                            Style="width:100%"
-                            Disabled="true" />
+            <MatStringField Style="width:100%" @bind-Value="@model.ProveedorNombre" Disabled="true" />
+            @*<RadzenDropDown AllowClear="true"
+                AllowFiltering="true"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                @bind-Value="model.ProveedorNit"
+                Multiple="false" Placeholder="[SELECCIONAR]"
+                Data="@listProveedores"
+                TextProperty="RazonSocialSucursal"
+                ValueProperty="Nit"
+                Style="width:100%"
+                Disabled="true" />*@
         </div>
         <div class="col-md-3">
             <b>Nit</b>
@@ -119,16 +122,17 @@
     <div class="row">
         <div class="col-md-3">
             <b>Moneda</b>
-            <RadzenDropDown AllowClear="true"
-                            AllowFiltering="true"
-                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            @bind-Value="model.MonedaId"
-                            Multiple="false" Placeholder="[SELECCIONAR]"
-                            Data="@listMonedaTipo"
-                            TextProperty="Moneda"
-                            ValueProperty="Id"
-                            Style="width:100%"
-                            Disabled="true" />
+            <MatStringField Style="width:100%" @bind-Value="@model.MonedaNombre" Disabled="true" />
+            @*<RadzenDropDown AllowClear="true"
+                AllowFiltering="true"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                @bind-Value="model.MonedaId"
+                Multiple="false" Placeholder="[SELECCIONAR]"
+                Data="@listMonedaTipo"
+                TextProperty="Moneda"
+                ValueProperty="Id"
+                Style="width:100%"
+                Disabled="true" />*@
         </div>
         <div class="col-md-3">
             <b>Valor</b>
@@ -152,36 +156,7 @@
         </div>
     </div>
     <br />
-    <div class="row">
-        <div class="col-md-3">
-            <b>Cambiar Estado</b>
-            <RadzenDropDown AllowClear="true"
-                            AllowFiltering="true"
-                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            @bind-Value="model.EstadoActualId"
-                            Multiple="false" Placeholder="[SELECCIONAR]"
-                            Data="@listDocumentosEstados"
-                            TextProperty="Nombre"
-                            ValueProperty="Id"
-                            Style="width:100%" />
-        </div>
-        @if (model.EstadoActualId == 2)
-        {
-            <div class="col-md-3">
-                <b>Usuario Traslado</b>
-                <RadzenDropDown AllowClear="true"
-                                AllowFiltering="true"
-                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                @bind-Value="model.TrasladoUsuarioId"
-                                Multiple="false"
-                                Placeholder="[SELECCIONAR]"
-                                Data="@listUsuarios"
-                                TextProperty="NombreCompleto"
-                                ValueProperty="Id"
-                                Style="width:100%" />
-            </div>
-        }
-    </div>
+
     <hr />
     <div class="row">
         <div class="col-md-1">
@@ -222,6 +197,37 @@
     </div>
     <hr />
     <div class="row">
+        <div class="col-md-3">
+            <b>Cambiar Estado</b>
+            <RadzenDropDown AllowClear="true"
+                            AllowFiltering="true"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            @bind-Value="model.EstadoActualId"
+                            Multiple="false" Placeholder="[SELECCIONAR]"
+                            Data="@listDocumentosEstadosCargo"
+                            TextProperty="DocumentoEstadoNombre"
+                            ValueProperty="DocumentoEstadoId"
+                            Style="width:100%" />
+        </div>
+        @if (model.EstadoActualId == 2)
+        {
+            <div class="col-md-3">
+                <b>Usuario Traslado</b>
+                <RadzenDropDown AllowClear="true"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                @bind-Value="model.TrasladoUsuarioId"
+                                Multiple="false"
+                                Placeholder="[SELECCIONAR]"
+                                Data="@listUsuarios"
+                                TextProperty="NombreCompleto"
+                                ValueProperty="Id"
+                                Style="width:100%" />
+            </div>
+        }
+    </div>
+    <hr />
+    <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-2">
             <MatThemeProvider Theme="@theme3">
@@ -256,11 +262,11 @@
     string status;
     bool visibleGuardar = true;
 
-    List<CentroCosto> listCentrosCosto = new List<CentroCosto>();
-    List<DocumentoTipo> listDocumentosTipo = new List<DocumentoTipo>();
-    List<Proveedor> listProveedores = new List<Proveedor>();
-    List<MonedaTipo> listMonedaTipo = new List<MonedaTipo>();
-    List<DocumentoEstado> listDocumentosEstados = new List<DocumentoEstado>();
+    //List<CentroCosto> listCentrosCosto = new List<CentroCosto>();
+    //List<DocumentoTipo> listDocumentosTipo = new List<DocumentoTipo>();
+    //List<Proveedor> listProveedores = new List<Proveedor>();
+    //List<MonedaTipo> listMonedaTipo = new List<MonedaTipo>();
+    List<DocumentoEstadoCargo> listDocumentosEstadosCargo = new List<DocumentoEstadoCargo>();
     List<DocumentoSeguimiento> listDtoSeguimiento = new List<DocumentoSeguimiento>();
     List<Usuario> listUsuarios = new List<Usuario>();
 
@@ -297,45 +303,44 @@
     protected async Task LoadData()
     {
 
-        //Centros Costo
-        response = await Http.GetFromJsonAsync<Response>($"api/centroscosto");
-        if (response.IsSuccessful)
-        {
-            listCentrosCosto = JsonConvert.DeserializeObject<List<CentroCosto>>(response.Data.ToString());
-        }
+        ////Centros Costo
+        //response = await Http.GetFromJsonAsync<Response>($"api/centroscosto");
+        //if (response.IsSuccessful)
+        //{
+        //    listCentrosCosto = JsonConvert.DeserializeObject<List<CentroCosto>>(response.Data.ToString());
+        //}
 
 
-        //Tipos de documento
-        response = await Http.GetFromJsonAsync<Response>($"api/documentostipos/{singleton.EmpresaId}/-1");
-        if (response.IsSuccessful)
-        {
-            listDocumentosTipo = JsonConvert.DeserializeObject<List<DocumentoTipo>>(response.Data.ToString());
-            listDocumentosTipo = listDocumentosTipo.Where(x => x.Estado == true).ToList();
-        }
+        ////Tipos de documento
+        //response = await Http.GetFromJsonAsync<Response>($"api/documentostipos/{singleton.EmpresaId}/-1");
+        //if (response.IsSuccessful)
+        //{
+        //    listDocumentosTipo = JsonConvert.DeserializeObject<List<DocumentoTipo>>(response.Data.ToString());
+        //    listDocumentosTipo = listDocumentosTipo.Where(x => x.Estado == true).ToList();
+        //}
 
 
-        ////Proveedores
-        response = await Http.GetFromJsonAsync<Response>($"api/Proveedores");
-        if (response.IsSuccessful)
-        {
-            listProveedores = JsonConvert.DeserializeObject<List<Proveedor>>(response.Data.ToString());
-        }
+        //////Proveedores
+        //response = await Http.GetFromJsonAsync<Response>($"api/Proveedores");
+        //if (response.IsSuccessful)
+        //{
+        //    listProveedores = JsonConvert.DeserializeObject<List<Proveedor>>(response.Data.ToString());
+        //}
 
 
-        //Menedas
-        response = await Http.GetFromJsonAsync<Response>($"api/monedatipos/{singleton.EmpresaId}/-1");
-        if (response.IsSuccessful)
-        {
-            listMonedaTipo = JsonConvert.DeserializeObject<List<MonedaTipo>>(response.Data.ToString());
-            listMonedaTipo.Where(x => x.Estado == true).ToList();
-        }
+        ////Menedas
+        //response = await Http.GetFromJsonAsync<Response>($"api/monedatipos/{singleton.EmpresaId}/-1");
+        //if (response.IsSuccessful)
+        //{
+        //    listMonedaTipo = JsonConvert.DeserializeObject<List<MonedaTipo>>(response.Data.ToString());
+        //    listMonedaTipo.Where(x => x.Estado == true).ToList();
+        //}
 
         //Eastados de documento
-        response = await Http.GetFromJsonAsync<Response>($"api/DocumentosEstados/{singleton.EmpresaId}/-1");
+        response = await Http.GetFromJsonAsync<Response>($"api/DocumentosEstadosCargos/-1/{singleton.CargoId}");
         if (response.IsSuccessful)
         {
-            listDocumentosEstados = JsonConvert.DeserializeObject<List<DocumentoEstado>>(response.Data.ToString());
-            listDocumentosEstados = listDocumentosEstados.Where(x => x.Estado == true).ToList();
+            listDocumentosEstadosCargo = JsonConvert.DeserializeObject<List<DocumentoEstadoCargo>>(response.Data.ToString());
         }
 
         ////Seguimiento Documentos
@@ -357,7 +362,7 @@
 
         if (Id > 0)
         {
-            response = await Http.GetFromJsonAsync<Response>($"api/documentos/{singleton.EmpresaId}/-1/{singleton.UsuarioId}");
+            response = await Http.GetFromJsonAsync<Response>($"api/documentos/Pendientes/{singleton.EmpresaId}/{Id}/{singleton.UsuarioId}");
             if (response.IsSuccessful)
             {
                 model = JsonConvert.DeserializeObject<List<Documento>>(response.Data.ToString()).FirstOrDefault();
@@ -393,7 +398,12 @@
             if (response.IsSuccessful)
             {
                 await NotificarResponable(model,seguimiento);
+                await js.InvokeAsync<string>("MensajeoK", "Información actualizada de forma correcta.");
                 navigationManager.NavigateTo("/indexdocumentos");
+            }
+            else
+            {
+                await js.InvokeAsync<string>("MensajeAlerta", response.Message);
             }
         }
         else

@@ -21,7 +21,7 @@ namespace ZeroPapel.Server.Data
         {
             strConexionSQL = objJson.GetStrConexion();
         }
-        public List<Documento> DocumentosObtener(int empresaId, int id,int usuarioId)
+        public List<Documento> DocumentosPendientesObtener(int empresaId, int id,int usuarioId)
         {
             DataSet ds = new DataSet();
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
@@ -33,7 +33,7 @@ namespace ZeroPapel.Server.Data
             {
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.CommandType = CommandType.StoredProcedure;
-                comandoSQL.CommandText = "sp_documentos_obtener";
+                comandoSQL.CommandText = "sp_documentos_pendientes_obtener";
                 comandoSQL.Parameters.AddWithValue("@EmpresaId", empresaId);
                 comandoSQL.Parameters.AddWithValue("@Id", id);
                 comandoSQL.Parameters.AddWithValue("@usuarioId", usuarioId);
@@ -101,7 +101,7 @@ namespace ZeroPapel.Server.Data
             return lst;
         }
 
-        public List<Documento> DocumentosHistorico(int usuarioId)
+        public List<Documento> DocumentosHistorico(int documentoId)
         {
             DataSet ds = new DataSet();
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
@@ -114,7 +114,7 @@ namespace ZeroPapel.Server.Data
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.CommandType = CommandType.StoredProcedure;
                 comandoSQL.CommandText = "sp_documentos_historico";
-                comandoSQL.Parameters.AddWithValue("@usuarioId", usuarioId);
+                comandoSQL.Parameters.AddWithValue("@DocumentoId", documentoId);
                 adaptadorSQL.SelectCommand = comandoSQL;
                 adaptadorSQL.Fill(ds);
 
@@ -211,6 +211,7 @@ namespace ZeroPapel.Server.Data
             }
             catch (Exception ex)
             {
+                DocumentosEliminar(model);
                 LogEventosIngresar(ex);
                 return false;
             }
@@ -266,17 +267,23 @@ namespace ZeroPapel.Server.Data
             return true;
         }
 
-        public bool DocumentosEliminar(int id)
+        public bool DocumentosEliminar(Documento model)
         {
             SqlConnection conexionSQL = new SqlConnection(strConexionSQL);
             SqlCommand comandoSQL = new SqlCommand();
 
             try
             {
+
                 comandoSQL.CommandType = CommandType.StoredProcedure;
                 comandoSQL.CommandText = "sp_documentos_eliminar";
-
-                comandoSQL.Parameters.AddWithValue("@Id", id);
+                comandoSQL.Parameters.AddWithValue("@CentroCostoId", model.CentroCostoId);
+                comandoSQL.Parameters.AddWithValue("@DocumentoTipoId", model.DocumentoTipoId);
+                comandoSQL.Parameters.AddWithValue("@ProveedorNit", model.ProveedorNit); 
+                comandoSQL.Parameters.AddWithValue("@DocumentoPrefijo", model.DocumentoPrefijo);
+                comandoSQL.Parameters.AddWithValue("@DocumentoNumero", model.DocumentoNumero);            
+                comandoSQL.Parameters.AddWithValue("@Valor", model.Valor);
+                comandoSQL.Parameters.AddWithValue("@UsuarioRegistroId", model.UsuarioRegistroId);
                 comandoSQL.Connection = conexionSQL;
                 comandoSQL.Connection.Open();
                 comandoSQL.ExecuteNonQuery();

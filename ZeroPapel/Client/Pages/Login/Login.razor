@@ -129,7 +129,7 @@
                         singleton.Email = user.Email;
                         singleton.EmpresaNombre = user.EmpresaNombre;
                         singleton.EmpresaLogo = user.EmpresaLogo;
-              
+                        singleton.CargoId = user.CargoId;
 
                         await RegistrarAuditoria(user);
                         navigationManager.NavigateTo("/index");

@@ -1,0 +1,278 @@
+﻿@page "/historicodetailsdocumentos"
+@page "/historicodetailsdocumentos/{Id:int}"
+@using ZeroPapel.Shared
+@using System.IO
+@using BlazorInputFile 
+@inject HttpClient Http
+@using MatBlazor
+@inject NavigationManager navigationManager
+@using Newtonsoft.Json;
+@inject ServicioSingleton singleton
+@inject IJSRuntime js
+@using System.Globalization;
+@inject IFileReaderService fileReaderService;
+
+
+
+
+
+<div class="row alert bg-info">
+    <div class="col-md-5">
+        <h5> <b>DETALLE DOCUMENTO</b></h5>
+    </div>
+    <div class="col-md-5">
+        <h5> <b>DOCUMENTO NÚMERO</b>@model.DocumentoPrefijoNumero</h5>
+    </div>
+</div>
+
+@if (msgError != null)
+{
+    <div class="row alert bg-danger">
+        <div class="row col-md-1">
+
+        </div>
+        <div class="col-md-10">
+            <MatThemeProvider>
+                <MatIcon Icon="cancel"> </MatIcon>   @msgError
+            </MatThemeProvider>
+        </div>
+    </div>
+}
+
+
+
+
+@if (!guardado)
+{
+<EditForm Model="@model">
+
+
+
+
+    <div class="row">
+        <div class="col-md-3">
+            <b>Centro de costo</b>
+            <MatStringField Style="width:100%" @bind-Value="@model.CentroCostoNombre" Disabled="true" />
+            @*<RadzenDropDown AllowClear="true"
+                AllowFiltering="true"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                @bind-Value="model.CentroCostoId"
+                Multiple="false" Placeholder="[SELECCIONAR]"
+                Data="@listCentrosCosto"
+                TextProperty="Descripcion"
+                ValueProperty="Id"
+                Style="width:100%"
+                Disabled="true" />*@
+        </div>
+        <div class="col-md-3">
+            <b>Tipo documento</b>
+            <MatStringField Style="width:100%" @bind-Value="@model.DocumentoTipoNombre" Disabled="true" />
+            @*<RadzenDropDown AllowClear="true"
+                AllowFiltering="true"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                @bind-Value="model.DocumentoTipoId"
+                Multiple="false" Placeholder="[SELECCIONAR]"
+                Data="@listDocumentosTipo"
+                TextProperty="Nombre"
+                ValueProperty="Id"
+                Style="width:100%"
+                Disabled="true" />*@
+        </div>
+        <div class="col-md-3">
+            <b>Proveedor</b>
+            <MatStringField Style="width:100%" @bind-Value="@model.ProveedorNombre" Disabled="true" />
+            @*<RadzenDropDown AllowClear="true"
+                AllowFiltering="true"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                @bind-Value="model.ProveedorNit"
+                Multiple="false" Placeholder="[SELECCIONAR]"
+                Data="@listProveedores"
+                TextProperty="RazonSocialSucursal"
+                ValueProperty="Nit"
+                Style="width:100%"
+                Disabled="true" />*@
+        </div>
+        <div class="col-md-3">
+            <b>Nit</b>
+            <MatStringField Style="width:100%" @bind-Value="@model.ProveedorNit" Disabled="true" />
+        </div>
+    </div>
+    <br />
+
+    <br />
+    <div class="row">
+        <div class="col-md-3">
+            <b>Fecha de recepción</b>
+            <RadzenDatePicker Style="width:100%" ShowTime="false" @bind-Value="@model.FechaRecepcion" HourFormat="12" DateFormat="d MMMM yyyy" Disabled="true" />
+        </div>
+        <div class="col-md-3">
+            <b>Documento</b>
+            <MatStringField @bind-Value="@model.DocumentoPrefijoNumero" Style="width:100%" Disabled="true"></MatStringField>
+        </div>
+        <div class="col-md-3">
+            <b>Fecha de expedición</b>
+            <RadzenDatePicker Style="width:100%" ShowTime="false" @bind-Value="@model.FechaExpedicion" HourFormat="12" DateFormat="d MMMM yyyy" Disabled="true" />
+        </div>
+        <div class="col-md-3">
+            <b>Fecha de vencimiento</b>
+            <RadzenDatePicker Style="width:100%" ShowTime="false" @bind-Value="@model.FechaVencimiento" HourFormat="12" DateFormat="d MMMM yyyy" Disabled="true" />
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-3">
+            <b>Moneda</b>
+            <MatStringField Style="width:100%" @bind-Value="@model.MonedaNombre" Disabled="true" />
+            @*<RadzenDropDown AllowClear="true"
+                AllowFiltering="true"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                @bind-Value="model.MonedaId"
+                Multiple="false" Placeholder="[SELECCIONAR]"
+                Data="@listMonedaTipo"
+                TextProperty="Moneda"
+                ValueProperty="Id"
+                Style="width:100%"
+                Disabled="true" />*@
+        </div>
+        <div class="col-md-3">
+            <b>Valor</b>
+            <MatTextField @bind-Value="@model.Valor" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+        <div class="col-md-3">
+            <b>Responsable Actual</b>
+            <MatStringField @bind-Value="@model.ResponsableActualCargo" Style="width:100%" Disabled="true"></MatStringField>
+        </div>
+        <div class="col-md-3">
+            <b>Estado Actual</b>
+            <MatStringField @bind-Value="@model.EstadoActual" Style="width:100%" Disabled="true"></MatStringField>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-12">
+            <b>Observación</b>
+            <MatTextField @bind-Value="@model.Observacion" TextArea="true" Style="width:100%" Disabled="true"></MatTextField>
+        </div>
+    </div>
+    <br />
+
+    <hr />
+    <div class="row">
+        <div class="col-md-1">
+            <b>Factura</b>
+        </div>
+
+        <div class="col-md-10">
+            <embed src="@model.ArchivoRuta" style="width:100%;height:500px" controls />
+            <br />
+        </div>
+    </div>
+    @if (model.AnexoRuta != null)
+    {
+        <br />
+        <div class="row">
+            <div class="col-md-1">
+                <b>Anexo</b>
+            </div>
+
+            <div class="col-md-10">
+                <embed src="@model.AnexoRuta" style="width:100%;height:500px" controls />
+                <br />
+            </div>
+        </div>
+    }
+    <hr />
+    <div class="row">
+        <div class="col-md-11">
+            <div class="row alert bg-info">
+                <b>Seguimiento</b>
+            </div>
+            @foreach (DocumentoSeguimiento item in listDtoSeguimiento)
+            {
+                <RadzenIcon Icon="check_circle" /> @(item.FechaRegistroStr + "--------" + item.UsuarioNombre) <label>@item.EstadoDescripcion</label> @(" el documento." )
+                <br />
+            }
+        </div>
+    </div>
+    
+    <hr />
+    <div class="row">
+        <div class="col-md-2">
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="arrow_back" Text="Retornar" Size="ButtonSize.Medium" Click="@Retornar">
+            </RadzenButton>
+        </div>
+    </div>
+
+</EditForm>
+}
+
+<br />
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+    string msgError = null;
+    string msgNota = null;
+    bool guardado = false;
+    ElementReference inputElement;
+    string status;
+    bool visibleGuardar = true;
+    List<DocumentoSeguimiento> listDtoSeguimiento = new List<DocumentoSeguimiento>();
+
+
+    public Documento model = new Documento();
+    Response response = new Response();
+    public bool stateUploadFile = false;
+    public bool selectDocument = false;
+
+
+    MatTheme theme1 = new MatTheme()
+    {
+        Primary = "green",
+    };
+    MatTheme theme3 = new MatTheme()
+    {
+        Primary = "red",
+    };
+
+    MatTheme theme2 = new MatTheme()
+    {
+        Primary = "blue",
+    };
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+
+    protected async Task LoadData()
+    {
+
+        ////Seguimiento Documentos
+        response = await Http.GetFromJsonAsync<Response>($"api/DocumentosSeguimiento/{Id}");
+        if (response.IsSuccessful)
+        {
+            listDtoSeguimiento = JsonConvert.DeserializeObject<List<DocumentoSeguimiento>>(response.Data.ToString());
+        }
+
+
+        if (Id > 0)
+        {
+            response = await Http.GetFromJsonAsync<Response>($"api/documentos/Historico/{Id}");
+            if (response.IsSuccessful)
+            {
+                model = JsonConvert.DeserializeObject<List<Documento>>(response.Data.ToString()).FirstOrDefault();
+            }
+        }
+    }
+
+
+
+    public void Retornar()
+    {
+        navigationManager.NavigateTo($"/historicodocumento");
+    }
+}

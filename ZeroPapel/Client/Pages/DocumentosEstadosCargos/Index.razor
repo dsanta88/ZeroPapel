@@ -20,7 +20,7 @@
 
 <div class="row">
     <div class="col-md-4">
-        <a>Seleccionar item</a>
+        <a>Seleccionar cargo</a>
         <RadzenDropDown AllowClear="true"
                         AllowFiltering="true"
                         FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
@@ -100,7 +100,7 @@
         }
 
 
-        response = await Http.GetFromJsonAsync<Response>($"api/DocumentosEstadosCargos/{Id}");
+        response = await Http.GetFromJsonAsync<Response>($"api/DocumentosEstadosCargos/{Id}/-1");
         if (response.IsSuccessful)
         {
             list = JsonConvert.DeserializeObject<List<DocumentoEstadoCargo>>(response.Data.ToString());

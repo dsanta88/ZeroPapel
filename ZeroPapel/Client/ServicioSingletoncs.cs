@@ -24,6 +24,8 @@ namespace ZeroPapel.Client
 
         public int JefeUsuarioId { get; set; }
 
+        public int CargoId { get; set; }
+
         public ServicioSingleton()
         {
             UsuarioId = 0;
@@ -31,6 +33,7 @@ namespace ZeroPapel.Client
             Email = "";
             Rol = "";
             JefeUsuarioId = 0;
+            CargoId = 0;
         }
     }
 }

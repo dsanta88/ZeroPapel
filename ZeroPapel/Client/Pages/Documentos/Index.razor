@@ -35,12 +35,6 @@
                 </RadzenButton>
             </Template>
         </RadzenGridColumn>
-        <RadzenGridColumn TItem="Documento" Context="Documento" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="50%">
-            <Template Context="Documento">
-                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="open" Text="Abrir" Size="ButtonSize.Medium" Click="@((args) =>AbrirArchivo(Documento.ArchivoRuta))">
-                </RadzenButton>
-            </Template>
-        </RadzenGridColumn>
     </Columns>
 </RadzenGrid>
 
@@ -59,7 +53,7 @@
 
     protected async Task LoadData()
     {
-        response = await Http.GetFromJsonAsync<Response>($"api/documentos/{singleton.EmpresaId}/-1/{singleton.UsuarioId}");
+        response = await Http.GetFromJsonAsync<Response>($"api/documentos/Pendientes/{singleton.EmpresaId}/-1/{singleton.UsuarioId}");
         if (response.IsSuccessful)
         {
             list = JsonConvert.DeserializeObject<List<Documento>>(response.Data.ToString());
@@ -70,12 +64,6 @@
     public void Detalle(int id)
     {
         navigationManager.NavigateTo("/detailsdocumentos/" + id);
-    }
-
-
-    public async Task AbrirArchivo(string url)
-    {
-        await js.InvokeAsync<object>("open", url, "_blank");
     }
 
 }

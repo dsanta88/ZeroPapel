@@ -26,18 +26,13 @@
         <RadzenGridColumn TItem="Documento" Property="FechaExpedicionStr" Title="FechaExpedicion" Width="30%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Documento" Property="FechaVencimientoStr" Title="FechaVencimiento" Width="30%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Documento" Property="Valor" Title="Valor" Width="30%"></RadzenGridColumn>
-        <RadzenGridColumn TItem="Documento" Property="ResponsableActualCargo" Title="ResponsableActual" Width="60%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Documento" Property="JerarquiaOrden" Title="JerarquiaOrden" Width="60%"></RadzenGridColumn>
+        <RadzenGridColumn TItem="Documento" Property="ResponsableActualCargo" Title="ResponsableActual" Width="70%"></RadzenGridColumn>
         <RadzenGridColumn TItem="Documento" Property="EstadoActual" Title="EstadoActual" Width="40%"></RadzenGridColumn>
 
         <RadzenGridColumn TItem="Documento" Context="Documento" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="50%">
             <Template Context="Documento">
-                <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="edit" Text="Revisar" Size="ButtonSize.Medium" Click="@((args) =>Detalle(Documento.Id))">
-                </RadzenButton>
-            </Template>
-        </RadzenGridColumn>
-        <RadzenGridColumn TItem="Documento" Context="Documento" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="50%">
-            <Template Context="Documento">
-                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="open" Text="Abrir" Size="ButtonSize.Medium" Click="@((args) =>AbrirArchivo(Documento.ArchivoRuta))">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" Text="Detalle" Size="ButtonSize.Medium" Click="@((args) =>Detalle(Documento.Id))">
                 </RadzenButton>
             </Template>
         </RadzenGridColumn>
@@ -59,7 +54,7 @@
 
     protected async Task LoadData()
     {
-        response = await Http.GetFromJsonAsync<Response>($"api/documentos/Historico/{singleton.UsuarioId}");
+        response = await Http.GetFromJsonAsync<Response>($"api/documentos/Historico/-1");
         if (response.IsSuccessful)
         {
             list = JsonConvert.DeserializeObject<List<Documento>>(response.Data.ToString());
@@ -69,7 +64,7 @@
 
     public void Detalle(int id)
     {
-        navigationManager.NavigateTo("/detailsdocumentos/" + id);
+        navigationManager.NavigateTo("/historicodetailsdocumentos/" + id);
     }
 
 

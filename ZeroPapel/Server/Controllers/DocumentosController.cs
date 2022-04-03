@@ -27,13 +27,13 @@ namespace ZeroPapel.Server.Controllers
         }
 
 
-        [HttpGet("{empresaId}/{id}/{usuarioId}")]
-        public IActionResult Get(int empresaId, int id, int usuarioId)
+        [HttpGet("[action]/{empresaId}/{id}/{usuarioId}")]
+        public IActionResult Pendientes(int empresaId, int id, int usuarioId)
          {
             Response response = new Response();
             try
             {
-                List<Documento> list = datos.DocumentosObtener(empresaId, id, usuarioId);
+                List<Documento> list = datos.DocumentosPendientesObtener(empresaId, id, usuarioId);
                 response.IsSuccessful = true;
                 response.Data = list;
             }
@@ -47,13 +47,13 @@ namespace ZeroPapel.Server.Controllers
         }
 
 
-        [HttpGet("[action]/{usuarioId}")]
-        public IActionResult Historico(int usuarioId)
+        [HttpGet("[action]/{documentoId}")]
+        public IActionResult Historico(int documentoId)
         {
             Response response = new Response();
             try
             {
-                List<Documento> list = datos.DocumentosHistorico(usuarioId);
+                List<Documento> list = datos.DocumentosHistorico(documentoId);
                 response.IsSuccessful = true;
                 response.Data = list;
             }
@@ -117,29 +117,29 @@ namespace ZeroPapel.Server.Controllers
             return Ok(response);
         }
 
-        [HttpDelete("{Id}")]
-        public IActionResult Delete(int id)
-        {
-            Response response = new Response();
-            try
-            {
-                if (datos.DocumentosEliminar(id))
-                {
-                    response.IsSuccessful = true;
-                }
-                else
-                {
-                    response.IsSuccessful = false;
-                    response.Message = mensajes.msgErrorEliminar();
-                }
-            }
-            catch (Exception ex)
-            {
-                response.Message = ex.Message;
-                logDA.LogEventoIngresar(ex);
-            }
+        //[HttpDelete("{Id}")]
+        //public IActionResult Delete(int id)
+        //{
+        //    Response response = new Response();
+        //    try
+        //    {
+        //        if (datos.DocumentosEliminar(id))
+        //        {
+        //            response.IsSuccessful = true;
+        //        }
+        //        else
+        //        {
+        //            response.IsSuccessful = false;
+        //            response.Message = mensajes.msgErrorEliminar();
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        response.Message = ex.Message;
+        //        logDA.LogEventoIngresar(ex);
+        //    }
 
-            return Ok(response);
-        }
+        //    return Ok(response);
+        //}
     }
 }
