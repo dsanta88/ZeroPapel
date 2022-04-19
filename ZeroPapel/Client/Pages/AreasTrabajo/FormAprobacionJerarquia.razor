@@ -1,5 +1,5 @@
 ﻿@page "/formaprobacionjeraquia"
-@page "/formaprobacionjeraquia/{DocumentoTipoId:int}/{Id}"
+@page "/formaprobacionjeraquia/{AreaTrabajoId:int}/{Id}"
 @using ZeroPapel.Shared
 @inject HttpClient Http
 @using MatBlazor
@@ -18,7 +18,7 @@
     </div>
 
     <div class="col-md-5">
-        <h5> <b>TIPO DE DOCUMENTO:@documentoTipoNombre </b></h5>
+        <h5> <b>ÁREA DE TRABAJO:@areaTrabajoNombre </b></h5>
     </div>
 </div>
 
@@ -106,12 +106,12 @@
 
 
     [Parameter] public int Id { get; set; }
-    [Parameter] public int DocumentoTipoId { get; set; }
+    [Parameter] public int AreaTrabajoId { get; set; }
 
     string titulo = "";
-    string documentoTipoNombre = "";
+    string areaTrabajoNombre = "";
     string msgError = null;
-    public DocumentoAprobacionJerarquia model = new DocumentoAprobacionJerarquia();
+    public AreaTrabajoAprobacionJerarquia model = new AreaTrabajoAprobacionJerarquia();
     Response response = new Response();
     bool visibleGuardar = true;
     public int ordenInicial = 0;
@@ -132,11 +132,11 @@
         var qs = navigationManager.ToAbsoluteUri(navigationManager.Uri).Query;
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(qs);
 
-        if (query.TryGetValue("DocumentoTipoId", out var item))
+        if (query.TryGetValue("AreaTrabajoId", out var item))
         {
             if (Int32.TryParse(item, out var id))
             {
-                this.DocumentoTipoId = id;
+                this.AreaTrabajoId = id;
             }
         }
 
@@ -174,7 +174,7 @@
         {
             Validacion val = new Validacion();
             val.Mensaje = "ok";
-            response = await Http.GetFromJsonAsync<Response>($"api/DocumentosAprobacionJerarquia/DocumentosAprobacionJerarquiaValidarOrden/{singleton.EmpresaId}/{model.DocumentoTipoId}/{model.JerarquiaOrden}");
+            response = await Http.GetFromJsonAsync<Response>($"api/AreasTrabajoAprobacionJerarquia/AreasTrabajoAprobacionJerarquiaValidarOrden/{singleton.EmpresaId}/{AreaTrabajoId}/{model.JerarquiaOrden}");
             if (response.IsSuccessful)
             {
                 val = JsonConvert.DeserializeObject<Validacion>(response.Data.ToString());
@@ -190,17 +190,17 @@
         if (msgError == null)
         {
 
-            model.DocumentoTipoId = DocumentoTipoId;
+            model.AreaTrabajoId = AreaTrabajoId;
             if (Id > 0)
             {
                 accion = "Editar";
-                var result = await Http.PostAsJsonAsync<DocumentoAprobacionJerarquia>($"api/DocumentosAprobacionJerarquia/edit", model);
+                var result = await Http.PostAsJsonAsync<AreaTrabajoAprobacionJerarquia>($"api/AreasTrabajoAprobacionJerarquia/edit", model);
                 response = result.Content.ReadFromJsonAsync<Response>().Result;
             }
             else
             {
                 accion = "Ingresar";
-                var result = await Http.PostAsJsonAsync<DocumentoAprobacionJerarquia>($"api/DocumentosAprobacionJerarquia", model);
+                var result = await Http.PostAsJsonAsync<AreaTrabajoAprobacionJerarquia>($"api/AreasTrabajoAprobacionJerarquia", model);
                 response = result.Content.ReadFromJsonAsync<Response>().Result;
             }
 
@@ -208,7 +208,7 @@
             if (response.IsSuccessful)
             {
                 await RegistrarAuditoria(model, accion);
-                navigationManager.NavigateTo("/indexaprobacionjeraquia/" + DocumentoTipoId);
+                navigationManager.NavigateTo("/indexaprobacionjeraquia/" + AreaTrabajoId);
             }
             else
             {
@@ -225,28 +225,28 @@
 
     protected async Task Cancelar()
     {
-        navigationManager.NavigateTo("/indexaprobacionjeraquia/" + DocumentoTipoId);
+        navigationManager.NavigateTo("/indexaprobacionjeraquia/" + AreaTrabajoId);
     }
 
 
     protected async Task LoadData()
     {
-        List<DocumentoAprobacionJerarquia> lstDtosAprob = new List<DocumentoAprobacionJerarquia>();
-        response = await Http.GetFromJsonAsync<Response>($"api/DocumentosAprobacionJerarquia/{singleton.EmpresaId}/-1/{DocumentoTipoId}");
+        List<AreaTrabajoAprobacionJerarquia> lstDtosAprob = new List<AreaTrabajoAprobacionJerarquia>();
+        response = await Http.GetFromJsonAsync<Response>($"api/AreasTrabajoAprobacionJerarquia/{singleton.EmpresaId}/-1/{AreaTrabajoId}");
         if (response.IsSuccessful)
         {
-            lstDtosAprob = JsonConvert.DeserializeObject<List<DocumentoAprobacionJerarquia>>(response.Data.ToString());
+            lstDtosAprob = JsonConvert.DeserializeObject<List<AreaTrabajoAprobacionJerarquia>>(response.Data.ToString());
         }
 
 
-        model = new DocumentoAprobacionJerarquia();
+        model = new AreaTrabajoAprobacionJerarquia();
         if (Id > 0)
         {
             titulo = "EDITAR APROBACIÓN JERAQUIA";
-            response = await Http.GetFromJsonAsync<Response>($"api/DocumentosAprobacionJerarquia/{singleton.EmpresaId}/{Id}/{DocumentoTipoId}");
+            response = await Http.GetFromJsonAsync<Response>($"api/AreasTrabajoAprobacionJerarquia/{singleton.EmpresaId}/{Id}/{AreaTrabajoId}");
             if (response.IsSuccessful)
             {
-                model = JsonConvert.DeserializeObject<List<DocumentoAprobacionJerarquia>>(response.Data.ToString()).FirstOrDefault();
+                model = JsonConvert.DeserializeObject<List<AreaTrabajoAprobacionJerarquia>>(response.Data.ToString()).FirstOrDefault();
                 ordenInicial = model.JerarquiaOrden;
             }
         }
@@ -267,12 +267,12 @@
 
 
 
-        //Documentos Tipos
-        response = await Http.GetFromJsonAsync<Response>($"api/documentostipos/{singleton.EmpresaId}/{DocumentoTipoId}");
+        //Areas de ttrabajo
+        response = await Http.GetFromJsonAsync<Response>($"api/areastrabajo/{singleton.EmpresaId}/{AreaTrabajoId}");
         if (response.IsSuccessful)
         {
             List<DocumentoTipo> lstDtoTipo = JsonConvert.DeserializeObject<List<DocumentoTipo>>(response.Data.ToString());
-            documentoTipoNombre = lstDtoTipo.FirstOrDefault().Nombre;
+            areaTrabajoNombre = lstDtoTipo.FirstOrDefault().Nombre;
         }
 
 
@@ -283,7 +283,7 @@
             listCargos = JsonConvert.DeserializeObject<List<Cargo>>(response.Data.ToString());
             listCargos = listCargos.Where(x => x.Estado == true).ToList();
 
-            foreach (DocumentoAprobacionJerarquia item in lstDtosAprob)
+            foreach (AreaTrabajoAprobacionJerarquia item in lstDtosAprob)
             {
                 listCargos.RemoveAll(x => x.Id == item.CargoId && x.Id != model.CargoId);
             }
@@ -291,9 +291,9 @@
 
     }
 
-   
 
-    protected async Task RegistrarAuditoria(DocumentoAprobacionJerarquia model, string accion)
+
+    protected async Task RegistrarAuditoria(AreaTrabajoAprobacionJerarquia model, string accion)
     {
         string accionDescipcion = "";
 
@@ -323,14 +323,14 @@
         Auditoria auditoria = new Auditoria();
         auditoria.EmpresaId = singleton.EmpresaId;
         auditoria.Accion = accion;
-        auditoria.Tabla = "DocumentosAprobacionJerarquia";
+        auditoria.Tabla = "AreasTrabajoAprobacionJerarquia";
         auditoria.Usuario = singleton.Email;
         auditoria.UsuarioNombre = singleton.UsuarioNombre;
         auditoria.UsuarioRegistroId = singleton.UsuarioId;
 
         string cargo = listCargos.Where(x => x.Id == model.CargoId).FirstOrDefault().Nombre;
 
-        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " el siguiente Documento Aprobacion Jerarquia:----" + "TipoDocumento: " + documentoTipoNombre + "----Id: " + model.Id + "----JeraquiaOrden:" + model.JerarquiaOrden + "----Cargo: " + cargo + "----Estado:" + model.EstadoDescripcion;
+        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " el siguiente Área de Trabajo Aprobacion Jerarquia:----" + "AreaTrabajo: " + areaTrabajoNombre + "----Id: " + model.Id + "----JeraquiaOrden:" + model.JerarquiaOrden + "----Cargo: " + cargo + "----Estado:" + model.EstadoDescripcion;
 
         await Http.PostAsJsonAsync<Auditoria>($"api/auditoria", auditoria);
 

@@ -1,5 +1,5 @@
 ﻿@page "/deleteaprobacionjeraquia"
-@page "/deleteaprobacionjeraquia/{DocumentoTipoId:int}/{Id}"
+@page "/deleteaprobacionjeraquia/{AreaTrabajoId:int}/{Id}"
 @using ZeroPapel.Shared
 @inject HttpClient Http
 @using MatBlazor
@@ -17,7 +17,7 @@
     </div>
 
     <div class="col-md-5">
-        <h5> <b>TIPO DE DOCUMENTO:@documentoTipoNombre </b></h5>
+        <h5> <b>ÁREA DE TRABAJO:@areaTrabajoNombre </b></h5>
     </div>
 </div>
 
@@ -90,13 +90,13 @@
 @code {
 
     [Parameter] public int Id { get; set; }
-    [Parameter] public int DocumentoTipoId { get; set; }
+    [Parameter] public int AreaTrabajoId { get; set; }
 
     string titulo = "";
-    string documentoTipoNombre = "";
+    string areaTrabajoNombre = "";
 
 
-    public DocumentoAprobacionJerarquia model = new DocumentoAprobacionJerarquia();
+    public AreaTrabajoAprobacionJerarquia model = new AreaTrabajoAprobacionJerarquia();
     Response response = new Response();
     string msgError = null;
 
@@ -117,11 +117,11 @@
         var qs = navigationManager.ToAbsoluteUri(navigationManager.Uri).Query;
         var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(qs);
 
-        if (query.TryGetValue("DocumentoTipoId", out var item))
+        if (query.TryGetValue("AreaTrabajoId", out var item))
         {
             if (Int32.TryParse(item, out var id))
             {
-                this.DocumentoTipoId = id;
+                this.AreaTrabajoId = id;
             }
         }
 
@@ -140,14 +140,14 @@
     protected async Task DeleteItem()
     {
 
-        var result = await Http.DeleteAsync($"api/DocumentosAprobacionJerarquia/{Id}");
+        var result = await Http.DeleteAsync($"api/AreasTrabajoAprobacionJerarquia/{Id}");
         response = result.Content.ReadFromJsonAsync<Response>().Result;
 
 
         if (response.IsSuccessful)
         {
             await RegistrarAuditoria(model, "eliminar");
-            navigationManager.NavigateTo("/indexaprobacionjeraquia/" + DocumentoTipoId);
+            navigationManager.NavigateTo("/indexaprobacionjeraquia/" + AreaTrabajoId);
         }
         else
         {
@@ -158,7 +158,7 @@
 
     protected async Task Cancelar()
     {
-        navigationManager.NavigateTo("/indexaprobacionjeraquia/" + DocumentoTipoId);
+        navigationManager.NavigateTo("/indexaprobacionjeraquia/" + AreaTrabajoId);
     }
 
 
@@ -167,16 +167,16 @@
         if (Id > 0)
         {
 
-            response = await Http.GetFromJsonAsync<Response>($"api/DocumentosAprobacionJerarquia/{singleton.EmpresaId}/{Id}/{DocumentoTipoId}");
+            response = await Http.GetFromJsonAsync<Response>($"api/AreasTrabajoAprobacionJerarquia/{singleton.EmpresaId}/{Id}/{AreaTrabajoId}");
             if (response.IsSuccessful)
             {
-                model = JsonConvert.DeserializeObject<List<DocumentoAprobacionJerarquia>>(response.Data.ToString()).FirstOrDefault();
-                documentoTipoNombre = model.DocumentoTipoNombre;
+                model = JsonConvert.DeserializeObject<List<AreaTrabajoAprobacionJerarquia>>(response.Data.ToString()).FirstOrDefault();
+                areaTrabajoNombre = model.AreaTrabajoNombre;
             }
         }
     }
 
-    protected async Task RegistrarAuditoria(DocumentoAprobacionJerarquia model, string accion)
+    protected async Task RegistrarAuditoria(AreaTrabajoAprobacionJerarquia model, string accion)
     {
         string accionDescipcion = "";
 
@@ -207,12 +207,12 @@
         Auditoria auditoria = new Auditoria();
         auditoria.EmpresaId = singleton.EmpresaId;
         auditoria.Accion = accion;
-        auditoria.Tabla = "DocumentosAprobacionJerarquia";
+        auditoria.Tabla = "AreasTrabajoAprobacionJerarquia";
         auditoria.Usuario = singleton.Email;
         auditoria.UsuarioNombre = singleton.UsuarioNombre;
         auditoria.UsuarioRegistroId = singleton.UsuarioId;
 
-        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " el siguiente Documento Aprobacion Jerarquia:----" + "TipoDocumento: " + documentoTipoNombre +"----Id: " + model.Id + "----JeraquiaOrden:" + model.JerarquiaOrden + "----Cargo: " + model.CargoNombre +  "----Estado:" + model.EstadoDescripcion;
+        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " el siguiente Area de Trabajo Aprobacion Jerarquia:----" + "AreaTrabajo: " + areaTrabajoNombre +"----Id: " + model.Id + "----JeraquiaOrden:" + model.JerarquiaOrden + "----Cargo: " + model.CargoNombre +  "----Estado:" + model.EstadoDescripcion;
         await Http.PostAsJsonAsync<Auditoria>($"api/auditoria", auditoria);
 
     }

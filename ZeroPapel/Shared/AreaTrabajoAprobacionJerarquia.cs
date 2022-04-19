@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace ZeroPapel.Shared
 {
-   public class DocumentoAprobacionJerarquia
+   public class AreaTrabajoAprobacionJerarquia
     {
         public int Id { get; set; }
         public int JerarquiaOrden { get; set; }
         public int EmpresaId { get; set; }
-        public int DocumentoTipoId { get; set; }
-        public string DocumentoTipoNombre { get; set; }
+        public int AreaTrabajoId { get; set; }
+        public string AreaTrabajoNombre { get; set; }
         public int CargoId { get; set; }
         public string CargoNombre { get; set; }
         public bool ApruebaValorDocumento { get; set; }

@@ -422,7 +422,7 @@
         response = await Http.GetFromJsonAsync<Response>($"api/DocumentosAprobacionJerarquia/{singleton.EmpresaId}/-1/{model.DocumentoTipoId}");
         if (response.IsSuccessful)
         {
-            cargoId = JsonConvert.DeserializeObject<List<DocumentoAprobacionJerarquia>>(response.Data.ToString()).Where(x => x.JerarquiaOrden== seguimiento.JerarquiaOrden).FirstOrDefault().CargoId;
+            cargoId = JsonConvert.DeserializeObject<List<AreaTrabajoAprobacionJerarquia>>(response.Data.ToString()).Where(x => x.JerarquiaOrden== seguimiento.JerarquiaOrden).FirstOrDefault().CargoId;
         }
 
 

@@ -1,4 +1,4 @@
-﻿@page "/deletedocumentostipos/{Id:int}"
+﻿@page "/deleteareastrabajo/{Id:int}"
 @using ZeroPapel.Shared
 @inject HttpClient Http
 @using MatBlazor
@@ -12,7 +12,7 @@
 
     </div>
     <div class="col-md-5">
-        <h5> <b>ELIMINAR TIPO DE DOCUMENTO</b></h5>
+        <h5> <b>ELIMINAR ÁREA DE TRABAJO</b></h5>
     </div>
 </div>
 
@@ -23,7 +23,7 @@
     </div>
     <div class="col-md-5">
         <MatThemeProvider>
-            <MatIcon Icon="warning"> </MatIcon> Esta  seguro de eliminar el tipo de documento?
+            <MatIcon Icon="warning"> </MatIcon> Esta  seguro de eliminar el área de trabajo?
         </MatThemeProvider>
     </div>
 </div>
@@ -46,21 +46,12 @@
 
 <EditForm Model="@model" OnValidSubmit="DeleteItem">
 
-
-    <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-5">
-            <MatStringField @bind-Value="@model.AreaTrabajoNombre" Label="Área de trabajo" Style="width:100%" Disabled="true"></MatStringField>
-        </div>
-    </div>
-    <br />
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-5">
             <MatStringField @bind-Value="@model.Nombre" Label="Descripción" Style="width:100%" Disabled="true"></MatStringField>
         </div>
     </div>
-
     <br />
     <div class="row">
         <div class="col-md-1"></div>
@@ -90,7 +81,7 @@
     [Parameter]
     public int Id { get; set; }
 
-    public DocumentoTipo model = new DocumentoTipo();
+    public AreaTrabajo model = new AreaTrabajo();
     Response response = new Response();
     string msgError = null;
 
@@ -112,13 +103,14 @@
     protected async Task DeleteItem()
     {
 
-        var result = await Http.DeleteAsync($"api/documentostipos/{Id}");
+        var result = await Http.DeleteAsync($"api/areastrabajo/{Id}");
         response = result.Content.ReadFromJsonAsync<Response>().Result;
 
 
         if (response.IsSuccessful)
         {
-            navigationManager.NavigateTo("/indexdocumentostipos/" + model.AreaTrabajoId);
+            await RegistrarAuditoria(model, "Elimió");
+            navigationManager.NavigateTo("/indexareastrabajo");
         }
         else
         {
@@ -129,7 +121,7 @@
 
     protected async Task Cancelar()
     {
-        navigationManager.NavigateTo("/indexdocumentostipos/"+model.AreaTrabajoId);
+        navigationManager.NavigateTo("/indexareastrabajo");
     }
 
 
@@ -137,11 +129,52 @@
     {
         if (Id > 0)
         {
-            response = await Http.GetFromJsonAsync<Response>($"api/documentostipos/{singleton.EmpresaId}/{Id}/-1");
+            response = await Http.GetFromJsonAsync<Response>($"api/areastrabajo/{singleton.EmpresaId}/{Id}");
             if (response.IsSuccessful)
             {
-                model = JsonConvert.DeserializeObject<List<DocumentoTipo>>(response.Data.ToString()).FirstOrDefault();
+                model = JsonConvert.DeserializeObject<List<AreaTrabajo>>(response.Data.ToString()).FirstOrDefault();
             }
         }
+    }
+
+    protected async Task RegistrarAuditoria(AreaTrabajo model, string accion)
+    {
+        string accionDescipcion = "";
+
+        if (accion.ToLower() == "editar")
+        {
+            accionDescipcion = "edito";
+        }
+        else if (accion.ToLower() == "ingresar")
+        {
+            accionDescipcion = "ingreso";
+        }
+        else if (accion.ToLower() == "eliminar")
+        {
+            accionDescipcion = "elimino";
+        }
+
+
+        if (model.Estado)
+        {
+            model.EstadoDescripcion = "ACTIVO";
+        }
+        else
+        {
+            model.EstadoDescripcion = "INACTIVO";
+        }
+
+        Auditoria auditoria = new Auditoria();
+        auditoria.EmpresaId = singleton.EmpresaId;
+        auditoria.Accion = accion;
+        auditoria.Tabla = "AreasTrabajo";
+        auditoria.Usuario = singleton.Email;
+        auditoria.UsuarioNombre = singleton.UsuarioNombre;
+        auditoria.UsuarioRegistroId = singleton.UsuarioId;
+
+        auditoria.Mensaje = "El usuario " + auditoria.UsuarioNombre + " " + accionDescipcion + " la siguiente Área de trabajo:----" + "Id: " + model.Id + "----Código:" + model.Codigo + "----Nombre: " + model.Nombre + "----Estado:" + model.EstadoDescripcion;
+
+        await Http.PostAsJsonAsync<Auditoria>($"api/auditoria", auditoria);
+
     }
 }

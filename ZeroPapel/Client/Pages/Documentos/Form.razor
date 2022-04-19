@@ -235,11 +235,6 @@
         model.FechaExpedicionStr = model.FechaExpedicion.ToString("d MMMM yyyy", CultureInfo.CreateSpecificCulture("es-MX"));
         model.FechaVencimientoStr = model.FechaVencimiento.ToString("d MMMM yyyy", CultureInfo.CreateSpecificCulture("es-MX"));
 
-        tipoDto = listDocumentosTipo.Where(x => x.Id == model.DocumentoTipoId).FirstOrDefault().Nombre;
-        centroCosto = listCentrosCosto.Where(x => x.Id == model.CentroCostoId).FirstOrDefault().Descripcion;
-        moneda = listMonedaTipo.Where(x => x.Id == model.MonedaId).FirstOrDefault().Moneda;
-        proveedor = listProveedores.Where(x => x.Nit == model.ProveedorNit).FirstOrDefault().RazonSocialSucursal;
-
 
         msgError = null;
         model.UsuarioRegistroId = singleton.UsuarioId;
@@ -294,6 +289,11 @@
 
         if (msgError == null)
         {
+            tipoDto = listDocumentosTipo.Where(x => x.Id == model.DocumentoTipoId).FirstOrDefault().Nombre;
+            centroCosto = listCentrosCosto.Where(x => x.Id == model.CentroCostoId).FirstOrDefault().Descripcion;
+            moneda = listMonedaTipo.Where(x => x.Id == model.MonedaId).FirstOrDefault().Moneda;
+            proveedor = listProveedores.Where(x => x.Nit == model.ProveedorNit).FirstOrDefault().RazonSocialSucursal;
+
             string formato = "pdf";
             string aux = DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + DateTime.Now.Hour.ToString() + DateTime.Now.Minute.ToString() + DateTime.Now.Second.ToString() + "." + formato;
             string nombreFact = "F-"+model.ProveedorNit + "-" + aux;
@@ -478,7 +478,7 @@
         response = await Http.GetFromJsonAsync<Response>($"api/DocumentosAprobacionJerarquia/{singleton.EmpresaId}/-1/{model.DocumentoTipoId}");
         if (response.IsSuccessful)
         {
-            cargoId = JsonConvert.DeserializeObject<List<DocumentoAprobacionJerarquia>>(response.Data.ToString()).OrderBy(x => x.JerarquiaOrden).First().CargoId;
+            cargoId = JsonConvert.DeserializeObject<List<AreaTrabajoAprobacionJerarquia>>(response.Data.ToString()).OrderBy(x => x.JerarquiaOrden).First().CargoId;
         }
 
 

@@ -7,24 +7,23 @@ using System.Threading.Tasks;
 using ZeroPapel.Server.Data;
 using ZeroPapel.Shared;
 
-
 namespace ZeroPapel.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DocumentosAprobacionJerarquiaController : ControllerBase
+    public class AreasTrabajoController : ControllerBase
     {
-        DocumentosAprobacionJerarquiaDA datos = new DocumentosAprobacionJerarquiaDA();
+        AreasTrabajoDA datos = new AreasTrabajoDA();
         LogEventosDA logDA = new LogEventosDA();
         Mensajes mensajes = new Mensajes();
 
-        [HttpGet("{empresaId}/{id}/{documentoTipoId}")]
-        public IActionResult Get(int empresaId, int id, int documentoTipoId)
+        [HttpGet("{empresaId}/{id}")]
+        public IActionResult Get(int empresaId, int id)
         {
             Response response = new Response();
             try
             {
-                List<DocumentoAprobacionJerarquia> list = datos.DocumentosAprobacionJerarquiaObtener(empresaId, id, documentoTipoId);
+                List<AreaTrabajo> list = datos.AreasTrabajoObtener(empresaId, id);
                 response.IsSuccessful = true;
                 response.Data = list;
             }
@@ -39,12 +38,12 @@ namespace ZeroPapel.Server.Controllers
 
 
         [HttpPost]
-        public IActionResult Add(DocumentoAprobacionJerarquia model)
+        public IActionResult Add(AreaTrabajo model)
         {
             Response response = new Response();
             try
             {
-                if (datos.DocumentosAprobacionJerarquiaIngresar(model))
+                if (datos.AreasTrabajoIngresar(model))
                 {
                     response.IsSuccessful = true;
                 }
@@ -64,12 +63,12 @@ namespace ZeroPapel.Server.Controllers
         }
 
         [HttpPost("[action]")]
-        public IActionResult Edit(DocumentoAprobacionJerarquia model)
+        public IActionResult Edit(AreaTrabajo model)
         {
             Response response = new Response();
             try
             {
-                if (datos.DocumentosAprobacionJerarquiaEditar(model))
+                if (datos.AreasTrabajosEditar(model))
                 {
                     response.IsSuccessful = true;
                 }
@@ -94,7 +93,7 @@ namespace ZeroPapel.Server.Controllers
             Response response = new Response();
             try
             {
-                if (datos.DocumentosAprobacionJerarquiaEliminar(id))
+                if (datos.AreasTrabajoEliminar(id))
                 {
                     response.IsSuccessful = true;
                 }
@@ -114,13 +113,13 @@ namespace ZeroPapel.Server.Controllers
         }
 
 
-        [HttpGet("[action]/{empresaId}/{documentoTipoId}/{jeraquiaOrden}")]
-        public IActionResult DocumentosAprobacionJerarquiaValidarOrden(int empresaId,int documentoTipoId, int jeraquiaOrden)
+        [HttpGet("[action]/{empresaId}/{codigo}")]
+        public IActionResult AreasTrabajoValidarCodigo(int empresaId, int codigo)
         {
             Response response = new Response();
             try
             {
-                Validacion valid = datos.DocumentosAprobacionJerarquiaValidarOrden(empresaId, documentoTipoId, jeraquiaOrden);
+                Validacion valid = datos.AreasTrabajoValidarCodigo(empresaId, codigo);
                 response.IsSuccessful = true;
                 response.Data = valid;
             }
@@ -133,3 +132,4 @@ namespace ZeroPapel.Server.Controllers
         }
     }
 }
+

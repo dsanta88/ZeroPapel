@@ -1,5 +1,5 @@
 ﻿@page "/formdocumentostipos"
-@page "/formdocumentostipos/{Id:int}"
+@page "/formdocumentostipos/{AreaTrabajoId:int}/{Id}"
 @using ZeroPapel.Shared
 @inject HttpClient Http
 @using MatBlazor
@@ -15,6 +15,9 @@
     </div>
     <div class="col-md-5">
         <h5> <b>@titulo</b></h5>
+    </div>
+    <div class="col-md-5">
+        <h5> <b>ÁREA DE TRABAJO:</b> @areTrabajoNombre</h5>
     </div>
 </div>
 
@@ -36,13 +39,6 @@
 
 <EditForm Model="@model" OnValidSubmit="Save">
 
-
-    <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-5">
-            <MatTextField @bind-Value="@model.Codigo" Label="Código" Style="width:30%" Required="true"></MatTextField>
-        </div>
-    </div>
 
     <br />
     <div class="row">
@@ -86,9 +82,12 @@
 <br />
 @code {
 
-    [Parameter]
-    public int Id { get; set; }
+    [Parameter] public int Id { get; set; }
+    [Parameter] public int AreaTrabajoId { get; set; }
+
+
     string titulo = "";
+    string areTrabajoNombre = "";
     string msgError = null;
     public DocumentoTipo model = new DocumentoTipo();
     Response response = new Response();
@@ -107,6 +106,25 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var qs = navigationManager.ToAbsoluteUri(navigationManager.Uri).Query;
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(qs);
+
+        if (query.TryGetValue("AreaTrabajoId", out var item))
+        {
+            if (Int32.TryParse(item, out var id))
+            {
+                this.AreaTrabajoId = id;
+            }
+        }
+
+        if (query.TryGetValue("Id", out var id_str))
+        {
+            if (Int32.TryParse(id_str, out var id))
+            {
+                this.Id = id;
+            }
+        }
+
         await LoadData();
     }
 
@@ -115,35 +133,15 @@
         visibleGuardar = false;
         msgError = null;
         model.EmpresaId = singleton.EmpresaId;
+        model.AreaTrabajoId = AreaTrabajoId;
         model.Nombre = model.Nombre.ToUpper();
 
-        if (model.Codigo <= 0)
-        {
-            msgError = "El código debe ser mayor a cero.";
-        }
 
-        if (codigoInicial != model.Codigo && msgError == null)
-        {
-
-            Validacion val = new Validacion();
-            val.Mensaje = "ok";
-            response = await Http.GetFromJsonAsync<Response>($"api/DocumentosTipos/DocumentosTiposValidarCodigo/{singleton.EmpresaId}/{model.Codigo}");
-            if (response.IsSuccessful)
-            {
-                val = JsonConvert.DeserializeObject<Validacion>(response.Data.ToString());
-            }
-
-            if (val.Mensaje.ToLower() != "ok")
-            {
-                msgError = val.Mensaje;
-            }
-
-        }
 
         if (msgError == null)
         {
 
-            if (Id != 0)
+            if (Id > 0)
             {
 
                 var result = await Http.PostAsJsonAsync<DocumentoTipo>($"api/documentostipos/Edit", model);
@@ -158,7 +156,7 @@
 
             if (response.IsSuccessful)
             {
-                navigationManager.NavigateTo("/indexdocumentostipos");
+                navigationManager.NavigateTo("/indexdocumentostipos/" + AreaTrabajoId);
             }
             else
             {
@@ -175,7 +173,7 @@
 
     protected async Task Cancelar()
     {
-        navigationManager.NavigateTo("/indexdocumentostipos");
+        navigationManager.NavigateTo("/indexdocumentostipos/"+AreaTrabajoId);
     }
 
 
@@ -183,30 +181,32 @@
     {
 
         model = new DocumentoTipo();
+
+        if (AreaTrabajoId > 0)
+        {
+            response = await Http.GetFromJsonAsync<Response>($"api/areastrabajo/{singleton.EmpresaId}/{AreaTrabajoId}");
+            if (response.IsSuccessful)
+            {
+                areTrabajoNombre = JsonConvert.DeserializeObject<List<AreaTrabajo>>(response.Data.ToString()).FirstOrDefault().Nombre;
+            }
+        }
+
+
         if (Id > 0)
         {
             titulo = "EDITAR TIPO DE DOCUMENTO";
-            response = await Http.GetFromJsonAsync<Response>($"api/documentostipos/{singleton.EmpresaId}/{Id}");
+            response = await Http.GetFromJsonAsync<Response>($"api/documentostipos/{singleton.EmpresaId}/{Id}/{AreaTrabajoId}");
             if (response.IsSuccessful)
             {
                 model = JsonConvert.DeserializeObject<List<DocumentoTipo>>(response.Data.ToString()).FirstOrDefault();
-                codigoInicial = model.Codigo;
             }
         }
         else
         {
-            response = await Http.GetFromJsonAsync<Response>($"api/documentostipos/{singleton.EmpresaId}/-1");
+            response = await Http.GetFromJsonAsync<Response>($"api/documentostipos/{singleton.EmpresaId}/-1/{AreaTrabajoId}");
             if (response.IsSuccessful)
             {
                 List<DocumentoTipo> lstDtosTipo = JsonConvert.DeserializeObject<List<DocumentoTipo>>(response.Data.ToString());
-                if (lstDtosTipo.Count() > 0)
-                {
-                    model.Codigo = lstDtosTipo.Max(x => x.Codigo) + 1;
-                }
-                else
-                {
-                    model.Codigo = 1;
-                }
             }
             model.Estado = true;
             titulo = "NUEVO TIPO DE DOCUMENTO";

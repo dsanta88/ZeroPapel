@@ -1,4 +1,5 @@
 ﻿@page "/indexdocumentostipos"
+@page "/indexdocumentostipos/{AreaTrabajoId:int}"
 @using ZeroPapel.Shared
 @inject HttpClient Http
 @using MatBlazor
@@ -10,6 +11,9 @@
 <div class="row alert bg-info">
     <div class="col-md-5">
         <h5> <b>TIPOS DE DOCUMENTOS</b></h5>
+    </div>
+    <div class="col-md-5">
+        <h5> <b>ÁREA DE TRABAJO:</b> @model.Nombre</h5>
     </div>
 </div>
 
@@ -23,7 +27,6 @@
             AllowSorting="true" Data="@list" TItem="DocumentoTipo" ColumnWidth="200px">
     <Columns>
 
-        <RadzenGridColumn TItem="DocumentoTipo" Property="Codigo" Title="Codigo" Width="30%"></RadzenGridColumn>
         <RadzenGridColumn TItem="DocumentoTipo" Property="Nombre" Title="Nombre" Width="100%"></RadzenGridColumn>
         <RadzenGridColumn TItem="DocumentoTipo" Property="EstadoDescripcion" Title="Estado" Width="100%"></RadzenGridColumn>
 
@@ -34,15 +37,14 @@
                 </RadzenButton>
             </Template>
         </RadzenGridColumn>
+
+
         <RadzenGridColumn TItem="DocumentoTipo" Context="DocumentoTipo" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100%">
             <Template Context="DocumentoTipo">
-
-                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="lock" Text="Aprobación" Size="ButtonSize.Medium" Click="@((args) =>AprobacionJerarquia(DocumentoTipo.Id))">
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="cancel" Text="Eliminar" Size="ButtonSize.Medium" Click="@((args) =>Delete(DocumentoTipo.Id))">
                 </RadzenButton>
             </Template>
         </RadzenGridColumn>
-
-
     </Columns>
 </RadzenGrid>
 
@@ -52,9 +54,11 @@
 
 @code {
 
-
+    [Parameter] public int AreaTrabajoId { get; set; }
     List<DocumentoTipo> list;
     Response response = new Response();
+    public AreaTrabajo model = new AreaTrabajo();
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -63,7 +67,19 @@
 
     protected async Task LoadData()
     {
-        response = await Http.GetFromJsonAsync<Response>($"api/documentostipos/{singleton.EmpresaId}/-1");
+        model = new AreaTrabajo();
+        if (AreaTrabajoId > 0)
+        {
+            response = await Http.GetFromJsonAsync<Response>($"api/areastrabajo/{singleton.EmpresaId}/{AreaTrabajoId}");
+            if (response.IsSuccessful)
+            {
+                model = JsonConvert.DeserializeObject<List<AreaTrabajo>>(response.Data.ToString()).FirstOrDefault();
+            }
+        }
+
+
+
+        response = await Http.GetFromJsonAsync<Response>($"api/documentostipos/{singleton.EmpresaId}/-1/{AreaTrabajoId}");
         if (response.IsSuccessful)
         {
             list = JsonConvert.DeserializeObject<List<DocumentoTipo>>(response.Data.ToString());
@@ -72,15 +88,16 @@
     }
 
 
+
     public void Add()
     {
-        navigationManager.NavigateTo("/formdocumentostipos");
+        navigationManager.NavigateTo("/formdocumentostipos?AreaTrabajoId=" + AreaTrabajoId.ToString() + "&&Id=-1");
     }
 
 
     public void Edit(int id)
     {
-        navigationManager.NavigateTo("/formdocumentostipos/" + id);
+        navigationManager.NavigateTo("/formdocumentostipos?AreaTrabajoId=" + AreaTrabajoId.ToString() + "&&Id=" + id);
     }
 
 
@@ -91,11 +108,4 @@
         navigationManager.NavigateTo("/deletedocumentostipos/" + id);
     }
 
-
-    public void AprobacionJerarquia(int id)
-    {
-        navigationManager.NavigateTo("/indexaprobacionjeraquia/" + id);
-    }
-
-    
 }
